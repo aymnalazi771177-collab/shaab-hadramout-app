@@ -1842,7 +1842,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (activeTab && activeTab.getAttribute('data-player-cat') === 'staff') renderPlayers('staff');
     }
     function applyClubMatches(rows) {
-        if (!Array.isArray(rows) || !rows.length) return;
+        if (!Array.isArray(rows)) return;
         const upcoming = [], results = [];
         rows.forEach(item => {
             const homeClub = Number(item.is_home) !== 0;
@@ -1856,13 +1856,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 id:Number(item.id), round:item.competition || 'مباريات النادي',
                 home, away, date:clubDate(item.match_date), time:item.match_time || '',
                 stadium:item.venue || '', isHome:homeClub,
-                notes:item.notes || '', opponentLogo:item.opponent_logo_url || ''
+                notes:item.notes || '', opponentLogo:item.opponent_logo_url || '',
+                homeLogo:item.home_logo_url || '', status:item.status || 'upcoming'
             };
             if (item.status === 'finished') results.push({...common, score, scorers:item.notes || ''});
             else if (item.status !== 'cancelled') upcoming.push(common);
         });
         MATCHES_UPCOMING = upcoming;
         MATCHES_RESULTS = results;
+        const banner = document.getElementById('matchBannerCard');
+        if (banner) {
+            const match = upcoming[0] || results[0];
+            if (match) {
+                const finished = !upcoming.length;
+                const safeText = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+                const safeUrl = value => {
+                    const url = String(value || '').trim();
+                    return /^(https?:\/\/|\/api\/media\/)/i.test(url) ? url : '';
+                };
+                const teamBlock = (name, logo, side) => {
+                    const src = safeUrl(logo);
+                    return `<div class="team team-${side}">
+                        <div class="team-logo-container"><div class="team-logo-img">${src ? `<img src="${safeText(src)}" alt="${safeText(name)}" class="official-logo-img">` : '<i class="fas fa-shield-halved"></i>'}</div></div>
+                        <span class="team-name">${safeText(name)}</span>
+                    </div>`;
+                };
+                const homeName = match.home, awayName = match.away;
+                const homeLogo = match.isHome ? match.homeLogo : match.opponentLogo;
+                const awayLogo = match.isHome ? match.opponentLogo : match.homeLogo;
+                banner.querySelector('.match-header span').textContent = finished ? 'انتهى اللقاء' : 'المباراة القادمة';
+                banner.querySelector('.match-header i').className = finished ? 'fas fa-flag-checkered' : 'fas fa-calendar-alt';
+                banner.querySelector('.match-content').innerHTML = `
+                    <div class="league-name">${safeText(match.round)}</div>
+                    <div class="match-teams">
+                        ${teamBlock(awayName, awayLogo, 'away')}
+                        <div class="match-info-center">
+                            <span class="${finished ? 'score-badge' : 'vs-text'}">${finished ? safeText(match.score || '—') : 'VS'}</span>
+                            <div class="match-date"><i class="far fa-calendar-alt"></i><span>${safeText(match.date)}</span></div>
+                            ${!finished && match.time ? `<div class="match-time"><i class="far fa-clock"></i><span>${safeText(match.time)}</span></div>` : ''}
+                        </div>
+                        ${teamBlock(homeName, homeLogo, 'home')}
+                    </div>`;
+            }
+        }
         renderMatches('upcoming');
         const tab = document.querySelector('[data-match-tab].active');
         renderMatches(tab ? tab.getAttribute('data-match-tab') : 'upcoming');

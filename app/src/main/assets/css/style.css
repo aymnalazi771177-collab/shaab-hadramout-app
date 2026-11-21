@@ -1392,9 +1392,13 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 
 .stories-scroll-container {
     display: flex;
-    gap: 14px;
-    padding: 4px 16px 6px;
-    overflow-x: auto;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 4px 8px 6px;
+    overflow-x: hidden;
     overflow-y: visible;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
@@ -1407,16 +1411,18 @@ input:checked + .slider.round:before { transform: translateX(20px); }
     align-items: center;
     gap: 6px;
     cursor: pointer;
-    flex-shrink: 0;
-    width: 70px;
+    flex: 0 1 70px;
+    min-width: 0;
+    width: min(70px, 20%);
     transition: var(--transition);
 }
 .story-circle-item:active { transform: scale(0.92); }
 
 /* The Animated Instagram/Reels Gradient Ring */
 .story-avatar-ring {
-    width: 66px;
-    height: 66px;
+    width: min(66px, 100%);
+    aspect-ratio: 1 / 1;
+    height: auto;
     border-radius: 50%;
     padding: 2.5px;
     background: linear-gradient(45deg, #FFD700, #DB1E24, #B5121B, #FF3038, #FFD700);

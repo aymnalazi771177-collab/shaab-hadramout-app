@@ -1856,7 +1856,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 id:Number(item.id), round:item.competition || 'مباريات النادي',
                 home, away, date:clubDate(item.match_date), time:item.match_time || '',
                 stadium:item.venue || '', isHome:homeClub,
-                notes:item.notes || '', opponentLogo:item.opponent_logo_url || '',
+                notes:item.notes || '', opponent:item.opponent || 'المنافس', opponentLogo:item.opponent_logo_url || '',
                 homeLogo:item.home_logo_url || '', status:item.status || 'upcoming'
             };
             if (item.status === 'finished') results.push({...common, score, scorers:item.notes || ''});
@@ -1881,21 +1881,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="team-name">${safeText(name)}</span>
                     </div>`;
                 };
-                const homeName = match.home, awayName = match.away;
-                const homeLogo = match.isHome ? match.homeLogo : match.opponentLogo;
-                const awayLogo = match.isHome ? match.opponentLogo : match.homeLogo;
+                const clubName = 'شعب حضرموت';
+                const opponentName = match.opponent || 'المنافس';
+                const clubLogo = match.isHome ? match.homeLogo : match.opponentLogo;
+                const opponentLogo = match.isHome ? match.opponentLogo : match.homeLogo;
                 banner.querySelector('.match-header span').textContent = finished ? 'انتهى اللقاء' : 'المباراة القادمة';
                 banner.querySelector('.match-header i').className = finished ? 'fas fa-flag-checkered' : 'fas fa-calendar-alt';
                 banner.querySelector('.match-content').innerHTML = `
                     <div class="league-name">${safeText(match.round)}</div>
                     <div class="match-teams">
-                        ${teamBlock(awayName, awayLogo, 'away')}
+                        ${teamBlock(clubName, clubLogo, 'club')}
                         <div class="match-info-center">
                             <span class="${finished ? 'score-badge' : 'vs-text'}">${finished ? safeText(match.score || '—') : 'VS'}</span>
                             <div class="match-date"><i class="far fa-calendar-alt"></i><span>${safeText(match.date)}</span></div>
                             ${!finished && match.time ? `<div class="match-time"><i class="far fa-clock"></i><span>${safeText(match.time)}</span></div>` : ''}
                         </div>
-                        ${teamBlock(homeName, homeLogo, 'home')}
+                        ${teamBlock(opponentName, opponentLogo, 'opponent')}
                     </div>`;
             }
         }
@@ -2050,6 +2051,60 @@ document.addEventListener('DOMContentLoaded', function() {
             catch (error) { console.warn('CMS section load failed: ' + job[0], error); }
         }));
     }
+    // Native-style pull down refresh: reload current CMS data without leaving the screen.
+    function setupPullToRefresh() {
+        let startY = 0, pulling = false, refreshing = false;
+        const threshold = 82;
+        const indicator = document.createElement('div');
+        indicator.id = 'pullRefreshIndicator';
+        indicator.innerHTML = '<i class="fas fa-arrow-down"></i><span>اسحب للتحديث</span>';
+        document.body.appendChild(indicator);
+        const setState = (state, label, icon) => {
+            indicator.className = state;
+            indicator.innerHTML = '<i class="fas ' + icon + '"></i><span>' + label + '</span>';
+        };
+        document.addEventListener('touchstart', event => {
+            if (refreshing || event.touches.length !== 1) return;
+            const atTop = window.scrollY <= 0 && document.documentElement.scrollTop <= 0 && document.body.scrollTop <= 0;
+            if (!atTop) return;
+            startY = event.touches[0].clientY;
+            pulling = true;
+        }, {passive:true});
+        document.addEventListener('touchmove', event => {
+            if (!pulling || refreshing || !event.touches.length) return;
+            const distance = event.touches[0].clientY - startY;
+            if (distance <= 0) { indicator.style.transform = 'translate(-50%, -120%)'; return; }
+            if (distance > 8) {
+                const progress = Math.min(distance, threshold);
+                indicator.style.transform = 'translate(-50%, ' + Math.max(-8, -58 + progress * 0.62) + 'px)';
+                if (distance >= threshold) setState('ready', 'اترك للتحديث', 'fa-rotate');
+                else setState('pulling', 'اسحب للتحديث', 'fa-arrow-down');
+            }
+        }, {passive:true});
+        document.addEventListener('touchend', async event => {
+            if (!pulling || refreshing) return;
+            pulling = false;
+            const endY = event.changedTouches && event.changedTouches[0] ? event.changedTouches[0].clientY : startY;
+            if (endY - startY < threshold) {
+                indicator.style.transform = 'translate(-50%, -120%)';
+                return;
+            }
+            refreshing = true;
+            indicator.style.transform = 'translate(-50%, 10px)';
+            setState('refreshing', 'جارٍ تحديث بيانات النادي...', 'fa-spinner fa-spin');
+            try {
+                await Promise.allSettled([loadAllClubContent(), loadClubReels()]);
+                setState('done', 'تم تحديث البيانات', 'fa-check');
+            } finally {
+                refreshing = false;
+                setTimeout(() => {
+                    indicator.style.transform = 'translate(-50%, -120%)';
+                    setTimeout(() => setState('', 'اسحب للتحديث', 'fa-arrow-down'), 250);
+                }, 900);
+            }
+        }, {passive:true});
+    }
+    setupPullToRefresh();
     loadAllClubContent();
 
 });

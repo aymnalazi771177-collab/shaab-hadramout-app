@@ -1,0 +1,22 @@
+{
+  "name": "نادي شعب حضرموت",
+  "short_name": "شعب حضرموت",
+  "description": "التطبيق الرسمي لنادي شعب حضرموت الرياضي الثقافي بالمكلا",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#8B1A2B",
+  "theme_color": "#C41E3A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

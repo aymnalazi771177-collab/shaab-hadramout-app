@@ -478,9 +478,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('storiesScrollContainer');
         if (!container) return;
 
-        // Only populate if empty (otherwise keep fast pre-rendered HTML)
+        // Show exactly five Reels on the home screen; keep the full data for the viewer.
         if (!container.children || container.children.length === 0) {
-            container.innerHTML = STORIES_DATA.map((s, idx) => `
+            container.innerHTML = STORIES_DATA.slice(0, 5).map((s, idx) => `
                 <div class="story-circle-item" data-story-idx="${idx}">
                     <div class="story-avatar-ring">
                         <div class="story-avatar-img-wrap">
@@ -493,6 +493,8 @@ document.addEventListener('DOMContentLoaded', function() {
             `).join('');
         }
 
+        // Also trim any pre-rendered sixth item without deleting it from CMS or STORIES_DATA.
+        Array.from(container.children).slice(5).forEach(item => item.remove());
         bindStoryEvents();
     }
     renderStories();

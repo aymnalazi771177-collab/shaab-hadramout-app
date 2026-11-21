@@ -368,12 +368,28 @@
                 <div class="header-action-icon"><i class="fas fa-trophy"></i></div>
             </div>
             <div class="page-scroll-content">
-                <div class="category-tabs">
+                <div class="category-tabs matches-main-tabs">
                     <button class="cat-tab active" data-match-tab="upcoming">المباريات القادمة</button>
-                    <button class="cat-tab" data-match-tab="results">النتائج السابقة</button>
+                    <button class="cat-tab" data-match-tab="results">النتائج</button>
+                    <button class="cat-tab" data-match-tab="standings">جدول الترتيب</button>
                 </div>
                 <div class="matches-list" id="matchesContainer">
                     <!-- Populated dynamically via JS -->
+                </div>
+                <div class="matches-standings-panel" id="matchesStandingsPanel" hidden>
+                    <div class="standings-season-bar">
+                        <span>جدول ترتيب الدوري</span>
+                    </div>
+                    <div class="standings-table-card">
+                        <table class="standings-table">
+                            <thead><tr><th>#</th><th class="text-right">الفريق</th><th>ل</th><th>ف</th><th>ت</th><th>خ</th><th>+/-</th><th>ن</th></tr></thead>
+                            <tbody id="matchesStandingsBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="standings-legend">
+                        <div class="legend-item"><span class="legend-color gold-badge"></span> المركز 1-2: مرحلة التتويج والبطولات الخارجية</div>
+                        <div class="legend-item"><span class="legend-color red-badge"></span> المركز الأخير: خطر الهبوط للدرجة الثانية</div>
+                    </div>
                 </div>
             </div>
         </section>

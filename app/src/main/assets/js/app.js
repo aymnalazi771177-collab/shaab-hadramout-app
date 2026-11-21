@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    const STORIES_DATA = [
+    let STORIES_DATA = [
         {
             id: 1,
             title: 'تدريبات اليوم',
@@ -453,6 +453,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     renderStories();
 
+    // Load club-managed Reels from the club CMS; keep the built-in preview stories as fallback.
+    async function loadClubReels() {
+        try {
+            const response = await fetch('https://shaab-hadramout.pages.dev/api/reels?refresh=' + Date.now(), { cache: 'no-store' });
+            const payload = await response.json();
+            if (!response.ok || !payload.success || !Array.isArray(payload.reels) || !payload.reels.length) return;
+            STORIES_DATA = payload.reels.map((item, index) => ({
+                id: item.id,
+                title: item.title || ('يوميات النوارس ' + (index + 1)),
+                badge: item.media_type === 'video' ? 'فيديو ▶' : 'صورة',
+                time: item.created_at ? 'من يوميات النادي' : 'جديد',
+                thumb: item.thumbnail_url || item.media_url,
+                fullImg: item.media_url,
+                mediaUrl: item.media_url,
+                mediaType: item.media_type || 'image',
+                caption: item.caption || item.title || ''
+            }));
+            const container = document.getElementById('storiesScrollContainer');
+            if (container) {
+                container.innerHTML = '';
+                renderStories();
+            }
+        } catch (error) {
+            console.warn('Club Reels API unavailable; using built-in stories.', error);
+        }
+    }
+    loadClubReels();
+
     let currentStoryIdx = 0;
     let storyTimer = null;
     let storyProgressPct = 0;
@@ -487,7 +515,33 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        document.getElementById('storyMediaImage').src = s.fullImg;
+        const storyImage = document.getElementById('storyMediaImage');
+        const storyVideo = document.getElementById('storyMediaVideo');
+        const mediaUrl = s.mediaUrl || s.fullImg;
+        if (storyVideo) {
+            storyVideo.pause();
+            storyVideo.onended = null;
+        }
+        if (s.mediaType === 'video' && storyVideo) {
+            storyImage.style.display = 'none';
+            storyVideo.style.display = 'block';
+            storyVideo.src = mediaUrl;
+            storyVideo.load();
+            storyVideo.play().catch(() => {});
+            storyVideo.onended = () => {
+                if (currentStoryIdx + 1 < STORIES_DATA.length) loadStory(currentStoryIdx + 1);
+                else closeStoryViewer();
+            };
+        } else {
+            if (storyVideo) {
+                storyVideo.pause();
+                storyVideo.removeAttribute('src');
+                storyVideo.load();
+                storyVideo.style.display = 'none';
+            }
+            storyImage.style.display = 'block';
+            storyImage.src = mediaUrl;
+        }
         document.getElementById('storyCaptionText').textContent = s.caption;
         document.getElementById('storyTimeLabel').textContent = s.time;
 
@@ -506,7 +560,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        startStoryProgress(idx);
+        if (s.mediaType === 'video') {
+            clearInterval(storyTimer);
+            const fill = document.getElementById(`storySegFill_${idx}`);
+            if (fill) fill.style.width = '0%';
+        } else {
+            startStoryProgress(idx);
+        }
     }
 
     function startStoryProgress(idx) {
@@ -531,6 +591,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function closeStoryViewer() {
         clearInterval(storyTimer);
+        const video = document.getElementById('storyMediaVideo');
+        if (video) { video.pause(); video.onended = null; }
         const modal = document.getElementById('storyViewerModal');
         if (modal) modal.classList.remove('active');
     }

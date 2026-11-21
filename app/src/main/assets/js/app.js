@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <h4>${player.name}</h4>
                     <p class="player-hero-pos">${player.posName}</p>
                     <div class="player-meta-tags">
-                        <span class="player-meta-tag"><i class="fas fa-flag"></i> يمني</span>
+                        <span class="player-meta-tag"><i class="fas fa-flag"></i> ${player.nationality || 'يمني'}</span>
                         <span class="player-meta-tag"><i class="fas fa-calendar"></i> ${player.age} سنة</span>
                         <span class="player-meta-tag"><i class="fas fa-ruler-vertical"></i> ${player.height}</span>
                     </div>
@@ -743,11 +743,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span>${player.pos === 'gk' ? 'كلين شيت' : 'الأهداف'}</span>
                 </div>
                 <div class="player-stat-bubble">
-                    <strong>${player.pos === 'gk' ? player.saves : (player.assists || player.tackles || 14)}</strong>
+                    <strong>${player.pos === 'gk' ? (player.saves || 0) : (player.assists || player.tackles || 0)}</strong>
                     <span>${player.pos === 'gk' ? 'تصديات' : (player.assists !== undefined ? 'تمريرات حاسمة' : 'افتكاكات')}</span>
                 </div>
                 <div class="player-stat-bubble">
-                    <strong>90%</strong>
+                    <strong>${player.readiness ?? 90}%</strong>
                     <span>الجاهزية</span>
                 </div>
             </div>
@@ -1825,8 +1825,13 @@ document.addEventListener('DOMContentLoaded', function() {
             else players.push({
                 id:Number(item.id), name:item.name || '', num:item.number || '—', pos:p,
                 posName:posNames[item.position] || item.position || 'لاعب',
-                age:'—', height:'—', weight:'—', matches:0, cleanSheets:0, goals:0,
-                assists:0, tackles:0, cheers:0, bio:'لاعب في صفوف نادي شعب حضرموت.',
+                nationality:item.nationality || 'يمني',
+                age:Number(item.age) || '—', height:item.height || '—', weight:'—',
+                matches:Number(item.matches) || 0, cleanSheets:Number(item.clean_sheets) || 0,
+                saves:Number(item.saves) || 0, goals:Number(item.goals) || 0,
+                assists:Number(item.assists) || 0, tackles:Number(item.tackles) || 0,
+                readiness:Number.isFinite(Number(item.readiness)) ? Number(item.readiness) : 90,
+                cheers:0, bio:item.bio || 'لاعب في صفوف نادي شعب حضرموت.',
                 img:item.image_url || ''
             });
         });

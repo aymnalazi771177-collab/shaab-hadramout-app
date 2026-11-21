@@ -523,6 +523,8 @@ document.addEventListener('DOMContentLoaded', function() {
             storyVideo.onended = null;
         }
         if (s.mediaType === 'video' && storyVideo) {
+            document.getElementById('storyTapPrev').style.display = 'none';
+            document.getElementById('storyTapNext').style.display = 'none';
             storyImage.style.display = 'none';
             storyVideo.style.display = 'block';
             storyVideo.src = mediaUrl;
@@ -533,6 +535,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 else closeStoryViewer();
             };
         } else {
+            document.getElementById('storyTapPrev').style.display = '';
+            document.getElementById('storyTapNext').style.display = '';
             if (storyVideo) {
                 storyVideo.pause();
                 storyVideo.removeAttribute('src');

@@ -2053,42 +2053,53 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // Native-style pull down refresh: reload current CMS data without leaving the screen.
     function setupPullToRefresh() {
-        let startY = 0, pulling = false, refreshing = false;
-        const threshold = 82;
+        let startY = 0, currentDistance = 0, activePage = null, pulling = false, refreshing = false;
+        const threshold = 88;
         const indicator = document.createElement('div');
         indicator.id = 'pullRefreshIndicator';
-        indicator.innerHTML = '<i class="fas fa-arrow-down"></i><span>اسحب للتحديث</span>';
+        indicator.innerHTML = '<i class="fas fa-arrow-down"></i><span>اسحب للأسفل للتحديث</span>';
         document.body.appendChild(indicator);
+
         const setState = (state, label, icon) => {
             indicator.className = state;
             indicator.innerHTML = '<i class="fas ' + icon + '"></i><span>' + label + '</span>';
         };
+        const hideIndicator = () => {
+            indicator.style.transform = 'translate(-50%, -130%)';
+            setState('', 'اسحب للأسفل للتحديث', 'fa-arrow-down');
+        };
+        const getActivePage = () => document.querySelector('.app-page.active');
+
         document.addEventListener('touchstart', event => {
             if (refreshing || event.touches.length !== 1) return;
-            const atTop = window.scrollY <= 0 && document.documentElement.scrollTop <= 0 && document.body.scrollTop <= 0;
-            if (!atTop) return;
+            const page = getActivePage();
+            if (!page || page.scrollTop > 2) return;
+            if (event.target.closest('input, textarea, select, button, a, .modal, .overlay, .drawer')) return;
+            activePage = page;
             startY = event.touches[0].clientY;
+            currentDistance = 0;
             pulling = true;
+            hideIndicator();
         }, {passive:true});
+
         document.addEventListener('touchmove', event => {
             if (!pulling || refreshing || !event.touches.length) return;
-            const distance = event.touches[0].clientY - startY;
-            if (distance <= 0) { indicator.style.transform = 'translate(-50%, -120%)'; return; }
-            if (distance > 8) {
-                const progress = Math.min(distance, threshold);
-                indicator.style.transform = 'translate(-50%, ' + Math.max(-8, -58 + progress * 0.62) + 'px)';
-                if (distance >= threshold) setState('ready', 'اترك للتحديث', 'fa-rotate');
-                else setState('pulling', 'اسحب للتحديث', 'fa-arrow-down');
-            }
+            if (getActivePage() !== activePage) { pulling = false; hideIndicator(); return; }
+            currentDistance = Math.max(0, event.touches[0].clientY - startY);
+            if (currentDistance <= 0) { hideIndicator(); return; }
+            const progress = Math.min(currentDistance, threshold);
+            const offset = Math.max(-8, -58 + progress * 0.62);
+            indicator.style.transform = 'translate(-50%, ' + offset + 'px)';
+            if (currentDistance >= threshold) setState('ready', 'اترك لتحديث التطبيق', 'fa-arrow-down');
+            else setState('pulling', 'اسحب للأسفل للتحديث', 'fa-arrow-down');
         }, {passive:true});
-        document.addEventListener('touchend', async event => {
+
+        const finishPull = async () => {
             if (!pulling || refreshing) return;
+            const shouldRefresh = currentDistance >= threshold && activePage === getActivePage();
             pulling = false;
-            const endY = event.changedTouches && event.changedTouches[0] ? event.changedTouches[0].clientY : startY;
-            if (endY - startY < threshold) {
-                indicator.style.transform = 'translate(-50%, -120%)';
-                return;
-            }
+            if (!shouldRefresh) { hideIndicator(); activePage = null; return; }
+
             refreshing = true;
             indicator.style.transform = 'translate(-50%, 10px)';
             setState('refreshing', 'جارٍ تحديث بيانات النادي...', 'fa-spinner fa-spin');
@@ -2097,11 +2108,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 setState('done', 'تم تحديث البيانات', 'fa-check');
             } finally {
                 refreshing = false;
-                setTimeout(() => {
-                    indicator.style.transform = 'translate(-50%, -120%)';
-                    setTimeout(() => setState('', 'اسحب للتحديث', 'fa-arrow-down'), 250);
-                }, 900);
+                activePage = null;
+                setTimeout(hideIndicator, 900);
             }
+        };
+
+        document.addEventListener('touchend', finishPull, {passive:true});
+        document.addEventListener('touchcancel', () => {
+            pulling = false;
+            currentDistance = 0;
+            activePage = null;
+            if (!refreshing) hideIndicator();
         }, {passive:true});
     }
     setupPullToRefresh();

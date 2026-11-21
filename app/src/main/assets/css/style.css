@@ -166,16 +166,6 @@ body {
 .official-logo-img.small { width: 56px; height: 56px; }
 .official-logo-img.large { width: 85px; height: 95px; }
 
-/* Golden Star on Club Crest */
-.club-logo::before {
-    content: '★';
-    position: absolute; top: -6px; left: 50%;
-    transform: translateX(-50%);
-    color: #FFD700; font-size: 13px;
-    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
-    z-index: 5;
-}
-
 /* ========== PAGES WRAPPER (SPA SYSTEM) ========== */
 .pages-wrapper {
     flex: 1;

@@ -1747,3 +1747,10 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 #pullRefreshIndicator i { font-size: 14px; }
 #pullRefreshIndicator.refreshing { color: var(--primary-red); }
 #pullRefreshIndicator.done { color: #16834a; }
+
+/* Three match navigation choices */
+.matches-main-tabs { display:flex; gap:7px; overflow-x:auto; }
+.matches-main-tabs .cat-tab { flex:1 0 auto; justify-content:center; padding-inline:12px; }
+.matches-standings-panel[hidden] { display:none !important; }
+.matches-standings-panel { margin-top:4px; }
+.matches-standings-panel .standings-season-bar { margin-bottom:12px; }

@@ -1672,3 +1672,37 @@ input:checked + .slider.round:before { transform: translateX(20px); }
     100% { transform: translateY(-240px) scale(1) rotate(15deg); opacity: 0; }
 }
 
+/* Header refinement: remove simulated phone status bar and keep club name on one line */
+.status-bar {
+    display: none !important;
+}
+
+.app-header {
+    padding: 10px 14px 12px;
+}
+
+.header-content {
+    gap: 8px;
+}
+
+.club-title {
+    min-width: 0;
+    overflow: visible;
+}
+
+.club-title h1 {
+    white-space: nowrap;
+    font-size: clamp(15px, 4.35vw, 20px);
+    line-height: 1.2;
+}
+
+.club-title p {
+    white-space: nowrap;
+    font-size: 10px;
+}
+
+.club-logo {
+    width: 74px;
+    height: 74px;
+}
+

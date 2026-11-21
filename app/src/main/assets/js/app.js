@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const colors = ['#ED1C24', '#FFD700', '#FFFFFF', '#B5121B', '#FF3038'];
+        const colors = ['#DB1E24', '#FFD700', '#FFFFFF', '#B5121B', '#FF3038'];
         confettiParticles = [];
 
         for (let i = 0; i < 90; i++) {

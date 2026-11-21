@@ -396,14 +396,15 @@ body {
 .team-logo-img > i { font-size: 30px; color: var(--primary-red); }
 .team-logo-svg { width: 100%; height: 100%; object-fit: contain; }
 
-/* Equal team-name plates */
+/* Equal single-line team-name plates */
 .team-name {
     display: flex; align-items: center; justify-content: center;
     width: 100%; min-height: 36px; box-sizing: border-box;
-    font-size: 11.5px; line-height: 1.25; font-weight: 800;
+    font-size: clamp(9px, 2.5vw, 11.5px); line-height: 1.2; font-weight: 800;
     color: #FFFFFF !important; background: var(--primary-red) !important;
-    padding: 5px 4px; border-radius: 18px;
-    white-space: normal; overflow-wrap: anywhere;
+    padding: 5px 2px; border-radius: 18px;
+    white-space: nowrap; overflow: hidden; text-overflow: clip;
+    text-align: center; direction: rtl;
     box-shadow: 0 2px 8px rgba(237, 28, 36, 0.3);
 }
 

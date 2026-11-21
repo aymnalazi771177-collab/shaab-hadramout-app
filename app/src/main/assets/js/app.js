@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. DATA STORE (Official Club Content)
     // ============================================
 
-    const PLAYERS_DATA = [
+    let PLAYERS_DATA = [
         // Goalkeepers
         { id: 1, name: 'محمد أمان', num: 1, pos: 'gk', posName: 'حارس مرمى', age: 26, height: '188 سم', weight: '82 كجم', matches: 11, cleanSheets: 6, saves: 38, cheers: 1420, bio: 'حارس المرمى الأمين لنادي شعب حضرموت والمنتخب الوطني، يتميز بسرعة ردة الفعل والبراعة في الكرات العالية.', img: 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?w=400&h=400&fit=crop&q=80' },
         { id: 2, name: 'سالم بازهير', num: 22, pos: 'gk', posName: 'حارس مرمى', age: 23, height: '185 سم', weight: '79 كجم', matches: 2, cleanSheets: 1, saves: 9, cheers: 530, bio: 'حارس شاب موهوب تدرج في الفئات السنية للنادي وقدم مستويات لافتة في المباريات الودية والمسابقات.', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&q=80' },
@@ -35,14 +35,14 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: 12, name: 'علي باتيس', num: 11, pos: 'att', posName: 'مهاجم سريع وجناح', age: 23, height: '175 سم', weight: '69 كجم', matches: 10, goals: 5, assists: 4, cheers: 2150, bio: 'مهاجم مشاكس يرهق خطوط دفاع الخصوم بانطلاقاته السريعة وسرعة تحوله من الدفاع للهجوم في لحظات.', img: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&h=400&fit=crop&q=80' }
     ];
 
-    const STAFF_DATA = [
+    let STAFF_DATA = [
         { name: 'الكابتن أنور عاشور', role: 'المدير الفني للفريق الأول', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&q=80' },
         { name: 'سالم بوعسكر', role: 'مساعد المدرب', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop&q=80' },
         { name: 'عمر باحكيم', role: 'مدرب حراس المرمى', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&q=80' },
         { name: 'د. خالد بلبحيث', role: 'طبيب الفريق وإخصائي العلاج الطبيعي', img: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=400&fit=crop&q=80' }
     ];
 
-    const MATCHES_UPCOMING = [
+    let MATCHES_UPCOMING = [
         {
             id: 101,
             round: 'الجولة 12 - دوري الدرجة الأولى',
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    const MATCHES_RESULTS = [
+    let MATCHES_RESULTS = [
         {
             round: 'الجولة 11 - دوري الدرجة الأولى',
             home: 'شعب حضرموت',
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    const STANDINGS_DATA = [
+    let STANDINGS_DATA = [
         { rank: 1, team: 'شعب حضرموت', played: 11, won: 8, draw: 2, lost: 1, diff: '+15', points: 26, isShaab: true },
         { rank: 2, team: 'أهلي صنعاء', played: 11, won: 7, draw: 3, lost: 1, diff: '+12', points: 24, isShaab: false },
         { rank: 3, team: 'التلال عدن', played: 11, won: 6, draw: 3, lost: 2, diff: '+8', points: 21, isShaab: false },
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { rank: 8, team: 'هلال الحديدة', played: 11, won: 1, draw: 2, lost: 8, diff: '-16', points: 5, isShaab: false }
     ];
 
-    const TRANSFERS_DATA = {
+    let TRANSFERS_DATA = {
         in: [
             { name: 'محمد الحلاق', from: 'نادي ظفار', role: 'مهاجم هداف', date: 'موسم 2025-2026', type: 'شراء نهائي', val: 'عقد موسمين', img: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=400&h=400&fit=crop&q=80' },
             { name: 'عبدالله العكبري', from: 'العروبة', role: 'صانع ألعاب', date: 'موسم 2025-2026', type: 'انتقال حر', val: 'عقد 3 مواسم', img: 'https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?w=400&h=400&fit=crop&q=80' }
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ]
     };
 
-    const MEDIA_DATA = {
+    let MEDIA_DATA = {
         photos: [
             { title: 'أجواء تدريبات الفريق المسائية بملعب بارادم', img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop&q=80', count: '18 صورة' },
             { title: 'احتفال اللاعبين بالفوز الأخير على وحدة عدن', img: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&h=600&fit=crop&q=80', count: '25 صورة' },
@@ -144,14 +144,14 @@ document.addEventListener('DOMContentLoaded', function() {
         ]
     };
 
-    const ANTHEMS_DATA = [
+    let ANTHEMS_DATA = [
         { id: 1, title: 'النشيد الرسمي: يا نوارس المكلا', artist: 'كورال جماهير نادي شعب حضرموت', duration: '3:25', progress: 35 },
         { id: 2, title: 'أحمر وأبيض عشق السنين', artist: 'أهازيج التراس شعب حضرموت', duration: '2:40', progress: 0 },
         { id: 3, title: 'شعباوي في الميدان ما ينغلب', artist: 'هتاف المدرج الحضرمي', duration: '1:55', progress: 0 },
         { id: 4, title: 'جينا نشجع يا شعب العز', artist: 'رابطة مشجعي الشعب', duration: '2:15', progress: 0 }
     ];
 
-    const NEWS_ALL = [
+    let NEWS_ALL = [
         {
             id: 1,
             title: 'جماهير شعب حضرموت .. سند الفريق وداعمه الأول في مسيرة الصدارة',
@@ -969,6 +969,7 @@ document.addEventListener('DOMContentLoaded', function() {
         playTone(500, 'sine', 0.1);
         document.getElementById('storeModalOverlay').classList.add('active');
         document.getElementById('storeModalSheet').classList.add('open');
+        loadClubStore();
     };
 
     document.getElementById('openStoreMenuItem')?.addEventListener('click', () => {
@@ -1209,23 +1210,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderMedia(type = 'photos') {
         const container = document.getElementById('mediaGalleryContainer');
         if (!container) return;
-
         const list = MEDIA_DATA[type] || [];
-        container.innerHTML = list.map(item => `
-            <div class="media-item-box" onclick="${type === 'photos' ? `openLightbox('${item.img}', '${item.title}')` : `showToast('جاري تشغيل: ${item.title}')`}">
-                <div class="media-item-thumb">
-                    <img src="${item.img}" alt="${item.title}" loading="lazy">
-                    ${type === 'videos' ? `
-                        <div class="video-play-overlay">
-                            <div class="play-pulse-circle"><i class="fas fa-play"></i></div>
-                        </div>
-                    ` : ''}
-                </div>
-                <div class="media-item-title">${item.title}</div>
-            </div>
-        `).join('');
-    }
-    renderMedia('photos');
+        container.innerHTML = list.map(item => {
+            const title = String(item.title || '');
+            const url = String(item.media_url || item.img || '');
+            const safeTitle = title.replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
+            const safeUrl = url.replace(/[\"']/g, '');
+            const media = type === 'videos'
+                ? '<video controls playsinline preload="metadata" poster="' + (item.img || '') + '" src="' + safeUrl + '" style="width:100%;height:100%;object-fit:cover"></video>'
+                : '<img src="' + safeUrl + '" alt="' + safeTitle + '" loading="lazy">';
+            return '<div class="media-item-box"><div class="media-item-thumb">' + media + '</div><div class="media-item-title">' + safeTitle + '</div></div>';
+        }).join('');
+    }    renderMedia('photos');
 
     document.querySelectorAll('[data-media-tab]').forEach(tab => {
         tab.addEventListener('click', function() {
@@ -1264,27 +1260,39 @@ document.addEventListener('DOMContentLoaded', function() {
     let audioTimer = null;
     let audioSecs = 72; // 1:12
 
+    let clubAudioPlayer = null;
     function loadAnthem(index) {
-        currentAnthemIdx = index;
-        const song = ANTHEMS_DATA[index];
-        document.getElementById('currentAnthemTitle').textContent = song.title;
-        document.getElementById('currentAnthemArtist').textContent = song.artist;
-        document.getElementById('totalTimeDisplay').textContent = song.duration;
+        if (!ANTHEMS_DATA.length) return;
+        currentAnthemIdx = (index + ANTHEMS_DATA.length) % ANTHEMS_DATA.length;
+        const song = ANTHEMS_DATA[currentAnthemIdx];
+        document.getElementById('currentAnthemTitle').textContent = song.title || 'نشيد النادي';
+        document.getElementById('currentAnthemArtist').textContent = song.artist || song.description || 'أناشيد نادي شعب حضرموت';
+        document.getElementById('totalTimeDisplay').textContent = song.duration || '—:—';
+        if (clubAudioPlayer) { clubAudioPlayer.pause(); clubAudioPlayer.onended = null; }
+        clubAudioPlayer = song.audio_url ? new Audio(song.audio_url) : null;
+        if (clubAudioPlayer) {
+            clubAudioPlayer.preload = 'metadata';
+            clubAudioPlayer.addEventListener('loadedmetadata', () => {
+                const d = clubAudioPlayer.duration;
+                if (Number.isFinite(d)) document.getElementById('totalTimeDisplay').textContent = Math.floor(d/60)+':' + String(Math.floor(d%60)).padStart(2,'0');
+            });
+            clubAudioPlayer.onended = () => loadAnthem((currentAnthemIdx + 1) % ANTHEMS_DATA.length);
+        }
         audioSecs = 0;
         updateAudioTimeUI();
         playAnthem();
     }
-
     function playAnthem() {
         isPlaying = true;
         document.getElementById('playIcon').className = 'fas fa-pause';
         document.getElementById('discIcon').classList.add('rotating');
-        playAnthemTune();
+        if (clubAudioPlayer) clubAudioPlayer.play().catch(() => { showToast('تعذر تشغيل الملف الصوتي. تحقق من اتصال الإنترنت.'); });
+        else playAnthemTune();
         clearInterval(audioTimer);
         audioTimer = setInterval(() => {
-            audioSecs++;
+            audioSecs = clubAudioPlayer ? Math.floor(clubAudioPlayer.currentTime || 0) : audioSecs + 1;
             updateAudioTimeUI();
-            if (audioSecs % 8 === 0) playTone(440, 'triangle', 0.1);
+            if (!clubAudioPlayer && audioSecs % 8 === 0) playTone(440, 'triangle', 0.1);
         }, 1000);
     }
 
@@ -1293,6 +1301,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('playIcon').className = 'fas fa-play';
         document.getElementById('discIcon').classList.remove('rotating');
         clearInterval(audioTimer);
+        if (clubAudioPlayer) clubAudioPlayer.pause();
     }
 
     function updateAudioTimeUI() {
@@ -1762,5 +1771,242 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => toast.remove(), 300);
         }, 2200);
     };
+
+
+    // =========================================================
+    // Live Club CMS integration: load every managed section once
+    // and preserve the existing app layout and local fallbacks.
+    // =========================================================
+    const CLUB_API_BASE = 'https://shaab-hadramout.pages.dev';
+    const clubEscape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    async function clubGet(path) {
+        const response = await fetch(CLUB_API_BASE + path + (path.includes('?') ? '&' : '?') + 'refresh=' + Date.now(), { cache: 'no-store' });
+        const data = await response.json();
+        if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تحميل بيانات النادي');
+        return data;
+    }
+    function clubDate(value) {
+        if (!value) return '';
+        const raw = String(value);
+        const date = new Date(raw.length === 10 ? raw + 'T12:00:00' : raw);
+        return Number.isNaN(date.getTime()) ? raw : date.toLocaleDateString('ar', { year:'numeric', month:'long', day:'numeric' });
+    }
+    function refreshHomeNews() {
+        const wrap = document.querySelector('.news-cards-container');
+        if (!wrap) return;
+        wrap.innerHTML = NEWS_ALL.slice(0, 4).map(n =>
+            '<div class="news-card" data-news-id="' + n.id + '" onclick="openArticleModal(' + n.id + ')">' +
+            '<div class="news-card-image"><img src="' + clubEscape(n.img) + '" alt="' + clubEscape(n.title) + '" loading="lazy"></div>' +
+            '<div class="news-card-content"><h4>' + clubEscape(n.title) + '</h4><div class="news-date"><span>' + clubEscape(n.date) + '</span> <i class="far fa-clock"></i></div></div></div>'
+        ).join('');
+    }
+    function applyClubNews(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        NEWS_ALL = rows.map(item => ({
+            id: Number(item.id), title: item.title || '', date: clubDate(item.created_at),
+            cat: 'أخبار النادي', readTime: 'خبر من المركز الإعلامي',
+            author: 'المركز الإعلامي لنادي شعب حضرموت',
+            img: item.image_url || (item.images && item.images[0] && item.images[0].url) || '',
+            content: item.content || '', images: item.images || []
+        }));
+        renderAllNews();
+        refreshHomeNews();
+    }
+    function applyClubPlayers(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const posMap = {'حراس المرمى':'gk','الدفاع':'def','الوسط':'mid','الهجوم':'att','المدرب':'staff'};
+        const posNames = {'حراس المرمى':'حارس مرمى','الدفاع':'مدافع','الوسط':'لاعب وسط','الهجوم':'مهاجم','المدرب':'الجهاز الفني'};
+        const players = [], staff = [];
+        rows.forEach(item => {
+            const p = posMap[item.position] || 'mid';
+            if (p === 'staff') staff.push({name:item.name, role:'الجهاز الفني', img:item.image_url || ''});
+            else players.push({
+                id:Number(item.id), name:item.name || '', num:item.number || '—', pos:p,
+                posName:posNames[item.position] || item.position || 'لاعب',
+                age:'—', height:'—', weight:'—', matches:0, cleanSheets:0, goals:0,
+                assists:0, tackles:0, cheers:0, bio:'لاعب في صفوف نادي شعب حضرموت.',
+                img:item.image_url || ''
+            });
+        });
+        PLAYERS_DATA = players;
+        STAFF_DATA = staff;
+        renderPlayers('all');
+        const activeTab = document.querySelector('[data-player-cat].active');
+        if (activeTab && activeTab.getAttribute('data-player-cat') === 'staff') renderPlayers('staff');
+    }
+    function applyClubMatches(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const upcoming = [], results = [];
+        rows.forEach(item => {
+            const homeClub = Number(item.is_home) !== 0;
+            const home = homeClub ? 'شعب حضرموت' : (item.opponent || 'المنافس');
+            const away = homeClub ? (item.opponent || 'المنافس') : 'شعب حضرموت';
+            const clubScore = item.home_score == null ? null : Number(item.home_score);
+            const opponentScore = item.away_score == null ? null : Number(item.away_score);
+            const score = clubScore == null || opponentScore == null ? '—' :
+                (homeClub ? clubScore + ' - ' + opponentScore : opponentScore + ' - ' + clubScore);
+            const common = {
+                id:Number(item.id), round:item.competition || 'مباريات النادي',
+                home, away, date:clubDate(item.match_date), time:item.match_time || '',
+                stadium:item.venue || '', isHome:homeClub,
+                notes:item.notes || '', opponentLogo:item.opponent_logo_url || ''
+            };
+            if (item.status === 'finished') results.push({...common, score, scorers:item.notes || ''});
+            else if (item.status !== 'cancelled') upcoming.push(common);
+        });
+        MATCHES_UPCOMING = upcoming;
+        MATCHES_RESULTS = results;
+        renderMatches('upcoming');
+        const tab = document.querySelector('[data-match-tab].active');
+        renderMatches(tab ? tab.getAttribute('data-match-tab') : 'upcoming');
+    }
+    function applyClubStandings(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        STANDINGS_DATA = rows.map((item,index) => ({
+            rank:index+1, team:item.team_name || '', played:Number(item.played||0),
+            won:Number(item.wins||0), draw:Number(item.draws||0), lost:Number(item.losses||0),
+            diff:(Number(item.goals_for||0)-Number(item.goals_against||0)) > 0 ? '+'+(Number(item.goals_for||0)-Number(item.goals_against||0)) : String(Number(item.goals_for||0)-Number(item.goals_against||0)),
+            points:Number(item.points||0), isShaab:(item.team_name||'').includes('شعب حضرموت')
+        }));
+        renderStandings();
+    }
+    function applyClubTransfers(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const mapped = {in:[],out:[],renew:[]};
+        rows.forEach(item => {
+            const direction = item.direction === 'outgoing' ? 'out' : 'in';
+            mapped[direction].push({
+                name:item.player_name || '', from:item.from_club || '',
+                to:item.to_club || 'شعب حضرموت', role:item.details || '',
+                date:clubDate(item.transfer_date), type:item.transfer_type === 'loan' ? 'إعارة' : 'انتقال نهائي',
+                val:item.details || '', img:item.image_url || ''
+            });
+        });
+        TRANSFERS_DATA = mapped;
+        const tab = document.querySelector('[data-trans-tab].active');
+        renderTransfers(tab ? tab.getAttribute('data-trans-tab') : 'in');
+    }
+    function applyClubGallery(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const photos = [], videos = [];
+        rows.forEach(item => {
+            const record = {
+                title:item.title || '', img:item.media_type === 'image' ? item.media_url : '',
+                media_url:item.media_url || '', description:item.description || ''
+            };
+            (item.media_type === 'video' ? videos : photos).push(record);
+        });
+        MEDIA_DATA = {photos, videos};
+        const tab = document.querySelector('[data-media-tab].active');
+        renderMedia(tab ? tab.getAttribute('data-media-tab') : 'photos');
+    }
+    function applyClubAnthems(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        ANTHEMS_DATA = rows.map(item => ({
+            id:Number(item.id), title:item.title || '', artist:item.description || 'أناشيد نادي شعب حضرموت',
+            description:item.description || '', audio_url:item.audio_url || '', duration:'—:—', progress:0
+        }));
+        currentAnthemIdx = 0;
+        renderAnthems();
+        const first = ANTHEMS_DATA[0];
+        if (first) {
+            document.getElementById('currentAnthemTitle').textContent = first.title;
+            document.getElementById('currentAnthemArtist').textContent = first.artist;
+            document.getElementById('totalTimeDisplay').textContent = first.duration;
+        }
+    }
+    function applyClubCarousel(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const currentSlides = document.querySelectorAll('#sliderWrapper .slide');
+        rows.slice(0, currentSlides.length).forEach((item,index) => {
+            const slide = currentSlides[index];
+            const img = slide.querySelector('.slide-image');
+            const category = slide.querySelector('.slide-category');
+            const heading = slide.querySelector('h3');
+            if (img && item.image_url) img.src = item.image_url;
+            if (category) category.textContent = 'أخبار النادي';
+            if (heading) heading.textContent = item.title || '';
+            slide.dataset.cmsSlide = String(item.id);
+            slide.setAttribute('aria-label', item.title || 'خبر النادي');
+        });
+    }
+    async function loadClubHistory() {
+        try {
+            const data = await clubGet('/api/history');
+            if (!data.history) return;
+            const page = document.getElementById('aboutPage');
+            if (!page) return;
+            const banner = page.querySelector('.foundation-badge');
+            if (banner) banner.innerHTML = '<i class="fas fa-history"></i> تأسس عام ' + clubEscape(data.history.founded_year || '1964') + ' م (المكلا)';
+            let target = document.getElementById('clubHistoryLiveContent');
+            if (!target) {
+                target = document.createElement('div');
+                target.id = 'clubHistoryLiveContent';
+                target.className = 'about-card';
+                page.querySelector('.page-scroll-content')?.appendChild(target);
+            }
+            target.innerHTML = '<h4><i class="fas fa-book-open text-red"></i> ' + clubEscape(data.history.title || 'تاريخ النادي') + '</h4>' +
+                (data.history.content ? '<p class="about-text">' + clubEscape(data.history.content).replace(/\n/g,'<br>') + '</p>' : '') +
+                (data.history.achievements ? '<h4><i class="fas fa-trophy text-red"></i> الإنجازات</h4><p class="about-text">' + clubEscape(data.history.achievements).replace(/\n/g,'<br>') + '</p>' : '');
+        } catch (error) { console.warn('Club history unavailable', error); }
+    }
+    async function loadClubStore() {
+        const sheet = document.getElementById('storeModalSheet');
+        if (!sheet) return;
+        let target = document.getElementById('clubStoreLiveContent');
+        if (!target) {
+            target = document.createElement('div');
+            target.id = 'clubStoreLiveContent';
+            target.className = 'about-card';
+            sheet.appendChild(target);
+        }
+        target.innerHTML = '<p class="about-text">جارٍ تحميل منتجات المتجر...</p>';
+        try {
+            const data = await clubGet('/api/sections?section=store');
+            const rows = data.items || [];
+            target.innerHTML = '<h4><i class="fas fa-store text-red"></i> منتجات المتجر الرسمي</h4>' +
+                (rows.length ? rows.map(item => '<article class="managed-content-card">' +
+                    (item.image_url ? '<img src="' + clubEscape(item.image_url) + '" alt="' + clubEscape(item.title) + '">' : '') +
+                    (item.media_url ? (/\.(mp4|webm|mov)(\?|$)/i.test(item.media_url) ? '<video controls playsinline src="' + clubEscape(item.media_url) + '"></video>' : '') : '') +
+                    '<div class="managed-content-body"><h3>' + clubEscape(item.title) + '</h3>' +
+                    (item.content ? '<p>' + clubEscape(item.content) + '</p>' : '') +
+                    (item.price ? '<span class="managed-content-price">' + clubEscape(item.price) + '</span>' : '') + '</div></article>').join('') :
+                    '<p class="about-text">لا توجد منتجات منشورة حالياً.</p>');
+        } catch (error) {
+            target.innerHTML = '<p class="about-text">تعذر تحميل منتجات المتجر حالياً.</p>';
+        }
+    }
+    async function loadClubNotifications() {
+        try {
+            const data = await clubGet('/api/notifications');
+            const rows = data.notifications || [];
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+            if (!list || !rows.length) return;
+            list.innerHTML = rows.map(item => '<div class="notif-item unread"><div class="notif-icon news-notif"><i class="fas fa-bullhorn"></i></div>' +
+                '<div class="notif-body"><p class="notif-text"><strong>' + clubEscape(item.title || 'تنبيه النادي') + '</strong> ' + clubEscape(item.body || '') + '</p>' +
+                '<span class="notif-time"><i class="far fa-clock"></i> ' + clubEscape(clubDate(item.created_at)) + '</span></div><span class="unread-dot"></span></div>').join('');
+            if (badge) { badge.textContent = String(rows.length); badge.style.display = rows.length ? 'flex' : 'none'; }
+        } catch (error) { console.warn('Club notifications unavailable', error); }
+    }
+    async function loadAllClubContent() {
+        const jobs = [
+            ['/api/news', d => applyClubNews(d.news)],
+            ['/api/players', d => applyClubPlayers(d.players)],
+            ['/api/matches', d => applyClubMatches(d.matches)],
+            ['/api/standings', d => applyClubStandings(d.standings)],
+            ['/api/transfers', d => applyClubTransfers(d.transfers)],
+            ['/api/gallery', d => applyClubGallery(d.media)],
+            ['/api/anthems', d => applyClubAnthems(d.anthems)],
+            ['/api/carousel', d => applyClubCarousel(d.slides)],
+            ['/api/history', () => loadClubHistory()],
+            ['/api/notifications', () => loadClubNotifications()]
+        ];
+        await Promise.allSettled(jobs.map(async job => {
+            try { const data = await clubGet(job[0]); job[1](data); }
+            catch (error) { console.warn('CMS section load failed: ' + job[0], error); }
+        }));
+    }
+    loadAllClubContent();
 
 });

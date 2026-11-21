@@ -744,7 +744,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="player-stat-bubble">
                     <strong>${player.pos === 'gk' ? (player.saves || 0) : (player.assists || player.tackles || 0)}</strong>
-                    <span>${player.pos === 'gk' ? 'تصديات' : (player.assists !== undefined ? 'تمريرات حاسمة' : 'افتكاكات')}</span>
+                    <span>${player.pos === 'gk' ? 'تصديات' : (player.assists > 0 ? 'تمريرات حاسمة' : 'افتكاكات')}</span>
                 </div>
                 <div class="player-stat-bubble">
                     <strong>${player.readiness ?? 90}%</strong>

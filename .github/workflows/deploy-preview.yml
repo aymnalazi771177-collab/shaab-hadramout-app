@@ -24,6 +24,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate JavaScript syntax
+        run: |
+          node --check app/src/main/assets/admin/admin.js
+          node --check app/src/main/assets/js/app.js
 
       - name: Prepare website files
         run: |

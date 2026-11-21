@@ -418,7 +418,7 @@ body {
 
 .menu-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
 }
 
@@ -1699,3 +1699,41 @@ input:checked + .slider.round:before { transform: translateX(20px); }
     height: 74px;
 }
 
+
+
+/* New club sections */
+.menu-grid { gap: 10px; }
+.menu-item { min-height: 94px; padding: 12px 5px 10px; }
+.menu-icon-wrap { width: 40px; height: 40px; }
+.menu-icon-wrap i { font-size: 23px; }
+.menu-label { font-size: 11px; }
+.side-menu-list { overflow-y: auto; min-height: 0; }
+.side-menu-list::-webkit-scrollbar { display: none; }
+.admin-menu-link { background: rgba(219,30,36,0.07); color: var(--primary-red); }
+.section-page-content { padding: 18px 14px 30px; }
+.section-intro-card {
+    background: linear-gradient(145deg, var(--card-bg), rgba(219,30,36,0.055));
+    border: 1px solid var(--border-color); border-radius: 20px;
+    padding: 25px 18px; text-align: center; box-shadow: var(--shadow-soft);
+}
+.section-intro-icon {
+    width: 66px; height: 66px; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 13px; background: rgba(219,30,36,0.1);
+    color: var(--primary-red); font-size: 29px;
+}
+.section-intro-card h3 { color: var(--text-dark); font-size: 18px; font-weight: 900; margin-bottom: 7px; }
+.section-intro-card p { color: var(--text-muted); font-size: 12px; line-height: 1.8; }
+.section-empty-state {
+    margin-top: 16px; padding: 28px 18px; border: 1px dashed var(--border-color);
+    border-radius: 18px; display: flex; flex-direction: column; align-items: center;
+    gap: 9px; text-align: center; color: var(--text-muted); background: var(--card-bg);
+}
+.section-empty-state > i { color: var(--primary-red); font-size: 27px; margin-bottom: 3px; }
+.section-empty-state strong { color: var(--text-dark); font-size: 13px; }
+.section-empty-state span { font-size: 11px; line-height: 1.8; }
+@media (max-width: 360px) {
+    .menu-grid { gap: 7px; }
+    .menu-item { min-height: 88px; }
+    .menu-label { font-size: 10px; }
+}

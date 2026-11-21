@@ -375,6 +375,48 @@ document.addEventListener('DOMContentLoaded', function() {
     const allPages = document.querySelectorAll('.app-page');
     const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item');
 
+    const MANAGED_SECTION_PAGES = {
+        basketball: 'basketballPage', volleyball: 'volleyballPage', handball: 'handballPage',
+        tennis: 'tennisPage', taekwondo: 'taekwondoPage', athletics: 'athleticsPage',
+        otherSports: 'otherSportsPage', board: 'boardPage', presidents: 'presidentsPage',
+        membership: 'membershipPage', foundation: 'foundationPage', contact: 'contactPage'
+    };
+    const MANAGED_SECTION_TITLES = {
+        basketball:'كرة السلة',volleyball:'كرة الطائرة',handball:'كرة اليد',tennis:'التنس',
+        taekwondo:'التايكواندو',athletics:'ألعاب القوى',otherSports:'ألعاب أخرى',
+        board:'مجلس الإدارة',presidents:'رؤساء النادي',membership:'عضوية النادي',
+        foundation:'المؤسسة المجتمعية',contact:'تواصل معنا'
+    };
+    const escapeManagedText = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    async function loadManagedSection(key) {
+        const target = document.getElementById('managedContent-' + key);
+        if (!target) return;
+        target.innerHTML = '<div class="managed-loading">جارٍ تحميل محتوى القسم...</div>';
+        try {
+            const response = await fetch('https://shaab-hadramout.pages.dev/api/sections?section=' + encodeURIComponent(key) + '&refresh=' + Date.now(), {cache:'no-store'});
+            const payload = await response.json();
+            if (!response.ok || !payload.success || !Array.isArray(payload.items)) throw new Error(payload.message || 'تعذر تحميل المحتوى');
+            if (!payload.items.length) {
+                target.innerHTML = '<div class="managed-empty">لا توجد مواد منشورة في قسم ' + escapeManagedText(MANAGED_SECTION_TITLES[key]) + ' حتى الآن.</div>';
+                return;
+            }
+            target.innerHTML = payload.items.map(item => {
+                const title = escapeManagedText(item.title);
+                const body = escapeManagedText(item.content);
+                const image = item.image_url ? '<img src="' + escapeManagedText(item.image_url) + '" alt="' + title + '" loading="lazy">' : '';
+                let media = '';
+                if (item.media_url) {
+                    if (/\.(mp4|webm|mov)(\?|$)/i.test(item.media_url)) media = '<video controls playsinline preload="metadata" src="' + escapeManagedText(item.media_url) + '"></video>';
+                    else media = '<a class="managed-content-link" href="' + escapeManagedText(item.media_url) + '" target="_blank" rel="noopener">عرض الملف المرفق</a>';
+                }
+                const price = item.price ? '<span class="managed-content-price">' + escapeManagedText(item.price) + '</span>' : '';
+                return '<article class="managed-content-card">' + image + media + '<div class="managed-content-body"><h3>' + title + '</h3>' + (body ? '<p>' + body + '</p>' : '') + price + '</div></article>';
+            }).join('');
+        } catch (error) {
+            target.innerHTML = '<div class="managed-error">' + escapeManagedText(error.message || 'تعذر تحميل القسم حالياً') + '</div>';
+        }
+    }
+
     function navigateToPage(pageId) {
         allPages.forEach(p => p.classList.remove('active'));
 
@@ -383,6 +425,8 @@ document.addEventListener('DOMContentLoaded', function() {
             targetPage.classList.add('active');
             targetPage.scrollTop = 0;
         }
+        const managedKey = Object.keys(MANAGED_SECTION_PAGES).find(key => MANAGED_SECTION_PAGES[key] === pageId);
+        if (managedKey) loadManagedSection(managedKey);
 
         bottomNavItems.forEach(item => {
             const dest = item.getAttribute('data-navigate');

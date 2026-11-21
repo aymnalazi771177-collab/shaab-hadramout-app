@@ -4,7 +4,7 @@
    ============================================ */
 
 :root {
-    --primary-red: #ED1C24;
+    --primary-red: #DB1E24;
     --dark-red: #B5121B;
     --darker-red: #8F1018;
     --bright-red: #FF3038;
@@ -102,7 +102,7 @@ body {
 
 /* ========== HEADER WITH STADIUM PATTERN ========== */
 .app-header {
-    background: linear-gradient(180deg, #A80F18 0%, #D51620 45%, #ED1C24 85%, #D51620 100%);
+    background: linear-gradient(180deg, #A80F18 0%, #D51620 45%, #DB1E24 85%, #D51620 100%);
     padding: 8px 16px 20px;
     position: relative;
     overflow: hidden;
@@ -360,7 +360,7 @@ body {
 
 /* Curved Header Ribbon */
 .match-header {
-    background: linear-gradient(180deg, #FF3038 0%, #ED1C24 50%, #B5121B 100%);
+    background: linear-gradient(180deg, #FF3038 0%, #DB1E24 50%, #B5121B 100%);
     color: #fff;
     padding: 9px 18px;
     display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -764,7 +764,7 @@ body {
 }
 .pitch-shirt-icon {
     width: 24px; height: 24px; border-radius: 50%;
-    background: #ED1C24; color: #fff; border: 1.5px solid #fff;
+    background: #DB1E24; color: #fff; border: 1.5px solid #fff;
     font-size: 10px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.4);
@@ -1016,7 +1016,7 @@ body {
 .legend-item { display: flex; align-items: center; gap: 8px; }
 .legend-color { width: 10px; height: 10px; border-radius: 2px; }
 .gold-badge { background: #FFD700; }
-.red-badge { background: #ED1C24; }
+.red-badge { background: #DB1E24; }
 
 /* Transfers */
 .transfers-container { display: flex; flex-direction: column; gap: 12px; }
@@ -1036,7 +1036,7 @@ body {
     font-size: 9.5px; font-weight: 700; margin: 3px 0 5px;
 }
 .trans-in { background: rgba(46, 204, 113, 0.15); color: #27ae60; }
-.trans-out { background: rgba(237, 28, 36, 0.15); color: #ED1C24; }
+.trans-out { background: rgba(237, 28, 36, 0.15); color: #DB1E24; }
 .trans-renew { background: rgba(52, 152, 219, 0.15); color: #2980b9; }
 .transfer-club-flow {
     display: flex; align-items: center; gap: 8px;
@@ -1429,7 +1429,7 @@ input:checked + .slider.round:before { transform: translateX(20px); }
     height: 66px;
     border-radius: 50%;
     padding: 2.5px;
-    background: linear-gradient(45deg, #FFD700, #ED1C24, #B5121B, #FF3038, #FFD700);
+    background: linear-gradient(45deg, #FFD700, #DB1E24, #B5121B, #FF3038, #FFD700);
     background-size: 300% 300%;
     animation: ringRotate 4s ease infinite;
     position: relative;

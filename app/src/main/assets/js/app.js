@@ -1094,7 +1094,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render Matches
     function renderMatches(type = 'upcoming') {
         const container = document.getElementById('matchesContainer');
+        const standingsPanel = document.getElementById('matchesStandingsPanel');
         if (!container) return;
+        const showStandings = type === 'standings';
+        container.style.display = showStandings ? 'none' : '';
+        if (standingsPanel) standingsPanel.hidden = !showStandings;
+        if (showStandings) { renderStandings(); return; }
 
         if (type === 'upcoming') {
             container.innerHTML = MATCHES_UPCOMING.map(m => `
@@ -1163,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tbody = document.getElementById('standingsBody');
         if (!tbody) return;
 
-        tbody.innerHTML = STANDINGS_DATA.map(row => `
+        const rowsHtml = STANDINGS_DATA.map(row => `
             <tr class="${row.isShaab ? 'highlight-shaab' : ''}">
                 <td><strong>${row.rank}</strong></td>
                 <td class="text-right"><strong>${row.team}</strong> ${row.isShaab ? '⭐' : ''}</td>
@@ -1175,6 +1180,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td><strong>${row.points}</strong></td>
             </tr>
         `).join('');
+        document.querySelectorAll('#standingsBody, #matchesStandingsBody').forEach(body => { body.innerHTML = rowsHtml; });
     }
     renderStandings();
 

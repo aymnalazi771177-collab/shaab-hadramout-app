@@ -22,3 +22,5 @@
 .record-status{display:inline-block;border-radius:15px;padding:4px 8px;background:#eaf7f0;color:#26835c;font-size:9px}.record-status.off{background:#f1f2f5;color:#7a8492}
 .notice.error{background:#fff0f1;border-color:#f4c4c8;color:#a51e28}.notice.success{background:#eff9f3;border-color:#cdebd9;color:#26764e}
 @media(max-width:600px){.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}.editor-modal{padding:20px}.head-actions{gap:7px}.login-action{padding:7px 9px}}
+
+.tournament-tools{margin:12px 0;padding:14px}.tournament-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}.tournament-controls select{min-width:180px;flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;font:700 13px Tajawal;background:#fff;color:#263246}.tournament-tools small{color:var(--muted)}

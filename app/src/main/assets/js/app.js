@@ -1748,8 +1748,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="fan-form-message" hidden></div>
                 <form class="fan-auth-form" data-fan-form="${isRegister ? 'register' : 'login'}" novalidate>
                     ${isRegister ? `
-                    <label>الاسم الكامل</label>
-                    <div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="اكتب اسمك الكامل" maxlength="80" required></div>
+                    <label>الاسم الثلاثي</label>
+                    <div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="اكتب اسمك الثلاثي" maxlength="80" required></div>
                     ` : ''}
                     <label>رقم الجوال</label>
                     <div class="fan-input-wrap"><i class="fas fa-mobile-screen"></i><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="مثال: 9677XXXXXXXX" required></div>

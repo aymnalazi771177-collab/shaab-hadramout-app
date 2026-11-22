@@ -1760,6 +1760,7 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 .m-team-logo .match-team-logo-img { width:100%; height:100%; object-fit:contain; padding:5px; display:block; }
 
 /* Tournament picker */
-.tournament-picker-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.tournament-picker-bar label{font-weight:800;color:var(--text)}
-.tournament-picker-bar select{min-width:180px;max-width:100%;padding:10px 14px;border:1px solid #e1e5ec;border-radius:12px;background:#fff;color:var(--text);font-family:inherit;font-weight:700;outline:none}
+.tournament-picker-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;text-align:right}
+.tournament-picker-bar label{font-weight:800;color:#fff;display:block;width:100%;text-align:right}
+.tournament-picker-bar select{display:block;width:100%;min-width:0;max-width:100%;min-height:54px;padding:12px 16px;border:1px solid #e1e5ec;border-radius:14px;background-color:#fff!important;color:#263246!important;-webkit-text-fill-color:#263246!important;font-family:inherit;font-size:15px;font-weight:800;outline:none;text-align:right;text-align-last:right;direction:rtl;appearance:auto;color-scheme:light}
+.tournament-picker-bar select option{background:#fff!important;color:#263246!important;font-weight:700}

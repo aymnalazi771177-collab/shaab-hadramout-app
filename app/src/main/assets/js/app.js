@@ -1946,7 +1946,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(!select)return;
         try {
             const data=await clubGet('/api/tournaments'); const rows=data.tournaments||[];
-            select.innerHTML=rows.map(t=>'<option value="'+clubEscape(t.id)+'">'+clubEscape(t.name)+'</option>').join('')||'<option value="">لا توجد بطولات</option>';
+            select.innerHTML=rows.map(t=>'<option value="'+clubEscape(t.id)+'">'+clubEscape(t.name)+(t.season_year?' — '+clubEscape(t.season_year):'')+'</option>').join('')||'<option value="">لا توجد بطولات</option>';
             const empty=document.getElementById('tournamentEmpty'); if(empty)empty.hidden=rows.length>0;
             if(!rows.length){applyClubStandings([]);return;}
             if(!rows.some(t=>String(t.id)===String(selectedPublicTournament)))selectedPublicTournament=String(rows[0].id);

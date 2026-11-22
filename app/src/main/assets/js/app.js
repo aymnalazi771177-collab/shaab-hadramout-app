@@ -1923,7 +1923,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderMatches(tab ? tab.getAttribute('data-match-tab') : 'upcoming');
     }
     function applyClubStandings(rows) {
-        if (!Array.isArray(rows) || !rows.length) return;
+        if (!Array.isArray(rows)) rows = [];
         STANDINGS_DATA = rows.map((item,index) => ({
             rank:index+1, team:item.team_name || '', played:Number(item.played||0),
             won:Number(item.wins||0), draw:Number(item.draws||0), lost:Number(item.losses||0),
@@ -1931,6 +1931,27 @@ document.addEventListener('DOMContentLoaded', function() {
             points:Number(item.points||0), isShaab:(item.team_name||'').includes('شعب حضرموت')
         }));
         renderStandings();
+        const empty=document.getElementById('tournamentEmpty');
+        if(empty) empty.hidden=rows.length>0;
+    }
+    let selectedPublicTournament='';
+    async function loadPublicTournamentStandings(tournamentId) {
+        const body=document.getElementById('standingsBody');
+        if(body) body.innerHTML='<tr><td colspan="8">جارٍ تحميل جدول البطولة...</td></tr>';
+        try { const data=await clubGet('/api/standings?tournament_id='+encodeURIComponent(tournamentId)); applyClubStandings(data.standings||[]); }
+        catch(error) { console.warn('Tournament standings unavailable',error); applyClubStandings([]); }
+    }
+    async function loadPublicTournaments() {
+        const select=document.getElementById('publicTournamentSelect');
+        if(!select)return;
+        try {
+            const data=await clubGet('/api/tournaments'); const rows=data.tournaments||[];
+            select.innerHTML=rows.map(t=>'<option value="'+clubEscape(t.id)+'">'+clubEscape(t.name)+'</option>').join('')||'<option value="">لا توجد بطولات</option>';
+            const empty=document.getElementById('tournamentEmpty'); if(empty)empty.hidden=rows.length>0;
+            if(!rows.length){applyClubStandings([]);return;}
+            if(!rows.some(t=>String(t.id)===String(selectedPublicTournament)))selectedPublicTournament=String(rows[0].id);
+            select.value=selectedPublicTournament; await loadPublicTournamentStandings(selectedPublicTournament);
+        } catch(error) { console.warn('Tournaments unavailable',error); select.innerHTML='<option value="">تعذر تحميل البطولات</option>'; }
     }
     function applyClubTransfers(rows) {
         if (!Array.isArray(rows) || !rows.length) return;
@@ -2051,12 +2072,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (badge) { badge.textContent = String(rows.length); badge.style.display = rows.length ? 'flex' : 'none'; }
         } catch (error) { console.warn('Club notifications unavailable', error); }
     }
+    document.addEventListener('change', event => { if(event.target?.id==='publicTournamentSelect'){selectedPublicTournament=event.target.value;loadPublicTournamentStandings(selectedPublicTournament);} });
     async function loadAllClubContent() {
         const jobs = [
             ['/api/news', d => applyClubNews(d.news)],
             ['/api/players', d => applyClubPlayers(d.players)],
             ['/api/matches', d => applyClubMatches(d.matches)],
-            ['/api/standings', d => applyClubStandings(d.standings)],
+            ['/api/tournaments', () => loadPublicTournaments()],
             ['/api/transfers', d => applyClubTransfers(d.transfers)],
             ['/api/gallery', d => applyClubGallery(d.media)],
             ['/api/anthems', d => applyClubAnthems(d.anthems)],

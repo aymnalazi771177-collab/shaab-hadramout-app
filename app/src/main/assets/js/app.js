@@ -1757,7 +1757,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatMatchTime(value) {
         const raw = String(value || '').trim();
         if (!raw) return '';
-        const match = raw.match(/^(\\d{1,2}):(\\d{2})(?::\\d{2})?$/);
+        const match = raw.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
         if (!match) return raw;
         const hour24 = Number(match[1]);
         if (hour24 < 0 || hour24 > 23) return raw;

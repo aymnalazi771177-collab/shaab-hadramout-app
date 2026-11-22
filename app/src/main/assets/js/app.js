@@ -827,16 +827,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const opponentLogo = safeImage(isClubHome ? match.opponentLogo : match.homeLogo);
             const clubTeam = isClubHome ? match.home : match.away;
             const opponentTeam = isClubHome ? match.away : match.home;
-            const lineupIds = Array.isArray(match.lineup) ? match.lineup : [];
-            const selected = lineupIds.map(id => PLAYERS_DATA.find(player => Number(player.id) === Number(id))).filter(Boolean);
-            const order = ['gk','def','mid','att'];
-            const groups = [
-                {key:'gk',label:'حراسة المرمى'},
-                {key:'def',label:'خط الدفاع'},
-                {key:'mid',label:'خط الوسط'},
-                {key:'att',label:'خط الهجوم'}
-            ];
-            const playersByLine = groups.map(group => selected.filter(player => player.pos === group.key));
+            const lineupEntries = Array.isArray(match.lineup) ? match.lineup : [];
+            const selected = lineupEntries.map(entry => {const id=typeof entry==='object'?entry.id:entry;const player=PLAYERS_DATA.find(item=>Number(item.id)===Number(id));return player?{...player,lineupSlot:typeof entry==='object'?(entry.slot||'cm'):'cm'}:null;}).filter(Boolean);
+            const groups = [{key:'gk',label:'حراسة المرمى',slots:['gk']},{key:'def',label:'خط الدفاع',slots:['rb','rcb','cb','lcb','lb']},{key:'mid',label:'خط الوسط',slots:['rdm','dm','ldm','rm','cm','lm','am']},{key:'att',label:'خط الهجوم',slots:['rw','ss','st','lw']}];
+            const playersByLine = groups.map(group => selected.filter(player => group.slots.includes(player.lineupSlot)));
             const lineupHtml = selected.length ? `
                 <section style="margin:16px 0">
                     <h3 style="font-size:15px;font-weight:900;margin:0 0 10px;color:var(--text-dark)">تشكيلة شعب حضرموت <span style="color:var(--primary-red)">(${esc(match.formation || 'الخطة غير محددة')})</span></h3>
@@ -1948,7 +1942,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 stadium:item.venue || '', isHome:homeClub, managed:true,
                 notes:item.notes || '', opponent:item.opponent || 'المنافس', opponentLogo:item.opponent_logo_url || '',
                 homeLogo:item.home_logo_url || '', status:item.status || 'upcoming',
-                formation:item.formation || '', lineup:(()=>{try{return JSON.parse(item.lineup_json || '[]').map(Number)}catch{return []}})()
+                formation:item.formation || '', lineup:(()=>{try{return JSON.parse(item.lineup_json || '[]').map(x=>typeof x==='object'?{id:Number(x.id),slot:x.slot||'cm'}:{id:Number(x),slot:'cm'})}catch{return []}})()
             };
             if (item.status === 'finished') results.push({...common, score, scorers:item.notes || ''});
             else if (item.status !== 'cancelled') upcoming.push(common);

@@ -711,13 +711,23 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
+        // Every article opening starts at the beginning, even when the same article was read before.
+        const articleSheet = document.getElementById('articleModalSheet');
+        body.scrollTop = 0;
+        if (articleSheet) articleSheet.scrollTop = 0;
+
         const articleOverlay = document.getElementById('articleModalOverlay');
         if (!articleOverlay.classList.contains('active')) {
             history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, "", location.href);
         }
         window.__activeNewsArticle = article;
         articleOverlay.classList.add('active');
-        document.getElementById('articleModalSheet').classList.add('open');
+        articleSheet.classList.add('open');
+        // Reset once more after the sheet becomes visible to avoid restoring its previous scroll position.
+        requestAnimationFrame(() => {
+            body.scrollTop = 0;
+            articleSheet.scrollTop = 0;
+        });
     };
 
     function openNewsGalleryImage(url) {

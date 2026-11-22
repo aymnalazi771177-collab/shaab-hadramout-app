@@ -1780,6 +1780,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>`;
             }
         }
+        if (banner && !upcoming.length && !results.length) {
+            const heading = banner.querySelector('.match-header span');
+            const content = banner.querySelector('.match-content');
+            if (heading) heading.textContent = 'لا توجد مباراة منشورة حالياً';
+            if (content) content.innerHTML = '<div class="empty-state">ستظهر هنا أحدث بيانات المباريات عند نشرها من لوحة الإدارة.</div>';
+        }
         renderMatches('upcoming');
         const tab = document.querySelector('[data-match-tab].active');
         renderMatches(tab ? tab.getAttribute('data-match-tab') : 'upcoming');

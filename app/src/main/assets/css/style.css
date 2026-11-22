@@ -1829,3 +1829,80 @@ input:checked + .slider.round:before { transform: translateX(20px); }
     background: rgba(255,255,255,.16); color: #fff; font-size: 32px;
     line-height: 1; cursor: pointer;
 }
+
+
+/* =========================================================
+   FAN ACCOUNT AREA
+   جمهور نادي الشعب - premium public account experience
+   ========================================================= */
+.fan-page-content { padding: 14px 14px 34px; }
+.fan-auth-content { max-width: 480px; margin: 0 auto; }
+.fan-welcome-banner {
+    position: relative; overflow: hidden; isolation: isolate;
+    min-height: 214px; padding: 23px 20px 20px; border-radius: 22px;
+    color: #fff; text-align: center;
+    background: linear-gradient(140deg, #8f1018 0%, #c81722 52%, #e52b32 100%);
+    box-shadow: 0 12px 28px rgba(181,18,27,.22);
+}
+.fan-banner-pattern {
+    position: absolute; inset: -45px; z-index: -1; opacity: .13;
+    background-image: radial-gradient(circle at 20% 20%, transparent 0 34px, #fff 35px 36px, transparent 37px),
+      radial-gradient(circle at 80% 75%, transparent 0 48px, #fff 49px 50px, transparent 51px);
+    background-size: 120px 120px, 160px 160px; transform: rotate(-12deg);
+}
+.fan-crest {
+    width: 70px; height: 70px; margin: 0 auto 9px; padding: 7px;
+    border: 1px solid rgba(255,255,255,.48); border-radius: 20px;
+    background: rgba(255,255,255,.14); backdrop-filter: blur(8px);
+}
+.fan-crest img { width: 100%; height: 100%; object-fit: contain; }
+.fan-eyebrow { display: block; font-size: 11px; font-weight: 800; opacity: .88; }
+.fan-welcome-banner h3 { margin: 3px 0 2px; font-size: 23px; font-weight: 900; }
+.fan-welcome-banner p { font-size: 12px; font-weight: 600; opacity: .9; }
+.fan-banner-pills { display:flex; justify-content:center; gap:8px; margin-top:13px; }
+.fan-banner-pills span { padding:5px 10px; border:1px solid rgba(255,255,255,.25); border-radius:30px; background:rgba(255,255,255,.12); font-size:10px; font-weight:800; }
+.fan-auth-card {
+    margin-top: 15px; padding: 21px 17px 17px; border: 1px solid var(--border-color);
+    border-radius: 21px; background: var(--card-bg); box-shadow: var(--shadow-soft);
+}
+.fan-auth-heading { text-align:center; margin-bottom:15px; }
+.fan-auth-heading h3 { color:var(--text-dark); font-size:18px; font-weight:900; }
+.fan-auth-heading p { margin-top:4px; color:var(--text-muted); font-size:11px; }
+.fan-auth-tabs { display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:4px; border-radius:13px; background:var(--bg-page); margin-bottom:17px; }
+.fan-auth-tabs button { min-height:39px; border:0; border-radius:10px; background:transparent; color:var(--text-muted); font-family:inherit; font-size:12px; font-weight:800; cursor:pointer; }
+.fan-auth-tabs button.active { color:#fff; background:var(--primary-red); box-shadow:0 4px 10px rgba(219,30,36,.2); }
+.fan-auth-form { display:flex; flex-direction:column; gap:8px; }
+.fan-auth-form label { color:var(--text-dark); font-size:11px; font-weight:800; margin-top:3px; }
+.fan-input-wrap { height:49px; display:flex; align-items:center; gap:10px; padding:0 13px; border:1px solid var(--border-color); border-radius:12px; background:var(--bg-page); transition:border-color .2s, box-shadow .2s; }
+.fan-input-wrap:focus-within { border-color:var(--primary-red); box-shadow:0 0 0 3px rgba(219,30,36,.09); }
+.fan-input-wrap i { width:17px; color:var(--primary-red); font-size:14px; text-align:center; }
+.fan-input-wrap input { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--text-dark); font-family:inherit; font-size:13px; font-weight:600; user-select:text; }
+.fan-input-wrap input::placeholder { color:var(--text-light); font-weight:500; }
+.fan-submit-btn { min-height:49px; display:flex; justify-content:center; align-items:center; gap:10px; margin-top:10px; border:0; border-radius:13px; color:#fff; background:linear-gradient(110deg,#b5121b,#e3262e); box-shadow:0 7px 16px rgba(181,18,27,.2); font-family:inherit; font-size:13px; font-weight:900; cursor:pointer; }
+.fan-submit-btn:disabled { opacity:.65; }
+.fan-submit-btn.loading i { animation:fanSpin .8s linear infinite; }
+@keyframes fanSpin { to { transform:rotate(360deg); } }
+.fan-auth-divider { display:flex; align-items:center; gap:10px; margin:18px 0 14px; color:var(--text-muted); font-size:10px; font-weight:700; }
+.fan-auth-divider:before,.fan-auth-divider:after { content:""; flex:1; height:1px; background:var(--border-color); }
+.fan-google-area { min-height:42px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.fan-google-area iframe { max-width:100%; }
+.fan-google-note { margin-top:7px; color:var(--text-muted); text-align:center; font-size:10px; line-height:1.7; }
+.fan-privacy-note { display:flex; justify-content:center; align-items:center; gap:6px; margin-top:16px; color:var(--text-muted); font-size:9px; text-align:center; }
+.fan-privacy-note i { color:#16845a; }
+.fan-form-message { margin:0 0 12px; padding:10px 12px; border-radius:10px; font-size:11px; font-weight:700; line-height:1.6; }
+.fan-form-message.error { color:#a4141b; background:rgba(219,30,36,.09); border:1px solid rgba(219,30,36,.15); }
+.fan-form-message.success { color:#16734e; background:rgba(22,131,88,.09); }
+.fan-loading { min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:var(--text-muted); font-size:12px; font-weight:700; }
+.fan-loading i { color:var(--primary-red); font-size:25px; }
+.fan-account-card { position:relative; display:flex; align-items:center; gap:13px; margin-top:15px; padding:18px 15px; border:1px solid var(--border-color); border-radius:18px; background:var(--card-bg); box-shadow:var(--shadow-soft); }
+.fan-account-avatar { width:57px; height:57px; flex:0 0 57px; display:grid; place-items:center; border-radius:17px; color:#fff; background:linear-gradient(140deg,#b5121b,#e52b32); font-size:23px; }
+.fan-account-info { min-width:0; flex:1; }
+.fan-account-label { color:var(--text-muted); font-size:10px; font-weight:700; }
+.fan-account-info h3 { overflow:hidden; color:var(--text-dark); font-size:15px; font-weight:900; text-overflow:ellipsis; white-space:nowrap; }
+.fan-account-info p { overflow:hidden; color:var(--text-muted); font-size:11px; text-overflow:ellipsis; white-space:nowrap; }
+.fan-account-info small { display:block; margin-top:4px; color:var(--primary-red); font-size:10px; font-weight:800; }
+.fan-verified { position:absolute; top:13px; left:13px; width:23px; height:23px; display:grid; place-items:center; border-radius:50%; color:#fff; background:#1b9b69; font-size:10px; }
+.fan-member-note { display:flex; align-items:flex-start; gap:9px; margin-top:13px; padding:14px; border-radius:14px; color:var(--text-muted); background:var(--card-bg); font-size:11px; line-height:1.8; }
+.fan-member-note i { margin-top:3px; color:var(--primary-red); }
+.fan-logout-btn { width:100%; min-height:46px; margin-top:14px; border:1px solid rgba(219,30,36,.2); border-radius:12px; color:var(--primary-red); background:rgba(219,30,36,.06); font-family:inherit; font-size:12px; font-weight:800; cursor:pointer; }
+@media (max-width:360px) { .fan-auth-card { padding:17px 13px; } .fan-welcome-banner h3 { font-size:21px; } }

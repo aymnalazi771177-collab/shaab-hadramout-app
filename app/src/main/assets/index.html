@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=2.3">
+    <link rel="stylesheet" href="css/style.css?v=2.4">
 </head>
 <body>
     <div class="app-container">
@@ -376,7 +376,33 @@
                     <!-- Populated dynamically via JS -->
                 </div>
                 <section class="fan-leaderboard-card" id="fanLeaderboardCard">
-                    <div class="fan-leaderboard-heading"><div><span>المنافسة الجماهيرية</span><h3><i class="fas fa-trophy"></i> لوحة صدارة المشجعين</h3></div><b>أفضل 30</b></div>
+                    <div class="fan-contest-banner">
+                        <span class="fan-contest-kicker"><i class="fas fa-star"></i> تحدّي جماهير النوارس</span>
+                        <h2>مسابقة عشاق النوارس</h2>
+                        <p>توقّع نتائج المباريات واجمع النقاط ونافس على الجوائز</p>
+                    </div>
+                    <div class="fan-prizes-title"><i class="fas fa-gift"></i><span>جوائز المسابقة</span></div>
+                    <div class="fan-prizes-grid">
+                        <article class="fan-prize-item fan-prize-first">
+                            <span class="fan-prize-medal"><i class="fas fa-trophy"></i></span>
+                            <span class="fan-prize-place">المركز الأول</span>
+                            <strong>طقم النادي الرسمي</strong>
+                            <small>موقّع من اللاعبين</small>
+                        </article>
+                        <article class="fan-prize-item fan-prize-second">
+                            <span class="fan-prize-medal"><i class="fas fa-ticket"></i></span>
+                            <span class="fan-prize-place">المركز الثاني</span>
+                            <strong>تذكرة موسمية للمنصة</strong>
+                            <small>مقدمة من النادي</small>
+                        </article>
+                        <article class="fan-prize-item fan-prize-third">
+                            <span class="fan-prize-medal"><i class="fas fa-gift"></i></span>
+                            <span class="fan-prize-place">المركز الثالث</span>
+                            <strong>باقة مستلزمات حصرية</strong>
+                            <small>من النادي</small>
+                        </article>
+                    </div>
+                    <div class="fan-leaderboard-heading"><div><span>ترتيب المشاركين حسب النقاط</span><h3><i class="fas fa-trophy"></i> لوحة صدارة المشجعين</h3></div><b>أفضل 30</b></div>
                     <div id="fanLeaderboardRows" class="fan-leaderboard-rows"><p class="fan-leader-empty">جارٍ تحميل ترتيب المشجعين...</p></div>
                 </section>
             </div>

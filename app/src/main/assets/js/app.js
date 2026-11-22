@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
             welcomeScreen.classList.add('welcome-screen-leaving');
             document.body.classList.remove('welcome-open');
             window.setTimeout(() => { welcomeScreen.hidden = true; }, 380);
-        }, 1900);
+        }, 5000);
     }
 
     // Remove hard-coded preview content; official CMS data or its saved snapshot is shown instead.

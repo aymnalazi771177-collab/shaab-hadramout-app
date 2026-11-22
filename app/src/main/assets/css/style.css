@@ -1758,3 +1758,8 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 /* Team crests in upcoming/results match cards */
 .m-team-logo { overflow:hidden; flex-shrink:0; }
 .m-team-logo .match-team-logo-img { width:100%; height:100%; object-fit:contain; padding:5px; display:block; }
+
+/* Tournament picker */
+.tournament-picker-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tournament-picker-bar label{font-weight:800;color:var(--text)}
+.tournament-picker-bar select{min-width:180px;max-width:100%;padding:10px 14px;border:1px solid #e1e5ec;border-radius:12px;background:#fff;color:var(--text);font-family:inherit;font-weight:700;outline:none}

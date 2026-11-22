@@ -417,14 +417,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function navigateToPage(pageId) {
+    let currentAppPage = document.querySelector(".page.active")?.id || "homePage";
+    try { history.replaceState({ appPage: currentAppPage }, "", location.href); } catch (e) {}
+
+    function navigateToPage(pageId, fromBrowserBack = false) {
+        const targetPage = document.getElementById(pageId);
+        if (!targetPage) return;
+        if (!fromBrowserBack && pageId !== currentAppPage) {
+            try { history.pushState({ appPage: pageId }, "", location.href); } catch (e) {}
+        }
+        currentAppPage = pageId;
         allPages.forEach(p => p.classList.remove('active'));
 
-        const targetPage = document.getElementById(pageId);
-        if (targetPage) {
-            targetPage.classList.add('active');
-            targetPage.scrollTop = 0;
-        }
+        targetPage.classList.add('active');
+        targetPage.scrollTop = 0;
         const managedKey = Object.keys(MANAGED_SECTION_PAGES).find(key => MANAGED_SECTION_PAGES[key] === pageId);
         if (managedKey) loadManagedSection(managedKey);
 
@@ -441,6 +447,15 @@ document.addEventListener('DOMContentLoaded', function() {
         closeMenu();
         closeAllModals();
     }
+
+    window.addEventListener("popstate", function(event) {
+        const previousPage = event.state && event.state.appPage;
+        if (previousPage && document.getElementById(previousPage)) {
+            navigateToPage(previousPage, true);
+        } else {
+            navigateToPage("homePage", true);
+        }
+    });
 
     document.querySelectorAll('[data-navigate]').forEach(el => {
         el.addEventListener('click', function(e) {

@@ -393,9 +393,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!target) return;
         target.innerHTML = '<div class="managed-loading">جارٍ تحميل محتوى القسم...</div>';
         try {
-            const response = await fetch('https://shaab-hadramout.pages.dev/api/sections?section=' + encodeURIComponent(key) + '&refresh=' + Date.now(), {cache:'no-store'});
-            const payload = await response.json();
-            if (!response.ok || !payload.success || !Array.isArray(payload.items)) throw new Error(payload.message || 'تعذر تحميل المحتوى');
+            const payload = await clubGet('/api/sections?section=' + encodeURIComponent(key));
+            if (!payload.success || !Array.isArray(payload.items)) throw new Error(payload.message || 'تعذر تحميل المحتوى');
             if (!payload.items.length) {
                 target.innerHTML = '<div class="managed-empty">لا توجد مواد منشورة في قسم ' + escapeManagedText(MANAGED_SECTION_TITLES[key]) + ' حتى الآن.</div>';
                 return;
@@ -532,9 +531,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load club-managed Reels from the club CMS; keep the built-in preview stories as fallback.
     async function loadClubReels() {
         try {
-            const response = await fetch('https://shaab-hadramout.pages.dev/api/reels?refresh=' + Date.now(), { cache: 'no-store' });
-            const payload = await response.json();
-            if (!response.ok || !payload.success || !Array.isArray(payload.reels) || !payload.reels.length) return;
+            const payload = await clubGet('/api/reels');
+            if (!payload.success || !Array.isArray(payload.reels)) return;
             STORIES_DATA = payload.reels.map((item, index) => ({
                 id: item.id,
                 title: item.title || ('يوميات النوارس ' + (index + 1)),
@@ -1866,10 +1864,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const clubEscape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     async function clubGet(path) {
-        const response = await fetch(CLUB_API_BASE + path + (path.includes('?') ? '&' : '?') + 'refresh=' + Date.now(), { cache: 'no-store' });
-        const data = await response.json();
-        if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تحميل بيانات النادي');
-        return data;
+        const cacheKey = path.replace(/([?&])refresh=[^&]*/g, '$1').replace(/[?&]$/, '');
+        try {
+            const response = await fetch(CLUB_API_BASE + path + (path.includes('?') ? '&' : '?') + 'refresh=' + Date.now(), { cache: 'no-store' });
+            const data = await response.json();
+            if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تحميل بيانات النادي');
+            saveClubSnapshot(cacheKey, data);
+            return data;
+        } catch (error) {
+            const cached = readClubSnapshot(cacheKey);
+            if (cached) return cached;
+            throw error;
+        }
     }
     function clubDate(value) {
         if (!value) return '';
@@ -2133,7 +2139,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const rows = data.notifications || [];
             const list = document.getElementById('notifList');
             const badge = document.getElementById('notifBadge');
-            if (!list || !rows.length) return;
+            if (!list) return;
+            if (!rows.length) { list.innerHTML = '<div class="empty-state">لا توجد إشعارات محفوظة.</div>'; if (badge) badge.style.display = 'none'; return; }
             list.innerHTML = rows.map(item => '<div class="notif-item unread"><div class="notif-icon news-notif"><i class="fas fa-bullhorn"></i></div>' +
                 '<div class="notif-body"><p class="notif-text"><strong>' + clubEscape(item.title || 'تنبيه النادي') + '</strong> ' + clubEscape(item.body || '') + '</p>' +
                 '<span class="notif-time"><i class="far fa-clock"></i> ' + clubEscape(clubDate(item.created_at)) + '</span></div><span class="unread-dot"></span></div>').join('');

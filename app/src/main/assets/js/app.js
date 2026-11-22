@@ -1183,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const rowsHtml = STANDINGS_DATA.map(row => `
             <tr class="${row.isShaab ? 'highlight-shaab' : ''}">
                 <td><strong>${row.rank}</strong></td>
-                <td class="text-right">${row.logo && /^(https?:\\/\\/|\\/api\\/media\\/)/i.test(row.logo) ? `<img src="${row.logo.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" alt="" style="width:30px;height:30px;object-fit:contain;vertical-align:middle;margin-left:8px" loading="lazy">` : ''}<strong>${row.team}</strong> ${row.isShaab ? '⭐' : ''}</td>
+                <td class="text-right">${row.logo && (row.logo.startsWith("https://") || row.logo.startsWith("http://") || row.logo.startsWith("/api/media/")) ? `<img src="${row.logo.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" alt="" style="width:30px;height:30px;object-fit:contain;vertical-align:middle;margin-left:8px" loading="lazy">` : ''}<strong>${row.team}</strong> ${row.isShaab ? '⭐' : ''}</td>
                 <td>${row.played}</td>
                 <td>${row.won}</td>
                 <td>${row.draw}</td>

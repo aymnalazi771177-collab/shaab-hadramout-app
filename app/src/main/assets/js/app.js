@@ -1754,6 +1754,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const activeTab = document.querySelector('[data-player-cat].active');
         if (activeTab && activeTab.getAttribute('data-player-cat') === 'staff') renderPlayers('staff');
     }
+    function formatMatchTime(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        const match = raw.match(/^(\\d{1,2}):(\\d{2})(?::\\d{2})?$/);
+        if (!match) return raw;
+        const hour24 = Number(match[1]);
+        if (hour24 < 0 || hour24 > 23) return raw;
+        const period = hour24 >= 12 ? 'م' : 'ص';
+        const hour12 = hour24 % 12 || 12;
+        return hour12 + ':' + match[2] + ' ' + period;
+    }
     function applyClubMatches(rows) {
         if (!Array.isArray(rows)) return;
         const upcoming = [], results = [];
@@ -1767,7 +1778,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 (homeClub ? clubScore + ' - ' + opponentScore : opponentScore + ' - ' + clubScore);
             const common = {
                 id:Number(item.id), round:item.competition || 'مباريات النادي',
-                home, away, date:clubDate(item.match_date), time:item.match_time || '',
+                home, away, date:clubDate(item.match_date), time:formatMatchTime(item.match_time),
                 stadium:item.venue || '', isHome:homeClub, managed:true,
                 notes:item.notes || '', opponent:item.opponent || 'المنافس', opponentLogo:item.opponent_logo_url || '',
                 homeLogo:item.home_logo_url || '', status:item.status || 'upcoming',

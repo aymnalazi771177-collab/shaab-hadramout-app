@@ -4,24 +4,15 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Show the welcome screen only on the first launch of this installation.
+    // Show the logo-only opening screen on every app launch, then enter automatically.
     const welcomeScreen = document.getElementById('welcomeScreen');
-    const welcomeStartBtn = document.getElementById('welcomeStartBtn');
-    const WELCOME_KEY = 'shaab_welcome_seen_v1';
-    let hasSeenWelcome = false;
-    try { hasSeenWelcome = localStorage.getItem(WELCOME_KEY) === '1'; } catch (error) {}
     if (welcomeScreen) {
-        if (hasSeenWelcome) {
-            welcomeScreen.hidden = true;
-        } else {
-            document.body.classList.add('welcome-open');
-            welcomeStartBtn?.addEventListener('click', () => {
-                try { localStorage.setItem(WELCOME_KEY, '1'); } catch (error) {}
-                welcomeScreen.classList.add('welcome-screen-leaving');
-                document.body.classList.remove('welcome-open');
-                window.setTimeout(() => { welcomeScreen.hidden = true; }, 480);
-            }, { once: true });
-        }
+        document.body.classList.add('welcome-open');
+        window.setTimeout(() => {
+            welcomeScreen.classList.add('welcome-screen-leaving');
+            document.body.classList.remove('welcome-open');
+            window.setTimeout(() => { welcomeScreen.hidden = true; }, 380);
+        }, 1900);
     }
 
     // Remove hard-coded preview content; official CMS data or its saved snapshot is shown instead.

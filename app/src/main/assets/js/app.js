@@ -1871,7 +1871,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (action === 'register') {
                 const name = String(data.get('name') || '').trim();
                 const confirmPassword = String(data.get('confirmPassword') || '');
-                if (name.split(/\\s+/).filter(Boolean).length !== 3) return fanShowMessage('اكتب اسمك الثلاثي كاملاً.');
+                if (name.split(/\s+/).filter(Boolean).length !== 3) return fanShowMessage('اكتب اسمك الثلاثي كاملاً.');
                 if (password.length < 8) return fanShowMessage('كلمة المرور يجب ألا تقل عن 8 أحرف.');
                 if (password !== confirmPassword) return fanShowMessage('كلمتا المرور غير متطابقتين.');
             }

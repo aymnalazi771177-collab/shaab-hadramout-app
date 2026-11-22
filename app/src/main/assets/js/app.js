@@ -4,262 +4,51 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Remove hard-coded preview content; official CMS data or its saved snapshot is shown instead.
+    document.querySelector('.news-cards-container')?.replaceChildren();
+    document.getElementById('storiesScrollContainer')?.replaceChildren();
+    document.getElementById('sliderWrapper')?.replaceChildren();
+    document.getElementById('notifList')?.replaceChildren();
+
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
+    // Keep the latest real club content available when the device is offline.
+    const CLUB_CACHE_PREFIX = 'shaab_club_content_v2:';
+    function readClubSnapshot(key) {
+        try { const raw=localStorage.getItem(CLUB_CACHE_PREFIX+key); return raw ? JSON.parse(raw) : null; }
+        catch(error) { return null; }
+    }
+    function saveClubSnapshot(key, data) {
+        try { localStorage.setItem(CLUB_CACHE_PREFIX+key, JSON.stringify(data)); }
+        catch(error) { console.warn('Unable to save offline club data:', key, error); }
+    }
+
     // ============================================
-    // 1. DATA STORE (Official Club Content)
+    // 1. DATA STORE (Live Club Content Only)
     // ============================================
 
-    let PLAYERS_DATA = [
-        // Goalkeepers
-        { id: 1, name: 'محمد أمان', num: 1, pos: 'gk', posName: 'حارس مرمى', age: 26, height: '188 سم', weight: '82 كجم', matches: 11, cleanSheets: 6, saves: 38, cheers: 1420, bio: 'حارس المرمى الأمين لنادي شعب حضرموت والمنتخب الوطني، يتميز بسرعة ردة الفعل والبراعة في الكرات العالية.', img: 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?w=400&h=400&fit=crop&q=80' },
-        { id: 2, name: 'سالم بازهير', num: 22, pos: 'gk', posName: 'حارس مرمى', age: 23, height: '185 سم', weight: '79 كجم', matches: 2, cleanSheets: 1, saves: 9, cheers: 530, bio: 'حارس شاب موهوب تدرج في الفئات السنية للنادي وقدم مستويات لافتة في المباريات الودية والمسابقات.', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&q=80' },
+    let PLAYERS_DATA = [];
 
-        // Defenders
-        { id: 3, name: 'أحمد سعيد باحاج', num: 4, pos: 'def', posName: 'قلب دفاع (كابتن الفريق)', age: 28, height: '184 سم', weight: '78 كجم', matches: 12, goals: 1, tackles: 45, cheers: 2850, bio: 'قائد الفريق وصخرة الدفاع، صمام الأمان الذي قاد شعب حضرموت إلى منصات التتويج بفضل قيادته وحنكته الدفاعية.', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&q=80' },
-        { id: 4, name: 'خالد باوزير', num: 3, pos: 'def', posName: 'مدافع أيمن', age: 25, height: '176 سم', weight: '71 كجم', matches: 10, goals: 0, tackles: 32, cheers: 890, bio: 'ظهير عصري يمتاز بالسرعة والقدرة الفائقة على المساندة الهجومية ورفع العرضيات المتقنة لمهاجمي الفريق.', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&q=80' },
-        { id: 5, name: 'عمر باسرور', num: 5, pos: 'def', posName: 'قلب دفاع', age: 27, height: '186 سم', weight: '80 كجم', matches: 12, goals: 2, tackles: 41, cheers: 1210, bio: 'مدافع صلب بارع في الكرات الرأسية وقطع الهجمات المرتدة، وسجل أهدافاً حاسمة من الضربات الركنية.', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop&q=80' },
-        { id: 6, name: 'سعيد بامعبد', num: 12, pos: 'def', posName: 'ظهير أيسر', age: 24, height: '175 سم', weight: '70 كجم', matches: 9, goals: 0, tackles: 28, cheers: 740, bio: 'أحد المواهب الواعدة في الجهة اليسرى، يمتاز باللياقة البدنية العالية والانضباط التكتيكي طوال 90 دقيقة.', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&q=80' },
+    let STAFF_DATA = [];
 
-        // Midfielders
-        { id: 7, name: 'عبدالله العكبري', num: 8, pos: 'mid', posName: 'صانع ألعاب ومايسترو', age: 26, height: '177 سم', weight: '73 كجم', matches: 12, goals: 4, assists: 7, cheers: 3100, bio: 'دينامو الفريق ومهندس العمليات الهجومية، يملك رؤية استثنائية في الملعب ودقة عالية في التمريرات البينية الحاسمة.', img: 'https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?w=400&h=400&fit=crop&q=80' },
-        { id: 8, name: 'حسين باصليلة', num: 6, pos: 'mid', posName: 'لاعب ارتكاز دفاعي', age: 25, height: '181 سم', weight: '76 كجم', matches: 11, goals: 1, assists: 3, cheers: 1350, bio: 'محور الارتكاز القوي الذي يربط بين خطوط الفريق، يقطع كرات الخصوم بدقة ويبني الهجمات من الخلف بثقة.', img: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&h=400&fit=crop&q=80' },
-        { id: 9, name: 'أنيس المعاري', num: 10, pos: 'mid', posName: 'جناح هجومي دولي', age: 24, height: '174 سم', weight: '68 كجم', matches: 12, goals: 6, assists: 5, cheers: 4200, bio: 'نجم المنتخب الوطني وجوهرة شعب حضرموت، يمتاز بالمراوغة الفردية الممتعة والسرعة الخاطفة والتسديدات الصاروخية.', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&q=80' },
-        { id: 10, name: 'فاروق بازهير', num: 14, pos: 'mid', posName: 'وسط ميدان هجومي', age: 22, height: '179 سم', weight: '72 كجم', matches: 8, goals: 0, assists: 2, cheers: 680, bio: 'لاعب تكتيكي يتميز بالضغط العالي واستخلاص الكرات في مناطق المنافس، يمثل مستقبل خط وسط النادي.', img: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop&q=80' },
+    let MATCHES_UPCOMING = [];
 
-        // Forwards
-        { id: 11, name: 'محمد الحلاق', num: 9, pos: 'att', posName: 'رأس حربة وهداف الدوري', age: 27, height: '183 سم', weight: '77 كجم', matches: 12, goals: 9, assists: 2, cheers: 4890, bio: 'هداف الفريق الأول وأخطر مهاجم في الدوري، يتمتع بحس تهديفي فريد وقدرة على التسجيل من أنصاف الفرص.', img: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=400&h=400&fit=crop&q=80' },
-        { id: 12, name: 'علي باتيس', num: 11, pos: 'att', posName: 'مهاجم سريع وجناح', age: 23, height: '175 سم', weight: '69 كجم', matches: 10, goals: 5, assists: 4, cheers: 2150, bio: 'مهاجم مشاكس يرهق خطوط دفاع الخصوم بانطلاقاته السريعة وسرعة تحوله من الدفاع للهجوم في لحظات.', img: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&h=400&fit=crop&q=80' }
-    ];
+    let MATCHES_RESULTS = [];
 
-    let STAFF_DATA = [
-        { name: 'الكابتن أنور عاشور', role: 'المدير الفني للفريق الأول', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&q=80' },
-        { name: 'سالم بوعسكر', role: 'مساعد المدرب', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop&q=80' },
-        { name: 'عمر باحكيم', role: 'مدرب حراس المرمى', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&q=80' },
-        { name: 'د. خالد بلبحيث', role: 'طبيب الفريق وإخصائي العلاج الطبيعي', img: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=400&fit=crop&q=80' }
-    ];
+    let STANDINGS_DATA = [];
 
-    let MATCHES_UPCOMING = [
-        {
-            id: 101,
-            round: 'الجولة 12 - دوري الدرجة الأولى',
-            home: 'شعب حضرموت',
-            away: 'التلال عدن',
-            date: 'الجمعة 28 نوفمبر 2025',
-            time: '3:30 مساءً',
-            stadium: 'استاد الفقيد بارادم - المكلا',
-            isHome: true
-        },
-        {
-            id: 102,
-            round: 'الجولة 13 - دوري الدرجة الأولى',
-            home: 'أهلي صنعاء',
-            away: 'شعب حضرموت',
-            date: 'الخميس 4 ديسمبر 2025',
-            time: '4:00 مساءً',
-            stadium: 'استاد علي محسن المريسي - صنعاء',
-            isHome: false
-        },
-        {
-            id: 103,
-            round: 'الجولة 14 - دوري الدرجة الأولى',
-            home: 'شعب حضرموت',
-            away: 'الصقر تعز',
-            date: 'الجمعة 12 ديسمبر 2025',
-            time: '3:30 مساءً',
-            stadium: 'استاد الفقيد بارادم - المكلا',
-            isHome: true
-        }
-    ];
+    let TRANSFERS_DATA = {in:[],out:[],renew:[]};
 
-    let MATCHES_RESULTS = [
-        {
-            round: 'الجولة 11 - دوري الدرجة الأولى',
-            home: 'شعب حضرموت',
-            away: 'وحدة عدن',
-            score: '2 - 1',
-            date: 'الجمعة 21 نوفمبر 2025',
-            scorers: 'محمد الحلاق 34’، أنيس المعاري 78’',
-            stadium: 'استاد بارادم - المكلا'
-        },
-        {
-            round: 'الجولة 10 - دوري الدرجة الأولى',
-            home: 'اليرموك صنعاء',
-            away: 'شعب حضرموت',
-            score: '0 - 2',
-            date: 'السبت 15 نوفمبر 2025',
-            scorers: 'عبدالله العكبري 19’، علي باتيس 65’',
-            stadium: 'ملعب وحدة صنعاء'
-        },
-        {
-            round: 'الجولة 9 - دوري الدرجة الأولى',
-            home: 'شعب حضرموت',
-            away: 'هلال الحديدة',
-            score: '3 - 0',
-            date: 'الجمعة 7 نوفمبر 2025',
-            scorers: 'محمد الحلاق (هدفين) 12’، 54’، عمر باسرور 88’',
-            stadium: 'استاد بارادم - المكلا'
-        }
-    ];
+    let MEDIA_DATA = {photos:[],videos:[]};
 
-    let STANDINGS_DATA = [
-        { rank: 1, team: 'شعب حضرموت', played: 11, won: 8, draw: 2, lost: 1, diff: '+15', points: 26, isShaab: true },
-        { rank: 2, team: 'أهلي صنعاء', played: 11, won: 7, draw: 3, lost: 1, diff: '+12', points: 24, isShaab: false },
-        { rank: 3, team: 'التلال عدن', played: 11, won: 6, draw: 3, lost: 2, diff: '+8', points: 21, isShaab: false },
-        { rank: 4, team: 'وحدة عدن', played: 11, won: 5, draw: 4, lost: 2, diff: '+6', points: 19, isShaab: false },
-        { rank: 5, team: 'الصقر تعز', played: 11, won: 5, draw: 2, lost: 4, diff: '+3', points: 17, isShaab: false },
-        { rank: 6, team: 'اليرموك', played: 11, won: 3, draw: 4, lost: 4, diff: '-2', points: 13, isShaab: false },
-        { rank: 7, team: 'شعب إب', played: 11, won: 3, draw: 2, lost: 6, diff: '-7', points: 11, isShaab: false },
-        { rank: 8, team: 'هلال الحديدة', played: 11, won: 1, draw: 2, lost: 8, diff: '-16', points: 5, isShaab: false }
-    ];
+    let ANTHEMS_DATA = [];
 
-    let TRANSFERS_DATA = {
-        in: [
-            { name: 'محمد الحلاق', from: 'نادي ظفار', role: 'مهاجم هداف', date: 'موسم 2025-2026', type: 'شراء نهائي', val: 'عقد موسمين', img: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=400&h=400&fit=crop&q=80' },
-            { name: 'عبدالله العكبري', from: 'العروبة', role: 'صانع ألعاب', date: 'موسم 2025-2026', type: 'انتقال حر', val: 'عقد 3 مواسم', img: 'https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?w=400&h=400&fit=crop&q=80' }
-        ],
-        out: [
-            { name: 'سالم بامحرز', from: 'شعب حضرموت', to: 'النهضة العماني', role: 'مدافع', date: 'أكتوبر 2025', type: 'إعارة موسم', val: 'موسم واحد', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&q=80' }
-        ],
-        renew: [
-            { name: 'أحمد سعيد باحاج (كابتن الفريق)', role: 'قلب دفاع', date: 'نوفمبر 2025', type: 'تجديد عقد', val: 'حتى صيف 2028', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&q=80' },
-            { name: 'محمد أمان', role: 'حارس مرمى', date: 'أكتوبر 2025', type: 'تجديد عقد', val: 'حتى صيف 2027', img: 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?w=400&h=400&fit=crop&q=80' }
-        ]
-    };
+    let NEWS_ALL = [];
 
-    let MEDIA_DATA = {
-        photos: [
-            { title: 'أجواء تدريبات الفريق المسائية بملعب بارادم', img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop&q=80', count: '18 صورة' },
-            { title: 'احتفال اللاعبين بالفوز الأخير على وحدة عدن', img: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&h=600&fit=crop&q=80', count: '25 صورة' },
-            { title: 'حضور وتيفو الجماهير الشعباوية بالمكلا', img: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=800&h=600&fit=crop&q=80', count: '32 صورة' },
-            { title: 'مؤتمر تقديم الصفقات الجديدة للموسم', img: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=800&h=600&fit=crop&q=80', count: '14 صورة' }
-        ],
-        videos: [
-            { title: 'ملخص وأهداف مباراة شعب حضرموت 2 - 1 وحدة عدن', img: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800&h=600&fit=crop&q=80', dur: '4:20 دقيقة' },
-            { title: 'أجمل 5 أهداف لنادي شعب حضرموت هذا الموسم', img: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800&h=600&fit=crop&q=80', dur: '3:45 دقيقة' },
-            { title: 'تصريحات المدير الفني أنور عاشور بعد الفوز', img: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&h=600&fit=crop&q=80', dur: '2:30 دقيقة' }
-        ]
-    };
-
-    let ANTHEMS_DATA = [
-        { id: 1, title: 'النشيد الرسمي: يا نوارس المكلا', artist: 'كورال جماهير نادي شعب حضرموت', duration: '3:25', progress: 35 },
-        { id: 2, title: 'أحمر وأبيض عشق السنين', artist: 'أهازيج التراس شعب حضرموت', duration: '2:40', progress: 0 },
-        { id: 3, title: 'شعباوي في الميدان ما ينغلب', artist: 'هتاف المدرج الحضرمي', duration: '1:55', progress: 0 },
-        { id: 4, title: 'جينا نشجع يا شعب العز', artist: 'رابطة مشجعي الشعب', duration: '2:15', progress: 0 }
-    ];
-
-    let NEWS_ALL = [
-        {
-            id: 1,
-            title: 'جماهير شعب حضرموت .. سند الفريق وداعمه الأول في مسيرة الصدارة',
-            date: '28 نوفمبر 2025',
-            cat: 'الجماهير',
-            readTime: '3 دقائق قراءة',
-            author: 'المركز الإعلامي لنادي شعب حضرموت',
-            img: 'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800&h=500&fit=crop&q=80',
-            content: `تواصل جماهير نادي شعب حضرموت الوفية رسم أجمل اللوحات التشجيعية في مدرجات استاد الفقيد بارادم بالمكلا وفي جميع ملاعب الوطن، مؤكدة أنها الرقم الصعب والداعم الأول لمسيرة نوارس حضرموت نحو الحفاظ على صدارة دوري الدرجة الأولى.\n\nوأكد رئيس النادي في تصريح خاص أن الحضور الجماهيري المكثف يمنح اللاعبين حافزاً معنوياً لا يضاهى لتقديم أفضل المستويات والقتال حتى آخر ثانية من أجل إسعاد الجماهير وحصد لقب الدوري.`
-        },
-        {
-            id: 2,
-            title: 'الفريق الأول يختتم تحضيراته التكتيكية لمواجهة التلال المرتقبة',
-            date: '26 نوفمبر 2025',
-            cat: 'الفريق الأول',
-            readTime: '2 دقيقة قراءة',
-            author: 'إدارة الإعلام الرياضي',
-            img: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=800&h=500&fit=crop&q=80',
-            content: `أنهى الفريق الأول لكرة القدم بنادي شعب حضرموت مساء اليوم حصته التدريبية الأخيرة على ملعب الفقيد بارادم بالمكلا تحت قيادة المدير الفني الكابتن أنور عاشور، استعداداً لموقعة الجولة الثانية عشرة أمام نادي التلال عدن.\n\nوشهدت التدريبات روحاً معنوية عالية بين اللاعبين وجاهزية تامة لكافة العناصر الأساسية، حيث ركز الجهاز الفني على اللمسات التكتيكية وتطبيق خطة المباراة بالانتشار السريع والضغط العالي.`
-        },
-        {
-            id: 3,
-            title: 'النادي يتعاقد رسمياً مع المهاجم الدولي محمد الحلاق لموسمين',
-            date: '24 نوفمبر 2025',
-            cat: 'الانتقالات',
-            readTime: '4 دقائق قراءة',
-            author: 'لجنة التعاقدات الرياضية',
-            img: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800&h=500&fit=crop&q=80',
-            content: `أعلنت إدارة نادي شعب حضرموت برئاسة مجلس الإدارة رسمياً عن إتمام التعاقد مع المهاجم الدولي محمد الحلاق بعقد يمتد لموسمين قادمين، وذلك لتعزيز القوة الهجومية للفريق الأول.\n\nويأتي هذا التوقيع ضمن خطة النادي الاستراتيجية لتدعيم الصفوف بعناصر الخبرة الدولية للمنافسة على الألقاب المحلية وتمثيل الوطن في الاستحقاقات الخارجية القادمة.`
-        },
-        {
-            id: 4,
-            title: 'فوز مستحق لشعب حضرموت على وحدة عدن بهدفي الحلاق والمعاري',
-            date: '21 نوفمبر 2025',
-            cat: 'المباريات',
-            readTime: '3 دقائق قراءة',
-            author: 'المحرر الرياضي',
-            img: 'https://images.unsplash.com/photo-1486286701208-1d58e9338013?w=800&h=500&fit=crop&q=80',
-            content: `في قمة كروية مثيرة حبست الأنفاس، حسم نادي شعب حضرموت ديربي الإثارة بالفوز على ضيفه وحدة عدن بنتيجة 2-1 وسط حضور جماهيري غفير غصت به مدرجات بارادم.\n\nافتتح المهاجم محمد الحلاق التسجيل في الدقيقة 34 من رأسية متقنة، قبل أن يضيف نجم الوسط أنيس المعاري هدف الحسم في الدقيقة 78 بتسديدة صاروخية سكنت الشباك لتشتعل المدرجات فرحاً.`
-        },
-        {
-            id: 5,
-            title: 'إدارة النادي تطلق بطاقات العضوية الإلكترونية الموحدة للجماهير',
-            date: '18 نوفمبر 2025',
-            cat: 'الإدارة',
-            readTime: '2 دقيقة قراءة',
-            author: 'أمانة سر النادي',
-            img: 'https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=800&h=500&fit=crop&q=80',
-            content: `دشنت إدارة نادي شعب حضرموت منظومة بطاقات المشجع الإلكترونية الجديدة التي تتيح لجماهير النادي حجز تذاكر المباريات بسهولة والاستفادة من خصومات متجر النادي والفعاليات الحصرية.\n\nوتعد هذه الخطوة نقلة نوعية في التحول الرقمي الرياضي على مستوى الأندية اليمنية لتعزيز الترابط بين النادي وجماهيره العريضة في داخل الوطن والمهجر.`
-        }
-    ];
-
-    let STORIES_DATA = [
-        {
-            id: 1,
-            title: 'تدريبات اليوم',
-            badge: 'مباشر 🔴',
-            time: 'منذ ساعة',
-            thumb: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=300&h=300&fit=crop&q=80',
-            fullImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=1200&fit=crop&q=80',
-            caption: '💪 انطلاق الحصة التدريبية المسائية بملعب بارادم وسط تركيز تكتيكي عالٍ من اللاعبين لموقعة الجمعة!'
-        },
-        {
-            id: 2,
-            title: 'أهداف القمة',
-            badge: 'فيديو ⚽',
-            time: 'منذ ساعتين',
-            thumb: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=300&h=300&fit=crop&q=80',
-            fullImg: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800&h=1200&fit=crop&q=80',
-            caption: '⚽ لقطة الهدف الصاروخي الذي حسم الثلاث نقاط الغالية في الجولة الأخيرة.. احتفالية نارية!'
-        },
-        {
-            id: 3,
-            title: 'مدرج النوارس',
-            badge: 'تيفو 🔥',
-            time: 'منذ 4 ساعات',
-            thumb: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=300&h=300&fit=crop&q=80',
-            fullImg: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=800&h=1200&fit=crop&q=80',
-            caption: '❤️ لوحة جماهيرية مبهرة في المكلا تهتف بحب النادي وتساند نوارس حضرموت حتى الصافرة الأخيرة!'
-        },
-        {
-            id: 4,
-            title: 'كواليس الغرفة',
-            badge: 'حماس 👏',
-            time: 'منذ 6 ساعات',
-            thumb: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=300&h=300&fit=crop&q=80',
-            fullImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&h=1200&fit=crop&q=80',
-            caption: '🏆 الروح العالية والأهازيج الحماسية داخل غرفة تبديل الملابس بعد تحقيق الانتصار الثمين!'
-        },
-        {
-            id: 5,
-            title: 'لقاء الكابتن',
-            badge: 'تصريح 🎙️',
-            time: 'أمس',
-            thumb: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop&q=80',
-            fullImg: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&h=1200&fit=crop&q=80',
-            caption: '🎙️ المدرب أنور عاشور: "الفريق في قمة الجاهزية البدنية والذهنية وسنلعب للفوز فقط لإسعاد جماهيرنا العريضة".'
-        },
-        {
-            id: 6,
-            title: 'نجم الأسبوع',
-            badge: '⭐ نجم',
-            time: 'أمس',
-            thumb: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=300&h=300&fit=crop&q=80',
-            fullImg: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=800&h=1200&fit=crop&q=80',
-            caption: '⭐ المهاجم محمد الحلاق يتوج بجائزة رجل المباراة وأفضل لاعب في الجولة بعد تألقه اللافت!'
-        }
-    ];
+    let STORIES_DATA = [];
 
     // ============================================
     // 2. WEB AUDIO API SYNTHESIZER (Real Sound Effects!)
@@ -1342,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ? NEWS_ALL.filter(n => n.title.includes(query) || n.cat.includes(query))
             : NEWS_ALL;
 
-        container.innerHTML = filtered.map(n => `
+        container.innerHTML = filtered.length ? filtered.map(n => `
             <div class="news-card" onclick="openArticleModal(${n.id})">
                 <div class="news-card-image">
                     <img src="${n.img}" alt="${n.title}" loading="lazy">
@@ -1353,7 +1142,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="news-date"><i class="far fa-clock"></i><span>${n.date}</span></div>
                 </div>
             </div>
-        `).join('');
+        `).join('') : '<div class="empty-state">لا توجد أخبار محفوظة للعرض دون اتصال.</div>';
     }
     renderAllNews();
 
@@ -1886,14 +1675,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function refreshHomeNews() {
         const wrap = document.querySelector('.news-cards-container');
         if (!wrap) return;
-        wrap.innerHTML = NEWS_ALL.slice(0, 4).map(n =>
+        wrap.innerHTML = NEWS_ALL.length ? NEWS_ALL.slice(0, 4).map(n =>
             '<div class="news-card" data-news-id="' + n.id + '" onclick="openArticleModal(' + n.id + ')">' +
             '<div class="news-card-image"><img src="' + clubEscape(n.img) + '" alt="' + clubEscape(n.title) + '" loading="lazy"></div>' +
             '<div class="news-card-content"><h4>' + clubEscape(n.title) + '</h4><div class="news-date"><span>' + clubEscape(n.date) + '</span> <i class="far fa-clock"></i></div></div></div>'
-        ).join('');
+        ).join('') : '<div class="empty-state">لا توجد أخبار محفوظة على هذا الجهاز حتى الآن.</div>';
     }
     function applyClubNews(rows) {
-        if (!Array.isArray(rows) || !rows.length) return;
+        if (!Array.isArray(rows)) rows = [];
         NEWS_ALL = rows.map(item => ({
             id: Number(item.id), title: item.title || '', date: clubDate(item.created_at),
             cat: 'أخبار النادي', readTime: 'خبر من المركز الإعلامي',
@@ -1905,7 +1694,7 @@ document.addEventListener('DOMContentLoaded', function() {
         refreshHomeNews();
     }
     function applyClubPlayers(rows) {
-        if (!Array.isArray(rows) || !rows.length) return;
+        if (!Array.isArray(rows)) rows = [];
         const posMap = {'حراس المرمى':'gk','الدفاع':'def','الوسط':'mid','الهجوم':'att','المدرب':'staff'};
         const posNames = {'حراس المرمى':'حارس مرمى','الدفاع':'مدافع','الوسط':'لاعب وسط','الهجوم':'مهاجم','المدرب':'الجهاز الفني'};
         const players = [], staff = [];
@@ -2028,7 +1817,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(error) { console.warn('Tournaments unavailable',error); select.innerHTML='<option value="">تعذر تحميل البطولات</option>'; }
     }
     function applyClubTransfers(rows) {
-        if (!Array.isArray(rows) || !rows.length) return;
+        if (!Array.isArray(rows)) rows = [];
         const mapped = {in:[],out:[],renew:[]};
         rows.forEach(item => {
             const direction = item.direction === 'outgoing' ? 'out' : 'in';
@@ -2044,7 +1833,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTransfers(tab ? tab.getAttribute('data-trans-tab') : 'in');
     }
     function applyClubGallery(rows) {
-        if (!Array.isArray(rows) || !rows.length) return;
+        if (!Array.isArray(rows)) rows = [];
         const photos = [], videos = [];
         rows.forEach(item => {
             const record = {
@@ -2058,7 +1847,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderMedia(tab ? tab.getAttribute('data-media-tab') : 'photos');
     }
     function applyClubAnthems(rows) {
-        if (!Array.isArray(rows) || !rows.length) return;
+        if (!Array.isArray(rows)) rows = [];
         ANTHEMS_DATA = rows.map(item => ({
             id:Number(item.id), title:item.title || '', artist:item.description || 'أناشيد نادي شعب حضرموت',
             description:item.description || '', audio_url:item.audio_url || '', duration:'—:—', progress:0
@@ -2073,19 +1862,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     function applyClubCarousel(rows) {
-        if (!Array.isArray(rows) || !rows.length) return;
-        const currentSlides = document.querySelectorAll('#sliderWrapper .slide');
-        rows.slice(0, currentSlides.length).forEach((item,index) => {
-            const slide = currentSlides[index];
-            const img = slide.querySelector('.slide-image');
-            const category = slide.querySelector('.slide-category');
-            const heading = slide.querySelector('h3');
-            if (img && item.image_url) img.src = item.image_url;
-            if (category) category.textContent = 'أخبار النادي';
-            if (heading) heading.textContent = item.title || '';
-            slide.dataset.cmsSlide = String(item.id);
-            slide.setAttribute('aria-label', item.title || 'خبر النادي');
-        });
+        const wrapper = document.getElementById('sliderWrapper');
+        if (!wrapper) return;
+        wrapper.innerHTML = (Array.isArray(rows) ? rows : []).filter(item => item.image_url).map((item,index) =>
+            '<div class="slide ' + (index === 0 ? 'active' : '') + '" data-cms-slide="' + clubEscape(item.id) + '">' +
+            '<img class="slide-image" src="' + clubEscape(item.image_url) + '" alt="' + clubEscape(item.title || 'أخبار النادي') + '" loading="' + (index === 0 ? 'eager' : 'lazy') + '">' +
+            '<div class="slide-overlay"><span class="slide-category">أخبار النادي</span><h3>' + clubEscape(item.title || '') + '</h3></div></div>'
+        ).join('');
+        const section = wrapper.closest('.slider-section');
+        if (section) section.hidden = !wrapper.children.length;
     }
     async function loadClubHistory() {
         try {
@@ -2160,11 +1945,21 @@ document.addEventListener('DOMContentLoaded', function() {
             ['/api/history', () => loadClubHistory()],
             ['/api/notifications', () => loadClubNotifications()]
         ];
+        // Display the last saved real CMS content first, then refresh it online.
         await Promise.allSettled(jobs.map(async job => {
-            try { const data = await clubGet(job[0]); job[1](data); }
-            catch (error) { console.warn('CMS section load failed: ' + job[0], error); }
-            await loadPublicTournaments();
-    }));
+            const cached = readClubSnapshot(job[0]);
+            if (cached) { try { job[1](cached); } catch(error) { console.warn('Cached content render failed:', job[0], error); } }
+        }));
+        await Promise.allSettled(jobs.map(async job => {
+            try {
+                const data = await clubGet(job[0]);
+                saveClubSnapshot(job[0], data);
+                job[1](data);
+            } catch (error) {
+                console.warn('CMS section unavailable; keeping saved content: ' + job[0], error);
+            }
+        }));
+        await loadPublicTournaments();
     }
     // Native-style pull down refresh: reload current CMS data without leaving the screen.
     function setupPullToRefresh() {

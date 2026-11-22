@@ -28,39 +28,36 @@ self.addEventListener('fetch', (event) => {
 
   // Keep images, video posters, and audio files that the user has already opened.
   if (request.destination === 'image' || request.destination === 'video' || request.destination === 'audio') {
+    const refreshMedia = caches.open(MEDIA_CACHE).then((cache) =>
+      fetch(request).then((response) => {
+        if (response && (response.ok || response.type === 'opaque')) cache.put(request, response.clone()).catch(() => {});
+        return response;
+      }).catch(() => null)
+    );
+    event.waitUntil(refreshMedia.then(() => undefined));
     event.respondWith((async () => {
       const cache = await caches.open(MEDIA_CACHE);
       const cached = await cache.match(request);
-      const network = fetch(request).then((response) => {
-        if (response && (response.ok || response.type === 'opaque')) {
-          cache.put(request, response.clone()).catch(() => {});
-        }
-        return response;
-      }).catch(() => null);
-      if (cached) {
-        event.waitUntil(network.then(() => undefined));
-        return cached;
-      }
-      const response = await network;
-      return response || new Response('', { status: 503, statusText: 'Offline media unavailable' });
+      if (cached) return cached;
+      return (await refreshMedia) || new Response('', { status: 503, statusText: 'Offline media unavailable' });
     })());
     return;
   }
 
   // App shell: prefer the saved copy, while updating it when a connection exists.
   if (new URL(request.url).origin === self.location.origin) {
+    const refreshShell = caches.open(CACHE_NAME).then((cache) =>
+      fetch(request).then((response) => {
+        if (response && response.ok) cache.put(request, response.clone()).catch(() => {});
+        return response;
+      }).catch(() => null)
+    );
+    event.waitUntil(refreshShell.then(() => undefined));
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_NAME);
       const cached = await cache.match(request);
-      const network = fetch(request).then((response) => {
-        if (response && response.ok) cache.put(request, response.clone()).catch(() => {});
-        return response;
-      }).catch(() => null);
-      if (cached) {
-        event.waitUntil(network.then(() => undefined));
-        return cached;
-      }
-      return (await network) || new Response('غير متصل بالإنترنت', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+      if (cached) return cached;
+      return (await refreshShell) || new Response('غير متصل بالإنترنت', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
     })());
   }
 });

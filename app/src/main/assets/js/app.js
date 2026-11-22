@@ -813,145 +813,63 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('playerModalOverlay')?.addEventListener('click', closeAllModals);
 
     // --- 2. Match Center & E-Ticket Modal ---
-    window.openMatchModal = function() {
+    window.openMatchModal = function(matchId) {
         playTone(520, 'sine', 0.12);
-
         const body = document.getElementById('matchModalBody');
-        body.innerHTML = `
-            <div class="match-hero-score-banner">
-                <div style="font-size:11.5px; color:#FFD700; font-weight:700; margin-bottom:8px;">
-                    <i class="fas fa-fire"></i> قمة الجولة 12 - دوري الدرجة الأولى
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-around;">
-                    <div style="text-align:center;">
-                        <span style="font-size:13px; font-weight:800; display:block;">شعب حضرموت</span>
-                        <small style="font-size:10px; color:#ddd;">متصدر الترتيب</small>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.15); padding:6px 14px; border-radius:20px; font-size:15px; font-weight:900;">
-                        VS
-                    </div>
-                    <div style="text-align:center;">
-                        <span style="font-size:13px; font-weight:800; display:block;">التلال عدن</span>
-                        <small style="font-size:10px; color:#ddd;">المركز الثالث</small>
-                    </div>
-                </div>
-                <div style="margin-top:10px; font-size:11px; color:#eee;">
-                    <i class="far fa-clock"></i> الجمعة 28 نوفمبر 2025 - 3:30 عصراً
-                </div>
-            </div>
-
-            <!-- Football Pitch Formation -->
-            <div class="match-pitch-container">
-                <h4><i class="fas fa-clipboard-list text-red"></i> التشكيلة المتوقعة لنادي شعب حضرموت (4-3-3)</h4>
-                <div class="football-pitch">
-                    <div class="pitch-half-line"></div>
-                    <div class="pitch-center-circle"></div>
-                    <div class="pitch-penalty-top"></div>
-                    <div class="pitch-penalty-bottom"></div>
-
-                    <!-- Goalkeeper -->
-                    <div class="pitch-player" style="bottom: 12px; left: 50%;" onclick="openPlayerModal(1)">
-                        <div class="pitch-shirt-icon" style="background:#27ae60;">1</div>
-                        <span class="pitch-player-name">محمد أمان</span>
-                    </div>
-
-                    <!-- Defenders (4) -->
-                    <div class="pitch-player" style="bottom: 58px; left: 16%;" onclick="openPlayerModal(4)">
-                        <div class="pitch-shirt-icon">3</div>
-                        <span class="pitch-player-name">باوزير</span>
-                    </div>
-                    <div class="pitch-player" style="bottom: 52px; left: 38%;" onclick="openPlayerModal(3)">
-                        <div class="pitch-shirt-icon">4</div>
-                        <span class="pitch-player-name">باحاج (C)</span>
-                    </div>
-                    <div class="pitch-player" style="bottom: 52px; left: 62%;" onclick="openPlayerModal(5)">
-                        <div class="pitch-shirt-icon">5</div>
-                        <span class="pitch-player-name">باسرور</span>
-                    </div>
-                    <div class="pitch-player" style="bottom: 58px; left: 84%;" onclick="openPlayerModal(6)">
-                        <div class="pitch-shirt-icon">12</div>
-                        <span class="pitch-player-name">بامعبد</span>
-                    </div>
-
-                    <!-- Midfielders (3) -->
-                    <div class="pitch-player" style="top: 50%; left: 30%;" onclick="openPlayerModal(8)">
-                        <div class="pitch-shirt-icon">6</div>
-                        <span class="pitch-player-name">باصليلة</span>
-                    </div>
-                    <div class="pitch-player" style="top: 45%; left: 50%;" onclick="openPlayerModal(7)">
-                        <div class="pitch-shirt-icon">8</div>
-                        <span class="pitch-player-name">العكبري</span>
-                    </div>
-                    <div class="pitch-player" style="top: 50%; left: 70%;" onclick="openPlayerModal(10)">
-                        <div class="pitch-shirt-icon">14</div>
-                        <span class="pitch-player-name">بازهير</span>
-                    </div>
-
-                    <!-- Attackers (3) -->
-                    <div class="pitch-player" style="top: 24%; left: 20%;" onclick="openPlayerModal(12)">
-                        <div class="pitch-shirt-icon">11</div>
-                        <span class="pitch-player-name">باتيس</span>
-                    </div>
-                    <div class="pitch-player" style="top: 14%; left: 50%;" onclick="openPlayerModal(11)">
-                        <div class="pitch-shirt-icon">9</div>
-                        <span class="pitch-player-name">الحلاق ⚽</span>
-                    </div>
-                    <div class="pitch-player" style="top: 24%; left: 80%;" onclick="openPlayerModal(9)">
-                        <div class="pitch-shirt-icon">10</div>
-                        <span class="pitch-player-name">المعاري ⭐</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- E-Ticket Section -->
-            <div class="ticket-generator-box">
-                <button class="book-ticket-btn" id="bookTicketActionBtn">
-                    <i class="fas fa-ticket"></i> إصدار التذكرة الرقمية للمباراة مجاناً 🎟️
-                </button>
-
-                <div class="digital-ticket-card" id="digitalTicketCard" style="display:none;">
-                    <div class="ticket-notch-left"></div>
-                    <div class="ticket-notch-right"></div>
-                    <div class="ticket-header-strip">
-                        <strong>نادي شعب حضرموت vs التلال</strong>
-                        <span style="font-size:11px; color:#888;">#SHB-2025-998</span>
-                    </div>
-                    <div class="ticket-seats-row">
-                        <div class="ticket-seat-col">
-                            <span>البوابة</span>
-                            <strong>Gate 03</strong>
-                        </div>
-                        <div class="ticket-seat-col">
-                            <span>المدرج</span>
-                            <strong>مدرج النوارس</strong>
-                        </div>
-                        <div class="ticket-seat-col">
-                            <span>المقعد</span>
-                            <strong>14-B</strong>
+        if (!body) return;
+        const match = MATCHES_UPCOMING.find(item => Number(item.id) === Number(matchId)) || MATCHES_UPCOMING[0] || MATCHES_RESULTS[0];
+        if (!match) { body.innerHTML = '<p style="text-align:center;padding:24px">لا توجد تفاصيل متاحة لهذه المباراة حالياً.</p>'; }
+        else {
+            const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+            const safeImage = value => /^(https?:\/\/|\/api\/media\/)/i.test(String(value || '').trim()) ? String(value).trim() : '';
+            const isClubHome = !!match.isHome;
+            const clubLogo = safeImage(isClubHome ? match.homeLogo : match.opponentLogo) || 'images/logo.png';
+            const opponentLogo = safeImage(isClubHome ? match.opponentLogo : match.homeLogo);
+            const clubTeam = isClubHome ? match.home : match.away;
+            const opponentTeam = isClubHome ? match.away : match.home;
+            const lineupIds = Array.isArray(match.lineup) ? match.lineup : [];
+            const selected = lineupIds.map(id => PLAYERS_DATA.find(player => Number(player.id) === Number(id))).filter(Boolean);
+            const order = ['gk','def','mid','att'];
+            const groups = [
+                {key:'gk',label:'حراسة المرمى'},
+                {key:'def',label:'خط الدفاع'},
+                {key:'mid',label:'خط الوسط'},
+                {key:'att',label:'خط الهجوم'}
+            ];
+            const playersByLine = groups.map(group => selected.filter(player => player.pos === group.key));
+            const lineupHtml = selected.length ? `
+                <section style="margin:16px 0">
+                    <h3 style="font-size:15px;font-weight:900;margin:0 0 10px;color:var(--text-dark)">تشكيلة شعب حضرموت <span style="color:var(--primary-red)">(${esc(match.formation || 'الخطة غير محددة')})</span></h3>
+                    <div style="background:linear-gradient(180deg,#218653,#12633d);border:3px solid #e9f5ee;border-radius:16px;padding:14px 8px;position:relative;overflow:hidden">
+                        <div style="position:absolute;inset:8px;border:1px solid rgba(255,255,255,.55);border-radius:9px;pointer-events:none"></div>
+                        <div style="position:absolute;left:0;right:0;top:50%;border-top:1px solid rgba(255,255,255,.55)"></div>
+                        <div style="position:absolute;width:70px;height:70px;border:1px solid rgba(255,255,255,.55);border-radius:50%;left:calc(50% - 35px);top:calc(50% - 35px)"></div>
+                        <div style="position:relative;display:flex;flex-direction:column;gap:16px;align-items:center">
+                            ${playersByLine.slice().reverse().map((players,index)=>players.length?`<div style="width:100%;display:flex;justify-content:space-evenly;align-items:center;gap:5px;flex-wrap:wrap">${players.map(player=>`<div style="width:64px;text-align:center;color:#fff;z-index:1"><div style="width:43px;height:43px;margin:auto;border-radius:50%;border:2px solid #fff;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center">${safeImage(player.img)?`<img src="${esc(safeImage(player.img))}" alt="" style="width:100%;height:100%;object-fit:cover">`:'<i class="fas fa-user" style="color:#777"></i>'}</div><b style="display:block;font-size:11px;background:#fff;color:#c51e2b;border-radius:12px;width:23px;margin:-5px auto 2px;position:relative">${esc(player.num || '—')}</b><span style="display:block;font-size:9px;line-height:1.35;text-shadow:0 1px 2px #12452e">${esc(player.name)}</span></div>`).join('')}</div>`:'').join('')}
                         </div>
                     </div>
-                    <div class="ticket-barcode-strip">
-                        <div>
-                            <span style="font-size:10px; color:#777; display:block;">تاريخ الفعالية:</span>
-                            <strong style="font-size:11px;">28 نوفمبر 2025</strong>
-                        </div>
-                        <div class="fake-barcode">||| | |||| | ||||| |</div>
+                </section>` : '<div style="padding:16px;border:1px dashed #ddd;border-radius:12px;text-align:center;color:#777;margin:14px 0">لم تعتمد الإدارة تشكيلة هذه المباراة بعد.</div>';
+            body.innerHTML = `
+                <div style="background:linear-gradient(135deg,#b91625,#e52c38);color:#fff;border-radius:16px;padding:18px 12px;text-align:center">
+                    <div style="font-size:12px;font-weight:800;opacity:.9;margin-bottom:12px">${esc(match.round || 'مباراة نادي شعب حضرموت')}</div>
+                    <div style="display:flex;align-items:center;justify-content:space-around;gap:8px">
+                        <div style="flex:1"><img src="${esc(clubLogo)}" alt="" style="width:55px;height:55px;object-fit:contain;background:#fff;border-radius:50%;padding:5px"><b style="display:block;font-size:12px;margin-top:7px">${esc(clubTeam || 'شعب حضرموت')}</b></div>
+                        <strong style="font-size:19px">VS</strong>
+                        <div style="flex:1"><img src="${esc(opponentLogo)}" alt="" onerror="this.style.display='none'" style="width:55px;height:55px;object-fit:contain;background:#fff;border-radius:50%;padding:5px"><b style="display:block;font-size:12px;margin-top:7px">${esc(opponentTeam || match.opponent || 'المنافس')}</b></div>
                     </div>
                 </div>
-            </div>
-        `;
-
-        document.getElementById('matchModalOverlay').classList.add('active');
-        document.getElementById('matchModalSheet').classList.add('open');
-
-        document.getElementById('bookTicketActionBtn').addEventListener('click', function() {
-            document.getElementById('digitalTicketCard').style.display = 'block';
-            this.innerHTML = '<i class="fas fa-check-circle"></i> تم تأكيد حجز تذكرتك بنجاح!';
-            this.style.background = '#27ae60';
-            playTone(660, 'triangle', 0.25);
-            fireConfetti();
-            showToast('تم إصدار تذكرتك الرقمية للمباراة! أهلاً بك في بارادم 🏟️');
-        });
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0">
+                    <div style="background:#f7f7f7;border-radius:10px;padding:11px;text-align:center"><small style="color:#888">التاريخ</small><b style="display:block;font-size:12px;margin-top:4px">${esc(match.date || '—')}</b></div>
+                    <div style="background:#f7f7f7;border-radius:10px;padding:11px;text-align:center"><small style="color:#888">وقت المباراة</small><b style="display:block;font-size:12px;margin-top:4px">${esc(match.time || 'لم يحدد')}</b></div>
+                    <div style="background:#f7f7f7;border-radius:10px;padding:11px;text-align:center;grid-column:1/-1"><small style="color:#888">ملعب المباراة</small><b style="display:block;font-size:12px;margin-top:4px">${esc(match.stadium || 'لم يحدد')}</b></div>
+                </div>
+                ${lineupHtml}
+                ${match.managed ? `<div class="fan-prediction-box" data-prediction-match="${Number(match.id)}"><div class="fan-prediction-title"><i class="fas fa-bullseye"></i> توقع نتيجة المباراة</div><div class="fan-prediction-actions"><button type="button" data-fan-predict="win" data-match-id="${Number(match.id)}">فوز شعب حضرموت</button><button type="button" data-fan-predict="draw" data-match-id="${Number(match.id)}">تعادل</button><button type="button" data-fan-predict="loss" data-match-id="${Number(match.id)}">خسارة شعب حضرموت</button></div><p class="fan-prediction-status">سجل دخولك للمشاركة في التوقعات</p></div>` : ''}
+            `;
+        }
+        document.getElementById('matchModalOverlay')?.classList.add('active');
+        document.getElementById('matchModalSheet')?.classList.add('open');
+        if (window.__fanApiReady) refreshPredictionsUI();
     };
 
     document.getElementById('closeMatchModalBtn')?.addEventListener('click', closeAllModals);
@@ -1187,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const homeLogo = homeIsClub ? (m.homeLogo || 'images/logo.png') : m.opponentLogo;
                 const awayLogo = homeIsClub ? m.opponentLogo : (m.homeLogo || 'images/logo.png');
                 return `
-                <div class="match-card-full" onclick="if(!event.target.closest('.fan-prediction-box')) openMatchModal()">
+                <div class="match-card-full" onclick="if(!event.target.closest('.fan-prediction-box')) openMatchModal(${Number(m.id)})">
                     <div class="match-competition-tag">
                         <span><i class="fas fa-trophy"></i> ${safeMatchText(m.round)}</span>
                         <span class="time-badge">${safeMatchText(m.time)}</span>
@@ -2029,7 +1947,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 home, away, date:clubDate(item.match_date), time:item.match_time || '',
                 stadium:item.venue || '', isHome:homeClub, managed:true,
                 notes:item.notes || '', opponent:item.opponent || 'المنافس', opponentLogo:item.opponent_logo_url || '',
-                homeLogo:item.home_logo_url || '', status:item.status || 'upcoming'
+                homeLogo:item.home_logo_url || '', status:item.status || 'upcoming',
+                formation:item.formation || '', lineup:(()=>{try{return JSON.parse(item.lineup_json || '[]').map(Number)}catch{return []}})()
             };
             if (item.status === 'finished') results.push({...common, score, scorers:item.notes || ''});
             else if (item.status !== 'cancelled') upcoming.push(common);

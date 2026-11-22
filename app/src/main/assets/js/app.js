@@ -454,11 +454,20 @@ document.addEventListener('DOMContentLoaded', function() {
             galleryViewer.classList.remove("active");
             return;
         }
+        const articleOverlay = document.getElementById("articleModalOverlay");
+        if (articleOverlay?.classList.contains("active")) {
+            closeAllModals();
+            window.__activeNewsArticle = null;
+            return;
+        }
         const previousPage = event.state && event.state.appPage;
         if (previousPage && document.getElementById(previousPage)) {
             navigateToPage(previousPage, true);
-        } else {
+        } else if (currentAppPage !== "homePage") {
             navigateToPage("homePage", true);
+        } else {
+            // Keep the app on its home page when the WebView has no in-app page to return to.
+            try { history.pushState({ appPage: "homePage" }, "", location.href); } catch (e) {}
         }
     });
 
@@ -987,8 +996,12 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
+        const articleOverlay = document.getElementById('articleModalOverlay');
+        if (!articleOverlay.classList.contains('active')) {
+            history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, "", location.href);
+        }
         window.__activeNewsArticle = article;
-        document.getElementById('articleModalOverlay').classList.add('active');
+        articleOverlay.classList.add('active');
         document.getElementById('articleModalSheet').classList.add('open');
     };
 
@@ -1013,8 +1026,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const image = window.__activeNewsArticle?.images?.[Number(button.dataset.galleryImage)];
         openNewsGalleryImage(image);
     });
-    document.getElementById('closeArticleModalBtn')?.addEventListener('click', closeAllModals);
-    document.getElementById('articleModalOverlay')?.addEventListener('click', closeAllModals);
+    function closeArticleModalWithHistory() {
+        if (document.getElementById('articleModalOverlay')?.classList.contains('active') && history.state?.newsArticle) {
+            history.back();
+        } else {
+            closeAllModals();
+            window.__activeNewsArticle = null;
+        }
+    }
+    document.getElementById('closeArticleModalBtn')?.addEventListener('click', closeArticleModalWithHistory);
+    document.getElementById('articleModalOverlay')?.addEventListener('click', closeArticleModalWithHistory);
 
     // --- 4. Club Store & Jersey Customizer ---
     window.openStoreModal = function() {

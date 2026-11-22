@@ -6,7 +6,7 @@ const $=id=>document.getElementById(id);
 const token=()=>sessionStorage.getItem(TOKEN_KEY)||"";
 const names={
 overview:"الرئيسية",news:"الأخبار والتقارير",matches:"إدارة المباريات وحالتها",players:"اللاعبون والجهاز الفني",team:"اللاعبون والجهاز الفني",anthems:"الأناشيد",
-transfers:"الانتقالات",media:"الصور والفيديو",reels:"يوميات النوارس REELS",standings:"الترتيب والبطولات",
+transfers:"الانتقالات",media:"الصور والفيديو",reels:"يوميات النوارس REELS",standings:"البطولات",
 basketball:"كرة السلة",volleyball:"كرة الطائرة",handball:"كرة اليد",tennis:"التنس",taekwondo:"التايكواندو",
 athletics:"ألعاب القوى",otherSports:"ألعاب أخرى",board:"مجلس الإدارة",presidents:"رؤساء النادي",
 history:"تاريخ النادي",membership:"عضوية النادي",foundation:"المؤسسة المجتمعية",anthem:"الأناشيد",

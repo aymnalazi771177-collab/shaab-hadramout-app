@@ -1396,7 +1396,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const response = await fetch(FAN_API_BASE + path, Object.assign({}, options, { headers, cache: 'no-store' }));
         const payload = await response.json().catch(() => ({}));
         if (!response.ok || payload.success === false) {
-            const error = new Error(payload.message || 'تعذر تنفيذ الطلب');
+            const diagnostic = payload.diagnostic && (payload.diagnostic.name || payload.diagnostic.detail)
+                ? ' (' + [payload.diagnostic.name, payload.diagnostic.detail].filter(Boolean).join(': ') + ')'
+                : '';
+            const error = new Error((payload.message || 'تعذر تنفيذ الطلب') + diagnostic);
             error.status = response.status;
             throw error;
         }

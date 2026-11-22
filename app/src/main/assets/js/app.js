@@ -231,6 +231,10 @@ document.addEventListener('DOMContentLoaded', function() {
         targetPage.classList.add('active');
         targetPage.scrollTop = 0;
         if (pageId === "fansPage") renderFansPage();
+        if (pageId === "standingsPage" && !publicTournamentLoadStarted) {
+            publicTournamentLoadStarted = true;
+            loadPublicTournaments();
+        }
         const managedKey = Object.keys(MANAGED_SECTION_PAGES).find(key => MANAGED_SECTION_PAGES[key] === pageId);
         if (managedKey) loadManagedSection(managedKey);
 
@@ -1821,6 +1825,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try { const data=await clubGet('/api/standings?tournament_id='+encodeURIComponent(tournamentId)); applyClubStandings(data.standings||[]); }
         catch(error) { console.warn('Tournament standings unavailable',error); applyClubStandings([]); }
     }
+    let publicTournamentLoadStarted = false;
     async function loadPublicTournaments() {
         const select=document.getElementById('publicTournamentSelect');
         if(!select)return;
@@ -1889,9 +1894,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const section = wrapper.closest('.slider-section');
         if (section) section.hidden = !wrapper.children.length;
     }
-    async function loadClubHistory() {
+    async function loadClubHistory(data = null) {
         try {
-            const data = await clubGet('/api/history');
+            data = data || await clubGet('/api/history');
             if (!data.history) return;
             const page = document.getElementById('aboutPage');
             if (!page) return;
@@ -1935,9 +1940,9 @@ document.addEventListener('DOMContentLoaded', function() {
             target.innerHTML = '<p class="about-text">تعذر تحميل منتجات المتجر حالياً.</p>';
         }
     }
-    async function loadClubNotifications() {
+    async function loadClubNotifications(data = null) {
         try {
-            const data = await clubGet('/api/notifications');
+            data = data || await clubGet('/api/notifications');
             const rows = data.notifications || [];
             const list = document.getElementById('notifList');
             const badge = document.getElementById('notifBadge');
@@ -1959,15 +1964,15 @@ document.addEventListener('DOMContentLoaded', function() {
             ['/api/gallery', d => applyClubGallery(d.media)],
             ['/api/anthems', d => applyClubAnthems(d.anthems)],
             ['/api/carousel', d => applyClubCarousel(d.slides)],
-            ['/api/history', () => loadClubHistory()],
-            ['/api/notifications', () => loadClubNotifications()]
+            ['/api/history', d => loadClubHistory(d)],
+            ['/api/notifications', d => loadClubNotifications(d)]
         ];
         // Display the last saved real CMS content first, then refresh it online.
         await Promise.allSettled(jobs.map(async job => {
             const cached = readClubSnapshot(job[0]);
             if (cached) { try { job[1](cached); } catch(error) { console.warn('Cached content render failed:', job[0], error); } }
         }));
-        await Promise.allSettled(jobs.map(async job => {
+        const refreshGroup = async group => Promise.allSettled(group.map(async job => {
             try {
                 const data = await clubGet(job[0]);
                 saveClubSnapshot(job[0], data);
@@ -1976,7 +1981,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.warn('CMS section unavailable; keeping saved content: ' + job[0], error);
             }
         }));
-        await loadPublicTournaments();
+        // Load the home-screen essentials first; defer secondary sections until the first paint.
+        const priorityPaths = new Set(['/api/news', '/api/players', '/api/matches', '/api/carousel']);
+        await refreshGroup(jobs.filter(job => priorityPaths.has(job[0])));
+        const secondaryJobs = jobs.filter(job => !priorityPaths.has(job[0]));
+        const defer = window.requestIdleCallback || (callback => window.setTimeout(callback, 900));
+        defer(() => { refreshGroup(secondaryJobs); });
     }
     // Native-style pull down refresh: reload current CMS data without leaving the screen.
     function setupPullToRefresh() {

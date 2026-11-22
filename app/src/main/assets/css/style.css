@@ -1076,11 +1076,24 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 18px;
 }
 .album-art {
-    width: 75px; height: 75px; margin: 0 auto 12px;
-    display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--gold);
+    width: 104px; height: 104px; margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
 }
-.album-art .rotating { animation: rotateDisc 8s linear infinite; }
-@keyframes rotateDisc { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* Club crest replaces the record icon and gently pulses while the anthem plays */
+.club-anthem-emblem {
+    width: 94px; height: 94px; box-sizing: border-box; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 35% 28%, #ff454b 0%, #e51d2a 58%, #b90d1b 100%);
+    border: 4px solid #fff; box-shadow: 0 0 0 5px rgba(237,28,36,.18), 0 8px 24px rgba(237,28,36,.35);
+    transform: scale(1); will-change: transform, box-shadow;
+}
+.club-anthem-emblem img { width: 72%; height: 72%; object-fit: contain; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.22)); }
+.club-anthem-emblem.rotating { animation: anthemPulse 1.05s ease-in-out infinite; }
+@keyframes anthemPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 5px rgba(237,28,36,.18), 0 8px 24px rgba(237,28,36,.32); }
+    50% { transform: scale(1.09); box-shadow: 0 0 0 11px rgba(237,28,36,.10), 0 10px 30px rgba(237,28,36,.48); }
+}
+@media (prefers-reduced-motion: reduce) { .club-anthem-emblem.rotating { animation: none; } }
 .player-info h4 { font-size: 14.5px; font-weight: 800; margin-bottom: 3px; }
 .player-info p { font-size: 11px; color: #bbb; }
 .player-controls { margin-top: 16px; }

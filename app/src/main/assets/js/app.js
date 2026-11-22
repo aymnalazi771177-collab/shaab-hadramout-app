@@ -1179,44 +1179,53 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     // 7. SLIDER FUNCTIONALITY
     // ============================================
-    const slides = document.querySelectorAll('.slide');
-    const dots = document.querySelectorAll('.dot');
-    const prevBtn = document.getElementById('sliderPrev');
-    const nextBtn = document.getElementById('sliderNext');
     let currentSlide = 0;
     let slideInterval;
+    const sliderWrapper = document.getElementById('sliderWrapper');
+    const sliderDots = document.getElementById('sliderDots');
+    const prevBtn = document.getElementById('sliderPrev');
+    const nextBtn = document.getElementById('sliderNext');
+    const getSlides = () => Array.from(sliderWrapper?.querySelectorAll('.slide') || []);
+    const getDots = () => Array.from(sliderDots?.querySelectorAll('.dot') || []);
 
     function goToSlide(index) {
-        if (index >= slides.length) index = 0;
-        if (index < 0) index = slides.length - 1;
-
-        slides.forEach(s => s.classList.remove('active'));
-        dots.forEach(d => d.classList.remove('active'));
-
-        slides[index].classList.add('active');
-        dots[index].classList.add('active');
+        const slides = getSlides();
+        if (!slides.length) return;
+        index = (index + slides.length) % slides.length;
+        slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+        getDots().forEach((dot, i) => dot.classList.toggle('active', i === index));
         currentSlide = index;
     }
-
     function nextSlide() { goToSlide(currentSlide + 1); }
     function prevSlide() { goToSlide(currentSlide - 1); }
-
     function startAutoSlide() {
         stopAutoSlide();
-        slideInterval = setInterval(nextSlide, 4500);
+        if (getSlides().length > 1) slideInterval = setInterval(nextSlide, 4500);
     }
-
     function stopAutoSlide() {
-        if (slideInterval) clearInterval(slideInterval);
+        if (slideInterval) { clearInterval(slideInterval); slideInterval = null; }
     }
-
-    if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); startAutoSlide(); });
-    if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); startAutoSlide(); });
-
-    dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => { goToSlide(index); startAutoSlide(); });
+    nextBtn?.addEventListener('click', () => { nextSlide(); startAutoSlide(); });
+    prevBtn?.addEventListener('click', () => { prevSlide(); startAutoSlide(); });
+    sliderDots?.addEventListener('click', event => {
+        const dot = event.target.closest('.dot');
+        if (!dot) return;
+        goToSlide(Number(dot.dataset.slideIndex));
+        startAutoSlide();
     });
-
+    sliderWrapper?.addEventListener('click', event => {
+        const slide = event.target.closest('.slide[data-cms-slide]');
+        if (!slide) return;
+        const item = (window.__clubCarouselItems || []).find(row => String(row.id) === String(slide.dataset.cmsSlide));
+        if (item) window.openCarouselArticle?.(item);
+    });
+    const sliderContainer = document.getElementById('newsSlider');
+    let touchStartX = 0;
+    sliderContainer?.addEventListener('touchstart', event => { touchStartX = event.changedTouches[0]?.clientX || 0; }, {passive:true});
+    sliderContainer?.addEventListener('touchend', event => {
+        const delta = (event.changedTouches[0]?.clientX || 0) - touchStartX;
+        if (Math.abs(delta) > 45) { delta < 0 ? nextSlide() : prevSlide(); startAutoSlide(); }
+    }, {passive:true});
     startAutoSlide();
 
     // ============================================
@@ -1886,14 +1895,36 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyClubCarousel(rows) {
         const wrapper = document.getElementById('sliderWrapper');
         if (!wrapper) return;
-        wrapper.innerHTML = (Array.isArray(rows) ? rows : []).filter(item => item.image_url).map((item,index) =>
-            '<div class="slide ' + (index === 0 ? 'active' : '') + '" data-cms-slide="' + clubEscape(item.id) + '">' +
+        const slides = (Array.isArray(rows) ? rows : []).filter(item => item.image_url).slice(0, 3);
+        window.__clubCarouselItems = slides;
+        wrapper.innerHTML = slides.map((item,index) =>
+            '<div class="slide ' + (index === 0 ? 'active' : '') + '" data-cms-slide="' + clubEscape(item.id) + '" role="button" tabindex="0" aria-label="فتح خبر: ' + clubEscape(item.title || 'أخبار النادي') + '">' +
             '<img class="slide-image" src="' + clubEscape(item.image_url) + '" alt="' + clubEscape(item.title || 'أخبار النادي') + '" loading="eager" fetchpriority="' + (index === 0 ? 'high' : 'auto') + '" decoding="sync">' +
             '<div class="slide-overlay"><span class="slide-category">أخبار النادي</span><h3>' + clubEscape(item.title || '') + '</h3></div></div>'
         ).join('');
+        const dots = document.getElementById('sliderDots');
+        if (dots) dots.innerHTML = slides.map((item,index) => '<button type="button" class="dot ' + (index === 0 ? 'active' : '') + '" data-slide-index="' + index + '" aria-label="الانتقال إلى الخبر ' + (index + 1) + '"></button>').join('');
+        currentSlide = 0;
         const section = wrapper.closest('.slider-section');
-        if (section) section.hidden = !wrapper.children.length;
+        if (section) section.hidden = !slides.length;
+        stopAutoSlide();
+        startAutoSlide();
     }
+    window.openCarouselArticle = function(item) {
+        if (!item) return;
+        const body = document.getElementById('articleModalBody');
+        const overlay = document.getElementById('articleModalOverlay');
+        const sheet = document.getElementById('articleModalSheet');
+        if (!body || !overlay || !sheet) return;
+        const safeTitle = clubEscape(item.title || 'أخبار النادي');
+        body.innerHTML = '<div style="border-radius:16px;overflow:hidden;margin-bottom:14px;max-height:240px"><img src="' + clubEscape(item.image_url || '') + '" alt="' + safeTitle + '" style="width:100%;height:100%;object-fit:cover"></div>' +
+            '<h3 style="font-size:17px;font-weight:800;line-height:1.6;margin-bottom:12px">' + safeTitle + '</h3>' +
+            '<div style="font-size:13px;line-height:1.9;color:var(--text-gray);white-space:pre-line">' + clubEscape(item.content || 'لا توجد تفاصيل إضافية لهذا الخبر.') + '</div>';
+        if (!overlay.classList.contains('active')) history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, '', location.href);
+        window.__activeNewsArticle = { title:item.title || '', content:item.content || '', img:item.image_url || '', images:[] };
+        overlay.classList.add('active');
+        sheet.classList.add('open');
+    };
     async function loadClubHistory(data = null) {
         try {
             data = data || await clubGet('/api/history');

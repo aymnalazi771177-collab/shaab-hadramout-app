@@ -1932,8 +1932,15 @@ document.addEventListener('DOMContentLoaded', function() {
             '<div style="font-size:13px;line-height:1.9;color:var(--text-gray);white-space:pre-line">' + clubEscape(item.content || 'لا توجد تفاصيل إضافية لهذا الخبر.') + '</div>';
         if (!overlay.classList.contains('active')) history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, '', location.href);
         window.__activeNewsArticle = { title:item.title || '', content:item.content || '', img:item.image_url || '', images:[] };
+        // Reset the carousel article scroll position every time it is opened.
+        body.scrollTop = 0;
+        sheet.scrollTop = 0;
         overlay.classList.add('active');
         sheet.classList.add('open');
+        requestAnimationFrame(() => {
+            body.scrollTop = 0;
+            sheet.scrollTop = 0;
+        });
     };
     async function loadClubHistory(data = null) {
         try {

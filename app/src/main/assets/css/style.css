@@ -679,11 +679,11 @@ body {
     border: 1px solid rgba(237,28,36,0.15);
 }
 .player-hero-avatar {
-    width: 85px; height: 100px; border-radius: 14px;
-    overflow: hidden; position: relative;
+    width: 112px; height: 148px; flex: 0 0 112px; border-radius: 14px;
+    overflow: hidden; position: relative; background: #f4f5f7;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-.player-hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.player-hero-avatar img { width: 100%; height: 100%; object-fit: contain; object-position: center center; display: block; }
 .player-hero-num-badge {
     position: absolute; top: 6px; right: 6px;
     background: var(--primary-red); color: #fff;
@@ -914,9 +914,10 @@ body {
 }
 .player-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); }
 .player-card-img-wrap {
-    height: 145px; position: relative; overflow: hidden; background: #2a0b12;
+    height: 190px; position: relative; overflow: hidden; background: #f4f5f7;
+    display: flex; align-items: center; justify-content: center;
 }
-.player-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.player-card-img-wrap img { width: 100%; height: 100%; object-fit: contain; object-position: center center; display: block; }
 .player-number {
     position: absolute; top: 8px; right: 8px;
     background: var(--primary-red); color: #fff;
@@ -946,8 +947,8 @@ body {
     box-shadow: var(--shadow-soft); border: 1px solid var(--border-color);
 }
 .staff-img {
-    width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
-    border: 2px solid var(--primary-red);
+    width: 76px; height: 104px; flex: 0 0 76px; border-radius: 12px; object-fit: contain; object-position: center center;
+    background: #f4f5f7; border: 2px solid var(--primary-red); padding: 2px;
 }
 .staff-info h4 { font-size: 13px; font-weight: 800; color: var(--text-dark); }
 .staff-info p { font-size: 11px; color: var(--primary-red); font-weight: 600; }

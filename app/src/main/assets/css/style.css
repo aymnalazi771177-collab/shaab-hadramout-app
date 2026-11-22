@@ -1754,3 +1754,7 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 .matches-standings-panel[hidden] { display:none !important; }
 .matches-standings-panel { margin-top:4px; }
 .matches-standings-panel .standings-season-bar { margin-bottom:12px; }
+
+/* Team crests in upcoming/results match cards */
+.m-team-logo { overflow:hidden; flex-shrink:0; }
+.m-team-logo .match-team-logo-img { width:100%; height:100%; object-fit:contain; padding:5px; display:block; }

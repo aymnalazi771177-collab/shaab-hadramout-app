@@ -893,7 +893,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const raw = String(url || (isClub ? 'images/logo.png' : '')).trim();
                 const safe = (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('/api/media/') || raw.startsWith('images/')) ? raw : '';
                 return safe
-                    ? `<img src="${safeMatchText(safe)}" alt="${safeMatchText(name)}" class="match-team-logo-img" onerror="this.outerHTML='<i class=&quot;fas fa-shield-halved&quot;></i>'">`
+                    ? `<img src="${safeMatchText(safe)}" alt="${safeMatchText(name)}" class="match-team-logo-img" loading="eager" fetchpriority="high" decoding="sync" onerror="this.outerHTML='<i class=&quot;fas fa-shield-halved&quot;></i>'">`
                     : '<i class="fas fa-shield-halved"></i>';
             };
             container.innerHTML = MATCHES_UPCOMING.map(m => {
@@ -1692,7 +1692,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!wrap) return;
         wrap.innerHTML = NEWS_ALL.length ? NEWS_ALL.slice(0, 4).map(n =>
             '<div class="news-card" data-news-id="' + n.id + '" onclick="openArticleModal(' + n.id + ')">' +
-            '<div class="news-card-image"><img src="' + clubEscape(n.img) + '" alt="' + clubEscape(n.title) + '" loading="lazy"></div>' +
+            '<div class="news-card-image"><img src="' + clubEscape(n.img) + '" alt="' + clubEscape(n.title) + '" loading="eager" fetchpriority="high" decoding="sync"></div>' +
             '<div class="news-card-content"><h4>' + clubEscape(n.title) + '</h4><div class="news-date"><span>' + clubEscape(n.date) + '</span> <i class="far fa-clock"></i></div></div></div>'
         ).join('') : '<div class="empty-state">لا توجد أخبار محفوظة على هذا الجهاز حتى الآن.</div>';
     }
@@ -1772,7 +1772,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const teamBlock = (name, logo, side) => {
                     const src = safeUrl(logo);
                     return `<div class="team team-${side}">
-                        <div class="team-logo-container"><div class="team-logo-img">${src ? `<img src="${safeText(src)}" alt="${safeText(name)}" class="official-logo-img">` : '<i class="fas fa-shield-halved"></i>'}</div></div>
+                        <div class="team-logo-container"><div class="team-logo-img">${src ? `<img src="${safeText(src)}" alt="${safeText(name)}" class="official-logo-img" loading="eager" fetchpriority="high" decoding="sync">` : '<i class="fas fa-shield-halved"></i>'}</div></div>
                         <span class="team-name">${safeText(name)}</span>
                     </div>`;
                 };
@@ -1888,7 +1888,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!wrapper) return;
         wrapper.innerHTML = (Array.isArray(rows) ? rows : []).filter(item => item.image_url).map((item,index) =>
             '<div class="slide ' + (index === 0 ? 'active' : '') + '" data-cms-slide="' + clubEscape(item.id) + '">' +
-            '<img class="slide-image" src="' + clubEscape(item.image_url) + '" alt="' + clubEscape(item.title || 'أخبار النادي') + '" loading="' + (index === 0 ? 'eager' : 'lazy') + '">' +
+            '<img class="slide-image" src="' + clubEscape(item.image_url) + '" alt="' + clubEscape(item.title || 'أخبار النادي') + '" loading="eager" fetchpriority="' + (index === 0 ? 'high' : 'auto') + '" decoding="sync">' +
             '<div class="slide-overlay"><span class="slide-category">أخبار النادي</span><h3>' + clubEscape(item.title || '') + '</h3></div></div>'
         ).join('');
         const section = wrapper.closest('.slider-section');

@@ -1245,6 +1245,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('[data-match-tab]').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
             renderMatches(this.getAttribute('data-match-tab'));
+            if (window.__fanApiReady) refreshPredictionsUI();
         });
     });
 
@@ -1885,7 +1886,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ? { action, name: String(data.get('name') || '').trim(), phone, password }
                             : { action, phone, password })
                 });
-                localStorage.setItem(FAN_TOKEN_KEY, result.token);
+                if (result.token) localStorage.setItem(FAN_TOKEN_KEY, result.token);
                 fanCurrentUser = result.user;
                 renderFanAuth();
             } catch (error) {

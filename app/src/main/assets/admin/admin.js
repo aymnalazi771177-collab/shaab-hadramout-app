@@ -83,7 +83,7 @@ if(current==="reels"&&editing!==null){const oldItem=items.find(x=>x.id===editing
 if(current==="anthem"&&editing!==null){const oldItem=items.find(x=>x.id===editing);d.file_key=d.file_key||oldItem?.file_key||"";d.audio_url=d.audio_url||oldItem?.audio_url||""}
 if(current==="history"){await api(cfg.endpoint,{method:"PUT",body:d})}
 else if(current==="admins"&&!editing&&d.password.length<8)throw new Error("كلمة المرور يجب ألا تقل عن 8 أحرف");
-else{const method=editing!==null?"PUT":"POST";let endpoint=cfg.endpoint;if(current==="standings"){d.tournament_id=Number(selectedTournamentId);endpoint="/api/standings?tournament_id="+encodeURIComponent(selectedTournamentId)}const url=endpoint+(editing!==null?(endpoint.includes("?")?"&":"?")+"id="+encodeURIComponent(editing):"");await api(url,{method,body:d})}
+else{const method=editing!==null?"PUT":"POST";let endpoint=cfg.endpoint;if(current==="standings"){const chosenTournamentId=String($("tournamentSelect")?.value||selectedTournamentId||"").trim();if(!chosenTournamentId||!Number.isInteger(Number(chosenTournamentId))||Number(chosenTournamentId)<1)throw new Error("اختر البطولة من القائمة قبل حفظ الفريق");selectedTournamentId=chosenTournamentId;d.tournament_id=Number(chosenTournamentId);endpoint="/api/standings?tournament_id="+encodeURIComponent(chosenTournamentId)}const url=endpoint+(editing!==null?(endpoint.includes("?")?"&":"?")+"id="+encodeURIComponent(editing):"");await api(url,{method,body:d})}
 closeEditor();toast("تم حفظ البيانات بنجاح");await loadSection(current);loadStats()
 }catch(e){toast(e.message);setNotice(e.message,"error")}}
 function closeEditor(){$("modal").classList.remove("open");$("editorForm").reset()}

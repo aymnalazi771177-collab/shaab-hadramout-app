@@ -2127,6 +2127,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.addEventListener('touchstart', event => {
             if (refreshing || event.touches.length !== 1) return;
+            // Never treat gestures inside a reader/modal as app-level pull-to-refresh.
+            if (event.target.closest('.app-modal-sheet, .modal-overlay, .modal, .overlay, .drawer') || document.querySelector('.app-modal-sheet.open, .modal-overlay.active')) return;
             const page = getActivePage();
             if (!page || page.scrollTop > 2) return;
             if (event.target.closest('input, textarea, select, button, a, .modal, .overlay, .drawer')) return;

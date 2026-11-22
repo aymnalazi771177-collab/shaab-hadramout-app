@@ -449,6 +449,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.addEventListener("popstate", function(event) {
+        const galleryViewer = document.getElementById("newsGalleryLightbox");
+        if (galleryViewer?.classList.contains("active")) {
+            galleryViewer.classList.remove("active");
+            return;
+        }
         const previousPage = event.state && event.state.appPage;
         if (previousPage && document.getElementById(previousPage)) {
             navigateToPage(previousPage, true);
@@ -970,7 +975,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <section class="news-attached-gallery" aria-label="معرض الصور المصاحبة">
                     <h4><i class="fas fa-images"></i> معرض الصور المصاحبة</h4>
                     <div class="news-attached-gallery-grid">
-                        ${article.images.map((url, index) => `<a class="news-attached-gallery-item" href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="صورة مصاحبة للخبر ${index + 1}" loading="lazy"></a>`).join('')}
+                        ${article.images.map((url, index) => `<button type="button" class="news-attached-gallery-item" data-gallery-image="${index}" aria-label="عرض الصورة ${index + 1}"><img src="${url}" alt="صورة مصاحبة للخبر ${index + 1}" loading="lazy"></button>`).join('')}
                     </div>
                 </section>
             ` : ''}
@@ -982,10 +987,32 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
+        window.__activeNewsArticle = article;
         document.getElementById('articleModalOverlay').classList.add('active');
         document.getElementById('articleModalSheet').classList.add('open');
     };
 
+    function openNewsGalleryImage(url) {
+        if (!url) return;
+        let viewer = document.getElementById("newsGalleryLightbox");
+        if (!viewer) {
+            viewer = document.createElement("div");
+            viewer.id = "newsGalleryLightbox";
+            viewer.className = "news-gallery-lightbox";
+            viewer.innerHTML = '<button type="button" class="news-gallery-close" aria-label="إغلاق">×</button><img alt="صورة الخبر">';
+            document.body.appendChild(viewer);
+            viewer.addEventListener("click", event => { if (event.target === viewer || event.target.closest(".news-gallery-close")) history.back(); });
+        }
+        viewer.querySelector("img").src = url;
+        viewer.classList.add("active");
+        history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true, newsGallery: true }, "", location.href);
+    }
+    document.getElementById("articleModalSheet")?.addEventListener("click", event => {
+        const button = event.target.closest("[data-gallery-image]");
+        if (!button) return;
+        const image = window.__activeNewsArticle?.images?.[Number(button.dataset.galleryImage)];
+        openNewsGalleryImage(image);
+    });
     document.getElementById('closeArticleModalBtn')?.addEventListener('click', closeAllModals);
     document.getElementById('articleModalOverlay')?.addEventListener('click', closeAllModals);
 

@@ -1909,3 +1909,31 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 
 .fan-google-disabled { width:min(100%,300px); min-height:44px; display:flex; justify-content:center; align-items:center; gap:10px; border:1px solid var(--border-color); border-radius:7px; color:var(--text-muted); background:var(--card-bg); font-family:inherit; font-size:12px; font-weight:800; opacity:.82; cursor:not-allowed; }
 .fan-google-g { width:22px; height:22px; display:grid; place-items:center; border:1px solid var(--border-color); border-radius:50%; color:#4285f4; background:#fff; font-family:Arial,sans-serif; font-size:15px; font-weight:900; }
+
+
+/* Fan predictions and leaderboard */
+.fan-prediction-box{margin:14px 0 2px;padding:13px;border:1px solid #f0d5d7;border-radius:14px;background:#fffafa}
+.fan-prediction-title{font-weight:800;color:var(--primary-red);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.fan-prediction-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.fan-prediction-actions button{border:1px solid #e5e7eb;background:#fff;color:#333;border-radius:10px;padding:10px 5px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.fan-prediction-actions button:first-child.selected{background:#16834a;color:#fff;border-color:#16834a}
+.fan-prediction-actions button:nth-child(2).selected{background:#64748b;color:#fff;border-color:#64748b}
+.fan-prediction-actions button:nth-child(3).selected{background:#b5121b;color:#fff;border-color:#b5121b}
+.fan-prediction-actions button:disabled{opacity:.65}
+.fan-prediction-status{font-size:11px;color:#737373;margin:9px 0 0;text-align:center}
+.fan-leaderboard-card{margin:20px 0 28px;padding:15px;background:#fff;border:1px solid #ececec;border-radius:18px;box-shadow:0 5px 20px rgba(0,0,0,.045)}
+.fan-leaderboard-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.fan-leaderboard-heading span{font-size:11px;color:#777}
+.fan-leaderboard-heading h3{font-size:17px;margin:3px 0;color:#b5121b}
+.fan-leaderboard-heading h3 i{margin-left:5px}
+.fan-leaderboard-heading>b{font-size:11px;background:#fff0f1;color:#b5121b;border-radius:20px;padding:7px 10px}
+.fan-leader-row{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:9px;padding:11px 2px;border-bottom:1px solid #f0f0f0;font-size:13px}
+.fan-leader-row:last-child{border-bottom:0}
+.fan-leader-rank{width:27px;height:27px;display:grid;place-items:center;border-radius:8px;background:#f1f2f4;font-weight:900;color:#555}
+.fan-leader-rank.rank-1{background:#f8e7b0;color:#8a6410}
+.fan-leader-rank.rank-2{background:#e8edf2;color:#536273}
+.fan-leader-rank.rank-3{background:#f1dfd3;color:#87522f}
+.fan-leader-row strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fan-leader-row b{color:#b5121b;font-size:12px;white-space:nowrap}
+.fan-leader-empty{text-align:center;color:#888;font-size:12px;padding:16px 5px}
+@media(max-width:360px){.fan-prediction-actions button{font-size:10px;padding:9px 2px}.fan-leader-row{font-size:12px;gap:6px}}

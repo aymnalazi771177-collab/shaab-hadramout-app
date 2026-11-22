@@ -1102,30 +1102,42 @@ document.addEventListener('DOMContentLoaded', function() {
         if (showStandings) { renderStandings(); return; }
 
         if (type === 'upcoming') {
-            container.innerHTML = MATCHES_UPCOMING.map(m => `
+            const safeMatchText = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+            const matchLogo = (url, name, isClub) => {
+                const raw = String(url || (isClub ? 'images/logo.png' : '')).trim();
+                const safe = /^(https?:\\/\\/|\\/api\\/media\\/|images\\/)/i.test(raw) ? raw : '';
+                return safe
+                    ? `<img src="${safeMatchText(safe)}" alt="${safeMatchText(name)}" class="match-team-logo-img" onerror="this.outerHTML='<i class=&quot;fas fa-shield-halved&quot;></i>'">`
+                    : '<i class="fas fa-shield-halved"></i>';
+            };
+            container.innerHTML = MATCHES_UPCOMING.map(m => {
+                const homeIsClub = !!m.isHome;
+                const homeLogo = homeIsClub ? (m.homeLogo || 'images/logo.png') : m.opponentLogo;
+                const awayLogo = homeIsClub ? m.opponentLogo : (m.homeLogo || 'images/logo.png');
+                return `
                 <div class="match-card-full" onclick="openMatchModal()">
                     <div class="match-competition-tag">
-                        <span><i class="fas fa-trophy"></i> ${m.round}</span>
-                        <span class="time-badge">${m.time}</span>
+                        <span><i class="fas fa-trophy"></i> ${safeMatchText(m.round)}</span>
+                        <span class="time-badge">${safeMatchText(m.time)}</span>
                     </div>
                     <div class="match-teams-row">
                         <div class="m-team">
-                            <div class="m-team-logo"><i class="fas fa-shield-halved"></i></div>
-                            <span>${m.home}</span>
+                            <div class="m-team-logo">${matchLogo(homeLogo, m.home, homeIsClub)}</div>
+                            <span>${safeMatchText(m.home)}</span>
                         </div>
                         <div class="m-center-score">
                             <span class="vs-text">VS</span>
                         </div>
                         <div class="m-team">
-                            <div class="m-team-logo"><i class="fas fa-shield-halved"></i></div>
-                            <span>${m.away}</span>
+                            <div class="m-team-logo">${matchLogo(awayLogo, m.away, !homeIsClub)}</div>
+                            <span>${safeMatchText(m.away)}</span>
                         </div>
                     </div>
                     <div class="match-venue">
-                        <i class="far fa-calendar"></i> ${m.date} | <i class="fas fa-location-dot"></i> ${m.stadium}
+                        <i class="far fa-calendar"></i> ${safeMatchText(m.date)} | <i class="fas fa-location-dot"></i> ${safeMatchText(m.stadium)}
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         } else {
             container.innerHTML = MATCHES_RESULTS.map(m => `
                 <div class="match-card-full">

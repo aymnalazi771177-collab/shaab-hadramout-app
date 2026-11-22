@@ -1208,6 +1208,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="match-venue">
                         <i class="far fa-calendar"></i> ${safeMatchText(m.date)} | <i class="fas fa-location-dot"></i> ${safeMatchText(m.stadium)}
                     </div>
+                    ${m.managed ? `<div class="fan-prediction-box" data-prediction-match="${Number(m.id)}"><div class="fan-prediction-title"><i class="fas fa-bullseye"></i> توقع نتيجة المباراة</div><div class="fan-prediction-actions"><button type="button" data-fan-predict="win" data-match-id="${Number(m.id)}">فوز شعب حضرموت</button><button type="button" data-fan-predict="draw" data-match-id="${Number(m.id)}">تعادل</button><button type="button" data-fan-predict="loss" data-match-id="${Number(m.id)}">خسارة شعب حضرموت</button></div><p class="fan-prediction-status">سجل دخولك للمشاركة في التوقعات</p></div>` : ''}
                 </div>`;
             }).join('');
         } else {
@@ -1685,6 +1686,21 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!fanAuthRoot) return;
         if (fanCurrentUser) {
             const user = fanCurrentUser;
+            if (!user.phone) {
+                fanAuthRoot.innerHTML = `
+                    <div class="fan-welcome-banner"><div class="fan-banner-pattern"></div><div class="fan-crest"><img src="images/logo.png" alt="شعار النادي"></div><span class="fan-eyebrow">خطوة أخيرة</span><h3>أكمل عضويتك</h3><p>أدخل اسمك الثلاثي ورقم هاتفك للانضمام إلى توقعات وجوائز جمهور النادي</p></div>
+                    <div class="fan-auth-card">
+                        <div class="fan-auth-heading"><h3>بيانات عضو الجمهور</h3><p>رقم الهاتف خاص بعضويتك ولا يمكن استخدامه في حساب آخر</p></div>
+                        <div class="fan-form-message" hidden></div>
+                        <form class="fan-auth-form" data-fan-form="profile" novalidate>
+                            <label>الاسم الثلاثي</label><div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="الاسم الأول والثاني والثالث" maxlength="80" value="${fanEscape(user.name || '')}" required></div>
+                            <label>رقم الهاتف</label><div class="fan-input-wrap"><i class="fas fa-mobile-screen"></i><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="مثال: 9677XXXXXXXX" required></div>
+                            <button class="fan-submit-btn" type="submit"><span>حفظ بيانات العضوية</span><i class="fas fa-arrow-left"></i></button>
+                        </form>
+                        <p class="fan-privacy-note"><i class="fas fa-lock"></i> لا يظهر رقم هاتفك في لوحة صدارة المشجعين.</p>
+                    </div>`;
+                return;
+            }
             fanAuthRoot.innerHTML = `
                 <div class="fan-welcome-banner">
                     <div class="fan-banner-pattern"></div>
@@ -1854,7 +1870,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (action === 'register') {
                 const name = String(data.get('name') || '').trim();
                 const confirmPassword = String(data.get('confirmPassword') || '');
-                if (name.length < 2) return fanShowMessage('اكتب اسمك الكامل.');
+                if (name.split(/\\s+/).filter(Boolean).length !== 3) return fanShowMessage('اكتب اسمك الثلاثي كاملاً.');
                 if (password.length < 8) return fanShowMessage('كلمة المرور يجب ألا تقل عن 8 أحرف.');
                 if (password !== confirmPassword) return fanShowMessage('كلمتا المرور غير متطابقتين.');
             }
@@ -1863,9 +1879,11 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const result = await fanApi('/api/fans', {
                     method: 'POST',
-                    body: JSON.stringify(action === 'register'
-                        ? { action, name: String(data.get('name') || '').trim(), phone, password }
-                        : { action, phone, password })
+                    body: JSON.stringify(action === 'profile'
+                        ? { action, name: String(data.get('name') || '').trim(), phone }
+                        : action === 'register'
+                            ? { action, name: String(data.get('name') || '').trim(), phone, password }
+                            : { action, phone, password })
                 });
                 localStorage.setItem(FAN_TOKEN_KEY, result.token);
                 fanCurrentUser = result.user;
@@ -1877,6 +1895,61 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    window.__fanApiReady = true;
+    async function refreshPredictionsUI() {
+        const leaderboardHost = document.getElementById('fanLeaderboardRows');
+        if (!leaderboardHost) return;
+        try {
+            const board = await fanApi('/api/predictions');
+            const rows = Array.isArray(board.leaderboard) ? board.leaderboard : [];
+            leaderboardHost.innerHTML = rows.length ? rows.map((member,index) => `
+                <div class="fan-leader-row"><span class="fan-leader-rank rank-${index+1}">${index+1}</span><strong>${fanEscape(member.full_name)}</strong><b>${Number(member.points||0).toLocaleString('en-US')} نقطة</b></div>`).join('') : '<p class="fan-leader-empty">لا توجد نقاط حتى الآن. كن أول من يتصدر!</p>';
+            const cards = document.querySelectorAll('[data-prediction-match]');
+            await Promise.all(Array.from(cards).map(async card => {
+                const id = Number(card.getAttribute('data-prediction-match'));
+                try {
+                    const data = await fanApi('/api/predictions?match_id=' + id);
+                    const selected = data.myPrediction?.choice || '';
+                    card.querySelectorAll('[data-fan-predict]').forEach(button => {
+                        button.classList.toggle('selected', button.getAttribute('data-fan-predict') === selected);
+                    });
+                    const status = card.querySelector('.fan-prediction-status');
+                    if (status) status.textContent = selected ? 'توقعك الحالي: ' + ({win:'فوز شعب حضرموت',draw:'تعادل',loss:'خسارة شعب حضرموت'}[selected]) + ' — يمكنك تعديله قبل بداية المباراة.' : 'اختر توقعك قبل بداية المباراة';
+                } catch (e) {}
+            }));
+        } catch (error) {
+            leaderboardHost.innerHTML = '<p class="fan-leader-empty">تعذر تحميل لوحة الصدارة حالياً.</p>';
+        }
+    }
+
+    document.addEventListener('click', async event => {
+        const button = event.target.closest('[data-fan-predict]');
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const matchId = Number(button.getAttribute('data-match-id'));
+        const choice = button.getAttribute('data-fan-predict');
+        try {
+            const session = await fanApi('/api/fans');
+            if (!session.user?.phone) {
+                fanCurrentUser = session.user;
+                navigateToPage('fansPage');
+                return;
+            }
+            button.disabled = true;
+            const saved = await fanApi('/api/predictions', { method:'POST', body:JSON.stringify({match_id:matchId,choice}) });
+            const card = button.closest('[data-prediction-match]');
+            if (card) {
+                card.querySelectorAll('[data-fan-predict]').forEach(item => item.classList.toggle('selected',item.getAttribute('data-fan-predict')===choice));
+                const status = card.querySelector('.fan-prediction-status');
+                if (status) status.textContent = saved.message || 'تم حفظ توقعك';
+            }
+            await refreshPredictionsUI();
+        } catch (error) {
+            alert(error.message || 'سجل الدخول أولاً للمشاركة في التوقعات');
+            if (error.status === 401) navigateToPage('fansPage');
+        } finally { button.disabled = false; }
+    });
 
     const clubEscape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     async function clubGet(path) {
@@ -1953,7 +2026,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const common = {
                 id:Number(item.id), round:item.competition || 'مباريات النادي',
                 home, away, date:clubDate(item.match_date), time:item.match_time || '',
-                stadium:item.venue || '', isHome:homeClub,
+                stadium:item.venue || '', isHome:homeClub, managed:true,
                 notes:item.notes || '', opponent:item.opponent || 'المنافس', opponentLogo:item.opponent_logo_url || '',
                 homeLogo:item.home_logo_url || '', status:item.status || 'upcoming'
             };
@@ -2001,6 +2074,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderMatches('upcoming');
         const tab = document.querySelector('[data-match-tab].active');
         renderMatches(tab ? tab.getAttribute('data-match-tab') : 'upcoming');
+        if (window.__fanApiReady) refreshPredictionsUI();
     }
     function applyClubStandings(rows) {
         if (!Array.isArray(rows)) rows = [];

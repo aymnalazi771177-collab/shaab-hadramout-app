@@ -431,6 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         targetPage.classList.add('active');
         targetPage.scrollTop = 0;
+        if (pageId === "fansPage") renderFansPage();
         const managedKey = Object.keys(MANAGED_SECTION_PAGES).find(key => MANAGED_SECTION_PAGES[key] === pageId);
         if (managedKey) loadManagedSection(managedKey);
 
@@ -1641,6 +1642,242 @@ document.addEventListener('DOMContentLoaded', function() {
     // and preserve the existing app layout and local fallbacks.
     // =========================================================
     const CLUB_API_BASE = 'https://shaab-hadramout.pages.dev';
+    // =========================================================
+    // FAN ACCOUNT AREA: independent public fan accounts.
+    // =========================================================
+    const FAN_TOKEN_KEY = 'shaab_fan_session_v1';
+    const FAN_API_BASE = CLUB_API_BASE;
+    const fanAuthRoot = document.getElementById('fanAuthContent');
+    let fanCurrentUser = null;
+    let fanAuthMode = 'login';
+    let fanGoogleClientId = '';
+    let fanGoogleScriptPromise = null;
+    let fanGoogleButtonRendered = false;
+
+    async function fanApi(path, options = {}) {
+        const token = localStorage.getItem(FAN_TOKEN_KEY) || '';
+        const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+        if (token) headers.Authorization = 'Bearer ' + token;
+        const response = await fetch(FAN_API_BASE + path, Object.assign({}, options, { headers, cache: 'no-store' }));
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.success === false) {
+            const error = new Error(payload.message || 'تعذر تنفيذ الطلب');
+            error.status = response.status;
+            throw error;
+        }
+        return payload;
+    }
+
+    function fanEscape(value) {
+        return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    function fanShowMessage(message, type = 'error') {
+        if (!fanAuthRoot) return;
+        const box = fanAuthRoot.querySelector('.fan-form-message');
+        if (!box) return;
+        box.textContent = message;
+        box.className = 'fan-form-message ' + type;
+        box.hidden = false;
+    }
+
+    function renderFanAuth() {
+        if (!fanAuthRoot) return;
+        if (fanCurrentUser) {
+            const user = fanCurrentUser;
+            fanAuthRoot.innerHTML = `
+                <div class="fan-welcome-banner">
+                    <div class="fan-banner-pattern"></div>
+                    <div class="fan-crest"><img src="images/logo.png" alt="شعار نادي شعب حضرموت"></div>
+                    <span class="fan-eyebrow">أهلاً بك بين أهلك</span>
+                    <h3>جمهور نادي الشعب</h3>
+                    <p>أنت جزء من مدرج النوارس ❤️</p>
+                </div>
+                <div class="fan-account-card">
+                    <div class="fan-account-avatar"><i class="fas fa-user"></i></div>
+                    <div class="fan-account-info">
+                        <span class="fan-account-label">حساب المشجع</span>
+                        <h3>${fanEscape(user.name)}</h3>
+                        <p>${fanEscape(user.phone || user.email || 'عضو جمهور شعباوي')}</p>
+                        <small>رقم العضوية #${fanEscape(user.id)}</small>
+                    </div>
+                    <span class="fan-verified"><i class="fas fa-check"></i></span>
+                </div>
+                <div class="fan-member-note"><i class="fas fa-heart"></i><span>يسعدنا انضمامك إلى جمهور نادي شعب حضرموت. حسابك محفوظ ويمكنك العودة إليه في أي وقت.</span></div>
+                <button type="button" class="fan-logout-btn" data-fan-logout><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</button>
+            `;
+            return;
+        }
+
+        const isRegister = fanAuthMode === 'register';
+        fanAuthRoot.innerHTML = `
+            <div class="fan-welcome-banner">
+                <div class="fan-banner-pattern"></div>
+                <div class="fan-crest"><img src="images/logo.png" alt="شعار نادي شعب حضرموت"></div>
+                <span class="fan-eyebrow">مدرج واحد.. قلب واحد</span>
+                <h3>جمهور نادي الشعب</h3>
+                <p>انضم إلى عائلة النوارس وكن قريباً من ناديك</p>
+                <div class="fan-banner-pills"><span><i class="fas fa-shield-heart"></i> روح الانتماء</span><span><i class="fas fa-users"></i> عائلة واحدة</span></div>
+            </div>
+            <div class="fan-auth-card">
+                <div class="fan-auth-heading">
+                    <h3>${isRegister ? 'إنشاء حساب مشجع جديد' : 'مرحباً بعودتك'}</h3>
+                    <p>${isRegister ? 'سجل بياناتك وانضم إلى جمهور النوارس' : 'سجل دخولك إلى حساب جمهور نادي الشعب'}</p>
+                </div>
+                <div class="fan-auth-tabs">
+                    <button type="button" data-fan-mode="login" class="${!isRegister ? 'active' : ''}">تسجيل الدخول</button>
+                    <button type="button" data-fan-mode="register" class="${isRegister ? 'active' : ''}">حساب جديد</button>
+                </div>
+                <div class="fan-form-message" hidden></div>
+                <form class="fan-auth-form" data-fan-form="${isRegister ? 'register' : 'login'}" novalidate>
+                    ${isRegister ? `
+                    <label>الاسم الكامل</label>
+                    <div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="اكتب اسمك الكامل" maxlength="80" required></div>
+                    ` : ''}
+                    <label>رقم الجوال</label>
+                    <div class="fan-input-wrap"><i class="fas fa-mobile-screen"></i><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="مثال: 9677XXXXXXXX" required></div>
+                    <label>كلمة المرور</label>
+                    <div class="fan-input-wrap"><i class="fas fa-lock"></i><input name="password" type="password" autocomplete="${isRegister ? 'new-password' : 'current-password'}" placeholder="${isRegister ? '8 أحرف على الأقل' : 'أدخل كلمة المرور'}" minlength="8" required></div>
+                    ${isRegister ? `
+                    <label>تأكيد كلمة المرور</label>
+                    <div class="fan-input-wrap"><i class="fas fa-lock"></i><input name="confirmPassword" type="password" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" minlength="8" required></div>
+                    ` : ''}
+                    <button class="fan-submit-btn" type="submit"><span>${isRegister ? 'إنشاء حسابي' : 'تسجيل الدخول'}</span><i class="fas fa-arrow-left"></i></button>
+                </form>
+                <div class="fan-auth-divider"><span>أو تابع باستخدام</span></div>
+                <div class="fan-google-area"><div id="fanGoogleButton"></div>
+                    ${fanGoogleClientId ? '' : '<p class="fan-google-note">تسجيل Google يحتاج تفعيل الربط أولاً، ويمكنك التسجيل الآن برقم الجوال.</p>'}
+                </div>
+                <p class="fan-privacy-note"><i class="fas fa-lock"></i> بياناتك تستخدم لإنشاء حساب جمهور آمن، ولا تظهر للزوار الآخرين.</p>
+            </div>
+        `;
+        if (fanGoogleClientId) renderFanGoogleButton();
+    }
+
+    async function renderFansPage() {
+        if (!fanAuthRoot) return;
+        fanAuthRoot.innerHTML = '<div class="fan-loading"><i class="fas fa-spinner fa-spin"></i><span>جارٍ التحقق من حسابك...</span></div>';
+        const token = localStorage.getItem(FAN_TOKEN_KEY);
+        if (token) {
+            try {
+                const result = await fanApi('/api/fans');
+                fanCurrentUser = result.user;
+            } catch (error) {
+                localStorage.removeItem(FAN_TOKEN_KEY);
+                fanCurrentUser = null;
+            }
+        } else {
+            fanCurrentUser = null;
+        }
+        try {
+            const config = await fanApi('/api/fans?config=1');
+            fanGoogleClientId = config.googleClientId || '';
+        } catch (error) {
+            fanGoogleClientId = '';
+        }
+        renderFanAuth();
+    }
+
+    async function loadFanGoogleScript() {
+        if (window.google?.accounts?.id) return;
+        if (fanGoogleScriptPromise) return fanGoogleScriptPromise;
+        fanGoogleScriptPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.async = true;
+            script.defer = true;
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('تعذر تحميل خدمة Google'));
+            document.head.appendChild(script);
+        });
+        return fanGoogleScriptPromise;
+    }
+
+    async function renderFanGoogleButton() {
+        const host = document.getElementById('fanGoogleButton');
+        if (!host || !fanGoogleClientId) return;
+        try {
+            await loadFanGoogleScript();
+            if (!window.google?.accounts?.id || !document.getElementById('fanGoogleButton')) return;
+            window.google.accounts.id.initialize({
+                client_id: fanGoogleClientId,
+                callback: async response => {
+                    try {
+                        const result = await fanApi('/api/fans', {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'google', credential: response.credential })
+                        });
+                        localStorage.setItem(FAN_TOKEN_KEY, result.token);
+                        fanCurrentUser = result.user;
+                        renderFanAuth();
+                    } catch (error) {
+                        fanShowMessage(error.message || 'تعذر تسجيل الدخول عبر Google');
+                    }
+                }
+            });
+            host.innerHTML = '';
+            window.google.accounts.id.renderButton(host, {
+                type: 'standard', theme: 'outline', size: 'large', text: 'continue_with',
+                shape: 'rectangular', logo_alignment: 'left', locale: 'ar', width: 300
+            });
+            fanGoogleButtonRendered = true;
+        } catch (error) {
+            const note = document.querySelector('.fan-google-note');
+            if (note) note.textContent = 'تعذر تحميل تسجيل Google حالياً، استخدم رقم الجوال أو حاول لاحقاً.';
+        }
+    }
+
+    if (fanAuthRoot) {
+        fanAuthRoot.addEventListener('click', async event => {
+            const modeButton = event.target.closest('[data-fan-mode]');
+            if (modeButton) {
+                fanAuthMode = modeButton.getAttribute('data-fan-mode');
+                renderFanAuth();
+                return;
+            }
+            if (event.target.closest('[data-fan-logout]')) {
+                try { await fanApi('/api/fans', { method: 'DELETE' }); } catch (error) {}
+                localStorage.removeItem(FAN_TOKEN_KEY);
+                fanCurrentUser = null;
+                fanAuthMode = 'login';
+                renderFanAuth();
+            }
+        });
+        fanAuthRoot.addEventListener('submit', async event => {
+            const form = event.target.closest('[data-fan-form]');
+            if (!form) return;
+            event.preventDefault();
+            const data = new FormData(form);
+            const action = form.getAttribute('data-fan-form');
+            const phone = String(data.get('phone') || '').trim();
+            const password = String(data.get('password') || '');
+            if (action === 'register') {
+                const name = String(data.get('name') || '').trim();
+                const confirmPassword = String(data.get('confirmPassword') || '');
+                if (name.length < 2) return fanShowMessage('اكتب اسمك الكامل.');
+                if (password.length < 8) return fanShowMessage('كلمة المرور يجب ألا تقل عن 8 أحرف.');
+                if (password !== confirmPassword) return fanShowMessage('كلمتا المرور غير متطابقتين.');
+            }
+            const submit = form.querySelector('button[type="submit"]');
+            if (submit) { submit.disabled = true; submit.classList.add('loading'); }
+            try {
+                const result = await fanApi('/api/fans', {
+                    method: 'POST',
+                    body: JSON.stringify(action === 'register'
+                        ? { action, name: String(data.get('name') || '').trim(), phone, password }
+                        : { action, phone, password })
+                });
+                localStorage.setItem(FAN_TOKEN_KEY, result.token);
+                fanCurrentUser = result.user;
+                renderFanAuth();
+            } catch (error) {
+                fanShowMessage(error.message || 'تعذر إكمال العملية.');
+                if (submit) { submit.disabled = false; submit.classList.remove('loading'); }
+            }
+        });
+    }
+
+
     const clubEscape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     async function clubGet(path) {
         const response = await fetch(CLUB_API_BASE + path + (path.includes('?') ? '&' : '?') + 'refresh=' + Date.now(), { cache: 'no-store' });

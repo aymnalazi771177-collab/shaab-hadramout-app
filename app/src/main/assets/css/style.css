@@ -1765,3 +1765,45 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 .tournament-picker-bar label{font-weight:800;color:#fff;display:block;width:100%;text-align:right}
 .tournament-picker-bar select{display:block;width:100%;min-width:0;max-width:100%;min-height:54px;padding:12px 16px;border:1px solid #e1e5ec;border-radius:14px;background-color:#fff!important;color:#263246!important;-webkit-text-fill-color:#263246!important;font-family:inherit;font-size:15px;font-weight:800;outline:none;text-align:right;text-align-last:right;direction:rtl;appearance:auto;color-scheme:light}
 .tournament-picker-bar select option{background:#fff!important;color:#263246!important;font-weight:700}
+
+
+/* Attached photo gallery at the end of news articles */
+.news-attached-gallery {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-color);
+}
+.news-attached-gallery h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 800;
+}
+.news-attached-gallery h4 i { color: var(--primary-red); }
+.news-attached-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.news-attached-gallery-item {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: 13px;
+    background: #f0f1f4;
+    border: 1px solid var(--border-color);
+}
+.news-attached-gallery-item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .25s ease;
+}
+.news-attached-gallery-item:active img { transform: scale(1.03); }
+@media (min-width: 520px) {
+    .news-attached-gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

@@ -1187,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const homeLogo = homeIsClub ? (m.homeLogo || 'images/logo.png') : m.opponentLogo;
                 const awayLogo = homeIsClub ? m.opponentLogo : (m.homeLogo || 'images/logo.png');
                 return `
-                <div class="match-card-full" onclick="openMatchModal()">
+                <div class="match-card-full" onclick="if(!event.target.closest('.fan-prediction-box')) openMatchModal()">
                     <div class="match-competition-tag">
                         <span><i class="fas fa-trophy"></i> ${safeMatchText(m.round)}</span>
                         <span class="time-badge">${safeMatchText(m.time)}</span>

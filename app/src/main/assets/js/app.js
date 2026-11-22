@@ -1746,7 +1746,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </form>
                 <div class="fan-auth-divider"><span>أو تابع باستخدام</span></div>
                 <div class="fan-google-area"><div id="fanGoogleButton"></div>
-                    ${fanGoogleClientId ? '' : '<p class="fan-google-note">تسجيل Google يحتاج تفعيل الربط أولاً، ويمكنك التسجيل الآن برقم الجوال.</p>'}
+                    ${fanGoogleClientId ? '' : '<button type="button" class="fan-google-disabled" disabled><span class="fan-google-g">G</span> المتابعة باستخدام Google</button><p class="fan-google-note">سيتم تفعيل تسجيل Google بعد ربط حساب النادي بخدمة Google.</p>'}
                 </div>
                 <p class="fan-privacy-note"><i class="fas fa-lock"></i> بياناتك تستخدم لإنشاء حساب جمهور آمن، ولا تظهر للزوار الآخرين.</p>
             </div>

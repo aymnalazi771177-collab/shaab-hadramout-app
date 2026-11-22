@@ -1105,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const safeMatchText = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
             const matchLogo = (url, name, isClub) => {
                 const raw = String(url || (isClub ? 'images/logo.png' : '')).trim();
-                const safe = /^(https?:\\/\\/|\\/api\\/media\\/|images\\/)/i.test(raw) ? raw : '';
+                const safe = (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('/api/media/') || raw.startsWith('images/')) ? raw : '';
                 return safe
                     ? `<img src="${safeMatchText(safe)}" alt="${safeMatchText(name)}" class="match-team-logo-img" onerror="this.outerHTML='<i class=&quot;fas fa-shield-halved&quot;></i>'">`
                     : '<i class="fas fa-shield-halved"></i>';

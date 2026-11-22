@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#B5121B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="apple-touch-icon" href="images/logo.png">
+    <title>نادي شعب حضرموت - Shaab Hadramout Club</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.4">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-bar-right">
+                <span class="time" id="liveClock">9:41</span>
+            </div>
+            <div class="status-bar-left">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <span class="battery">
+                    <span class="battery-text">100%</span>
+                    <i class="fas fa-battery-full"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="app-header" id="appHeader">
+            <div class="header-bg-pattern"></div>
+            <div class="header-content">
+                <button class="menu-btn" id="menuBtn" aria-label="القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="club-title">
+                    <h1 id="headerMainTitle">نادي شعب حضرموت</h1>
+                    <p id="headerSubTitle">Shaab Hadramout Club</p>
+                </div>
+                <div class="club-logo">
+                    <img src="images/logo.png" alt="شعار نادي شعب حضرموت الرسمي" class="official-logo-img">
+                </div>
+            </div>
+        </header>
+
+        <!-- Pages Viewport Wrapper (SPA) -->
+        <div class="pages-wrapper">
+            <!-- Main Home View -->
+            <main class="main-content app-page active" id="homePage">
+
+            <!-- Stories / Reels Section (ريلز وقصص النادي اليومية) -->
+            <section class="stories-reels-section" aria-label="يوميات وريلز النادي">
+                <div class="stories-bar-header">
+                    <div class="stories-bar-title">
+                        <i class="fas fa-play-circle"></i>
+                        <span>يوميات النوارس (Reels)</span>
+                    </div>
+                    <div class="stories-live-tag">
+                        <span class="live-dot"></span>
+                        <span>مباشر</span>
+                    </div>
+                </div>
+                <div class="stories-scroll-container" id="storiesScrollContainer">
+                    <div class="story-circle-item" data-story-idx="0">
+                        <div class="story-avatar-ring">
+                            <div class="story-avatar-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=300&h=300&fit=crop&q=80" alt="تدريبات اليوم" class="story-avatar-img" loading="eager">
+                            </div>
+                            <span class="story-badge-pill">مباشر 🔴</span>
+                        </div>
+                        <span class="story-circle-label">تدريبات اليوم</span>
+                    </div>
+                    <div class="story-circle-item" data-story-idx="1">
+                        <div class="story-avatar-ring">
+                            <div class="story-avatar-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=300&h=300&fit=crop&q=80" alt="أهداف القمة" class="story-avatar-img" loading="lazy">
+                            </div>
+                            <span class="story-badge-pill">فيديو ⚽</span>
+                        </div>
+                        <span class="story-circle-label">أهداف القمة</span>
+                    </div>
+                    <div class="story-circle-item" data-story-idx="2">
+                        <div class="story-avatar-ring">
+                            <div class="story-avatar-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=300&h=300&fit=crop&q=80" alt="مدرج النوارس" class="story-avatar-img" loading="lazy">
+                            </div>
+                            <span class="story-badge-pill">تيفو 🔥</span>
+                        </div>
+                        <span class="story-circle-label">مدرج النوارس</span>
+                    </div>
+                    <div class="story-circle-item" data-story-idx="3">
+                        <div class="story-avatar-ring">
+                            <div class="story-avatar-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=300&h=300&fit=crop&q=80" alt="كواليس الغرفة" class="story-avatar-img" loading="lazy">
+                            </div>
+                            <span class="story-badge-pill">حماس 👏</span>
+                        </div>
+                        <span class="story-circle-label">كواليس الغرفة</span>
+                    </div>
+                    <div class="story-circle-item" data-story-idx="4">
+                        <div class="story-avatar-ring">
+                            <div class="story-avatar-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop&q=80" alt="لقاء الكابتن" class="story-avatar-img" loading="lazy">
+                            </div>
+                            <span class="story-badge-pill">تصريح 🎙️</span>
+                        </div>
+                        <span class="story-circle-label">لقاء الكابتن</span>
+                    </div>
+                    <div class="story-circle-item" data-story-idx="5">
+                        <div class="story-avatar-ring">
+                            <div class="story-avatar-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=300&h=300&fit=crop&q=80" alt="نجم الأسبوع" class="story-avatar-img" loading="lazy">
+                            </div>
+                            <span class="story-badge-pill">⭐ نجم</span>
+                        </div>
+                        <span class="story-circle-label">نجم الأسبوع</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- News Slider -->
+            <section class="slider-section">
+                <div class="slider-container" id="newsSlider">
+                    <div class="slider-wrapper" id="sliderWrapper">
+                        <div class="slide active">
+                            <img class="slide-image" src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&h=450&fit=crop&q=80" alt="فريق شعب حضرموت" loading="eager">
+                            <div class="slide-overlay">
+                                <span class="slide-category">أخبار النادي</span>
+                                <h3>شعب حضرموت .. طموح أكبر<br>ومستقبل مشرق</h3>
+                            </div>
+                        </div>
+                        <div class="slide">
+                            <img class="slide-image" src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=450&fit=crop&q=80" alt="كرة قدم" loading="lazy">
+                            <div class="slide-overlay">
+                                <span class="slide-category">تدريبات النوارس</span>
+                                <h3>الفريق يواصل استعداداته<br>للموسم الجديد بقوة</h3>
+                            </div>
+                        </div>
+                        <div class="slide">
+                            <img class="slide-image" src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&h=450&fit=crop&q=80" alt="استاد بارادم" loading="lazy">
+                            <div class="slide-overlay">
+                                <span class="slide-category">ملعب بارادم</span>
+                                <h3>جماهير المكلا تتأهب<br>للمباراة القادمة بحماس</h3>
+                            </div>
+                        </div>
+                        <div class="slide">
+                            <img class="slide-image" src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=800&h=450&fit=crop&q=80" alt="جماهير" loading="lazy">
+                            <div class="slide-overlay">
+                                <span class="slide-category">الجماهير الشعباوية</span>
+                                <h3>جماهير شعب حضرموت<br>الأكثر وفاءً وحضوراً</h3>
+                            </div>
+                        </div>
+                        <div class="slide">
+                            <img class="slide-image" src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&h=450&fit=crop&q=80" alt="كأس" loading="lazy">
+                            <div class="slide-overlay">
+                                <span class="slide-category">بطولات النادي</span>
+                                <h3>سجل البطولات المشرف<br>لنادي النوارس الحضرمية</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="slider-arrow slider-arrow-right" id="sliderNext"><i class="fas fa-chevron-right"></i></button>
+                    <button class="slider-arrow slider-arrow-left" id="sliderPrev"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                    <div class="slider-dots" id="sliderDots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+            </section>
+
+            <!-- Next Match -->
+            <section class="next-match-section">
+                <div class="next-match-card" id="matchBannerCard">
+                    <div class="match-header">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>المباراة القادمة</span>
+                    </div>
+                    <div class="match-content">
+                        <div class="league-name">دوري الدرجة الأولى</div>
+                        <div class="match-teams">
+                            <!-- Right: التلال -->
+                            <div class="team team-away">
+                                <div class="team-logo-container">
+                                    <div class="team-logo-img away-logo-img">
+                                        <svg viewBox="0 0 80 90" class="team-logo-svg">
+                                            <circle cx="40" cy="45" r="32" fill="#1a3a6e" stroke="#fff" stroke-width="2"/>
+                                            <text x="40" y="42" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold" font-family="Cairo">التلال</text>
+                                            <circle cx="40" cy="58" r="8" fill="none" stroke="#fff" stroke-width="1.5"/>
+                                            <path d="M40,50 L40,66 M32,54 L48,62 M48,54 L32,62" stroke="#fff" stroke-width="0.8"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <span class="team-name">التلال</span>
+                            </div>
+
+                            <!-- Center: VS & Info -->
+                            <div class="match-info-center">
+                                <span class="vs-text">VS</span>
+                                <div class="match-date">
+                                    <i class="far fa-calendar-alt"></i>
+                                    <span>الجمعة 28 نوفمبر 2025</span>
+                                </div>
+                                <div class="match-time">
+                                    <i class="far fa-clock"></i>
+                                    <span>3:30 مساءً</span>
+                                </div>
+                            </div>
+
+                            <!-- Left: شعب حضرموت -->
+                            <div class="team team-home">
+                                <div class="team-logo-container">
+                                    <div class="team-logo-img home-logo">
+                                        <img src="images/logo.png" alt="شعب حضرموت" class="official-logo-img">
+                                    </div>
+                                </div>
+                                <span class="team-name">شعب حضرموت</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Menu Grid (The 8 main buttons matching reference design) -->
+            <section class="menu-grid-section">
+                <div class="menu-grid">
+                    <!-- Row 1: Right to Left -->
+                    <div class="menu-item" data-navigate="playersPage">
+                        <div class="menu-icon-wrap">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span class="menu-label">اللاعبون والجهاز الفني</span>
+                    </div>
+                    <div class="menu-item" data-navigate="matchesPage">
+                        <div class="menu-icon-wrap">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <span class="menu-label">المباريات والنتائج</span>
+                    </div>
+                    <div class="menu-item" data-navigate="transfersPage">
+                        <div class="menu-icon-wrap">
+                            <i class="fas fa-right-left"></i>
+                        </div>
+                        <span class="menu-label">الانتقالات</span>
+                    </div>
+                    <div class="menu-item" data-navigate="mediaPage">
+                        <div class="menu-icon-wrap">
+                            <i class="fas fa-photo-film"></i>
+                        </div>
+                        <span class="menu-label">الصور والفيديو</span>
+                    </div>
+
+                    <!-- Row 2: Right to Left -->
+                    <div class="menu-item" data-navigate="anthemsPage">
+                        <div class="menu-icon-wrap">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                        <span class="menu-label">الأناشيد</span>
+                    </div>
+                    <div class="menu-item" data-navigate="aboutPage">
+                        <div class="menu-icon-wrap">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <span class="menu-label">عن النادي</span>
+                    </div>
+                    <div class="menu-item" data-navigate="newsPage">
+                        <div class="menu-icon-wrap">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <span class="menu-label">الأخبار</span>
+                    </div>
+                    <div class="menu-item" data-navigate="standingsPage">
+                        <div class="menu-icon-wrap">
+                            <i class="fas fa-chart-simple"></i>
+                        </div>
+                        <span class="menu-label">البطولات</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Latest News Section -->
+            <section class="latest-news-section">
+                <div class="news-section-header">
+                    <div class="news-header-right">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>آخر الأخبار</span>
+                    </div>
+                    <button class="view-all-btn" data-navigate="newsPage">
+                        <span>عرض الكل</span>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+                <div class="news-cards-container">
+                    <div class="news-card" data-news-id="1">
+                        <div class="news-card-image">
+                            <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=300&fit=crop&q=80" alt="جماهير شعب حضرموت" loading="lazy">
+                        </div>
+                        <div class="news-card-content">
+                            <h4>جماهير شعب حضرموت .. سند الفريق وداعم الأول</h4>
+                            <div class="news-date"><span>نوفمبر 2025</span> <i class="far fa-clock"></i></div>
+                        </div>
+                    </div>
+                    <div class="news-card" data-news-id="2">
+                        <div class="news-card-image">
+                            <img src="https://images.unsplash.com/photo-1551958219-acbc608c6377?w=400&h=300&fit=crop&q=80" alt="تدريب" loading="lazy">
+                        </div>
+                        <div class="news-card-content">
+                            <h4>الفريق يختتم معسكره التدريبي استعداداً لمباراة القمة</h4>
+                            <div class="news-date"><i class="far fa-clock"></i><span>26 نوفمبر 2025</span></div>
+                        </div>
+                    </div>
+                    <div class="news-card" data-news-id="3">
+                        <div class="news-card-image">
+                            <img src="https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=400&h=300&fit=crop&q=80" alt="انتقال" loading="lazy">
+                        </div>
+                        <div class="news-card-content">
+                            <h4>النادي يتعاقد مع المهاجم الدولي لتعزيز خط الهجوم</h4>
+                            <div class="news-date"><i class="far fa-clock"></i><span>24 نوفمبر 2025</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="bottom-spacer"></div>
+        </main>
+
+        <!-- ============================================== -->
+        <!-- SUB PAGES (Fully interactive SPA views)        -->
+        <!-- ============================================== -->
+
+        <!-- 1. صفحة اللاعبين والجهاز الفني -->
+        <section class="app-page sub-page" id="playersPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>اللاعبون والجهاز الفني</h2>
+                <div class="header-action-icon"><i class="fas fa-users"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <!-- Filters Tabs -->
+                <div class="category-tabs">
+                    <button class="cat-tab active" data-player-cat="all">الكل</button>
+                    <button class="cat-tab" data-player-cat="gk">حراسة المرمى</button>
+                    <button class="cat-tab" data-player-cat="def">الدفاع</button>
+                    <button class="cat-tab" data-player-cat="mid">الوسط</button>
+                    <button class="cat-tab" data-player-cat="att">الهجوم</button>
+                    <button class="cat-tab" data-player-cat="staff">الجهاز الفني</button>
+                </div>
+
+                <!-- Players Grid -->
+                <div class="players-list-grid" id="playersContainer">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. صفحة المباريات والنتائج -->
+        <section class="app-page sub-page" id="matchesPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>المباريات والنتائج</h2>
+                <div class="header-action-icon"><i class="fas fa-trophy"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="category-tabs matches-main-tabs">
+                    <button class="cat-tab active" data-match-tab="upcoming">المباريات القادمة</button>
+                    <button class="cat-tab" data-match-tab="results">النتائج</button>
+                </div>
+                <div class="matches-list" id="matchesContainer">
+                    <!-- Populated dynamically via JS -->
+                </div>
+                <section class="fan-leaderboard-card" id="fanLeaderboardCard">
+                    <div class="fan-contest-banner">
+                        <span class="fan-contest-kicker"><i class="fas fa-star"></i> تحدّي جماهير النوارس</span>
+                        <h2>مسابقة عشاق النوارس</h2>
+                        <p>توقّع نتائج المباريات واجمع النقاط ونافس على الجوائز</p>
+                    </div>
+                    <div class="fan-prizes-title"><i class="fas fa-gift"></i><span>جوائز المسابقة</span></div>
+                    <div class="fan-prizes-grid">
+                        <article class="fan-prize-item fan-prize-first">
+                            <span class="fan-prize-medal"><i class="fas fa-trophy"></i></span>
+                            <span class="fan-prize-place">المركز الأول</span>
+                            <strong>طقم النادي الرسمي</strong>
+                            <small>موقّع من اللاعبين</small>
+                        </article>
+                        <article class="fan-prize-item fan-prize-second">
+                            <span class="fan-prize-medal"><i class="fas fa-ticket"></i></span>
+                            <span class="fan-prize-place">المركز الثاني</span>
+                            <strong>تذكرة موسمية للمنصة</strong>
+                            <small>مقدمة من النادي</small>
+                        </article>
+                        <article class="fan-prize-item fan-prize-third">
+                            <span class="fan-prize-medal"><i class="fas fa-gift"></i></span>
+                            <span class="fan-prize-place">المركز الثالث</span>
+                            <strong>باقة مستلزمات حصرية</strong>
+                            <small>من النادي</small>
+                        </article>
+                    </div>
+                    <div class="fan-leaderboard-heading"><div><span>ترتيب المشاركين حسب النقاط</span><h3><i class="fas fa-trophy"></i> لوحة صدارة المشجعين</h3></div><b>أفضل 30</b></div>
+                    <div id="fanLeaderboardRows" class="fan-leaderboard-rows"><p class="fan-leader-empty">جارٍ تحميل ترتيب المشجعين...</p></div>
+                </section>
+            </div>
+        </section>
+
+        <!-- 3. صفحة الترتيب -->
+        <section class="app-page sub-page" id="standingsPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>البطولات</h2>
+                <div class="header-action-icon"><i class="fas fa-chart-simple"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="standings-season-bar tournament-picker-bar"><label for="publicTournamentSelect">اختر البطولة</label><select id="publicTournamentSelect"><option value="">جارٍ تحميل البطولات...</option></select></div><p id="tournamentEmpty" class="empty-state" hidden>لا توجد بطولات منشورة حالياً.</p>
+                <div class="standings-table-card">
+                    <table class="standings-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="text-right">الفريق</th>
+                                <th>ل</th>
+                                <th>ف</th>
+                                <th>ت</th>
+                                <th>خ</th>
+                                <th>+/-</th>
+                                <th>ن</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standingsBody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </section>
+
+        <!-- 4. صفحة الانتقالات -->
+        <section class="app-page sub-page" id="transfersPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>سوق الانتقالات</h2>
+                <div class="header-action-icon"><i class="fas fa-right-left"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="category-tabs">
+                    <button class="cat-tab active" data-trans-tab="in">الوافدون الجدد 🟢</button>
+                    <button class="cat-tab" data-trans-tab="out">المغادرون 🔴</button>
+                    <button class="cat-tab" data-trans-tab="renew">تجديد العقود ✍️</button>
+                </div>
+                <div class="transfers-container" id="transfersContainer">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. صفحة الصور والفيديو -->
+        <section class="app-page sub-page" id="mediaPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>الصور والفيديو</h2>
+                <div class="header-action-icon"><i class="fas fa-photo-film"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="category-tabs">
+                    <button class="cat-tab active" data-media-tab="photos"><i class="fas fa-image"></i> ألبوم الصور</button>
+                    <button class="cat-tab" data-media-tab="videos"><i class="fas fa-play"></i> ملخصات الفيديو</button>
+                </div>
+                <div class="media-gallery-grid" id="mediaGalleryContainer">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. صفحة الأناشيد -->
+        <section class="app-page sub-page" id="anthemsPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>أناشيد وهتافات النوارس</h2>
+                <div class="header-action-icon"><i class="fas fa-music"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <!-- Audio Player Widget -->
+                <div class="audio-player-card">
+                    <div class="album-art">
+                        <i class="fas fa-compact-disc rotating" id="discIcon"></i>
+                    </div>
+                    <div class="player-info">
+                        <h4 id="currentAnthemTitle">النشيد الرسمي لنادي شعب حضرموت</h4>
+                        <p id="currentAnthemArtist">جماهير النوارس الحمراء</p>
+                    </div>
+                    <!-- Audio Progress -->
+                    <div class="player-controls">
+                        <div class="progress-bar-container" id="audioProgressTrack">
+                            <div class="progress-fill" id="audioProgressFill" style="width: 35%;"></div>
+                        </div>
+                        <div class="time-row">
+                            <span id="currentTimeDisplay">1:12</span>
+                            <span id="totalTimeDisplay">3:25</span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="audio-btn" id="prevTrackBtn"><i class="fas fa-backward-step"></i></button>
+                            <button class="audio-btn play-circle-btn" id="playPauseBtn"><i class="fas fa-play" id="playIcon"></i></button>
+                            <button class="audio-btn" id="nextTrackBtn"><i class="fas fa-forward-step"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chants & Anthems List -->
+                <div class="chants-list" id="anthemsList">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. صفحة عن النادي -->
+        <section class="app-page sub-page" id="aboutPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>عن نادي شعب حضرموت</h2>
+                <div class="header-action-icon"><i class="fas fa-star"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <!-- Club Profile Banner -->
+                <div class="club-profile-banner">
+                    <div class="club-emblem-large">
+                        <img src="images/logo.png" alt="شعار نادي شعب حضرموت الرسمي" class="official-logo-img large">
+                    </div>
+                    <h3>نادي شعب حضرموت الرياضي الثقافي</h3>
+                    <p class="nickname">لقب النادي: "النوارس الحضرمية"</p>
+                    <div class="foundation-badge"><i class="fas fa-history"></i> تأسس عام 1964 م (المكلا)</div>
+                </div>
+
+                <!-- Info Cards -->
+                <div class="about-card">
+                    <h4><i class="fas fa-award text-gold"></i> سجل الألقاب والبطولات</h4>
+                    <ul class="trophies-list">
+                        <li><i class="fas fa-trophy gold"></i> <strong>دوري الدرجة الأولى اليمني:</strong> بطل موسم 2020/2021</li>
+                        <li><i class="fas fa-trophy gold"></i> <strong>كأس الجمهورية (الوحدة):</strong> بطل مرتين (2000، 2006)</li>
+                        <li><i class="fas fa-trophy gold"></i> <strong>كأس السوبر اليمني:</strong> بطل عام 2014</li>
+                        <li><i class="fas fa-medal gold"></i> <strong>كأس حضرموت الكبرى:</strong> بطل متعدد الألقاب</li>
+                    </ul>
+                </div>
+
+                <div class="about-card">
+                    <h4><i class="fas fa-landmark text-red"></i> المقر والمنشآت</h4>
+                    <p class="about-text">يقع مقر النادي الرئيسي في مدينة المكلا الساحلية، عاصمة محافظة حضرموت. يخوض الفريق مبارياته الرسمية في استاد الفقيد بارادم التاريخي بالمكلا.</p>
+                </div>
+
+                <div class="about-card">
+                    <h4><i class="fas fa-palette text-red"></i> الهوية والألوان</h4>
+                    <div class="color-palette-showcase">
+                        <div class="color-swatch-box" style="background:#DB1E24;"><span>الأحمر القرمزي (الأساسي)</span></div>
+                        <div class="color-swatch-box" style="background:#FFFFFF; color:#333; border:1px solid #ddd;"><span>الأبيض النقي (الاحتياطي)</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. صفحة الأخبار الكاملة -->
+        <section class="app-page sub-page" id="newsPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>أخبار النادي</h2>
+                <div class="header-action-icon"><i class="fas fa-newspaper"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="news-search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="newsSearchInput" placeholder="ابحث في الأخبار والتقارير...">
+                </div>
+                <div class="news-list-all" id="newsAllContainer">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. صفحة الإعدادات -->
+        <section class="app-page sub-page" id="fansPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>جمهور نادي الشعب</h2>
+                <div class="header-action-icon"><i class="fas fa-users"></i></div>
+            </div>
+            <div class="page-scroll-content fan-page-content">
+                <div id="fanAuthContent" class="fan-auth-content">
+                    <div class="fan-loading"><i class="fas fa-spinner fa-spin"></i><span>جارٍ تجهيز صفحة الجمهور...</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="settingsPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>الإعدادات</h2>
+                <div class="header-action-icon"><i class="fas fa-gear"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <!-- User Quick Card -->
+                <div class="user-profile-card clickable" data-navigate="fansPage">
+                    <div class="user-avatar"><i class="fas fa-user"></i></div>
+                    <div class="user-details">
+                        <h4>جمهور نادي الشعب</h4>
+                        <span>سجل دخولك أو أنشئ حسابك الآن</span>
+                    </div>
+                    <i class="fas fa-chevron-left text-gray"></i>
+                </div>
+
+                <div class="settings-group">
+                    <h5>إعدادات التطبيق العامة</h5>
+                    <div class="setting-item">
+                        <div class="setting-title"><i class="fas fa-moon"></i> الوضع الليلي</div>
+                        <label class="switch">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-title"><i class="fas fa-bell"></i> تنبيهات المباريات المباشرة</div>
+                        <label class="switch">
+                            <input type="checkbox" checked id="matchNotifToggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-title"><i class="fas fa-bullhorn"></i> إشعارات الأخبار العاجلة</div>
+                        <label class="switch">
+                            <input type="checkbox" checked id="newsNotifToggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h5>معلومات التطبيق</h5>
+                    <div class="setting-item clickable" id="shareAppBtn">
+                        <div class="setting-title"><i class="fas fa-share-nodes"></i> مشاركة التطبيق مع الأصدقاء</div>
+                        <i class="fas fa-chevron-left text-gray"></i>
+                    </div>
+                    <div class="setting-item clickable" id="rateAppBtn">
+                        <div class="setting-title"><i class="fas fa-star text-gold"></i> تقييم التطبيق 5 نجوم</div>
+                        <i class="fas fa-chevron-left text-gray"></i>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-title"><i class="fas fa-code-branch"></i> إصدار التطبيق</div>
+                        <span class="text-gray font-bold">V 2.5.0 Pro</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="basketballPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>كرة السلة</h2>
+                <div class="header-action-icon"><i class="fas fa-basketball"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-basketball"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="volleyballPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>كرة الطائرة</h2>
+                <div class="header-action-icon"><i class="fas fa-volleyball"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-volleyball"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="handballPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>كرة اليد</h2>
+                <div class="header-action-icon"><i class="fas fa-hand"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-handball"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="tennisPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>التنس</h2>
+                <div class="header-action-icon"><i class="fas fa-table-tennis-paddle-ball"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-tennis"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="taekwondoPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>التايكواندو</h2>
+                <div class="header-action-icon"><i class="fas fa-user-ninja"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-taekwondo"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="athleticsPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>ألعاب القوى</h2>
+                <div class="header-action-icon"><i class="fas fa-person-running"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-athletics"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="otherSportsPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>ألعاب أخرى</h2>
+                <div class="header-action-icon"><i class="fas fa-medal"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-otherSports"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="boardPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>مجلس الإدارة</h2>
+                <div class="header-action-icon"><i class="fas fa-users-gear"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-board"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="presidentsPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>رؤساء النادي</h2>
+                <div class="header-action-icon"><i class="fas fa-user-tie"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-presidents"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="membershipPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>عضوية النادي</h2>
+                <div class="header-action-icon"><i class="fas fa-id-card"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-membership"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="foundationPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>مؤسسة النادي المجتمعية</h2>
+                <div class="header-action-icon"><i class="fas fa-hand-holding-heart"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-foundation"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+
+        <section class="app-page sub-page" id="contactPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>تواصل معنا</h2>
+                <div class="header-action-icon"><i class="fas fa-phone"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="managed-section-content" id="managedContent-contact"><div class="managed-loading">جارٍ تحميل محتوى القسم...</div></div>
+            </div>
+        </section>
+        </div><!-- /.pages-wrapper -->
+
+        <!-- ============ NOTIFICATIONS PANEL ============ -->
+        <div class="notifications-overlay" id="notifOverlay"></div>
+        <div class="notifications-panel" id="notifPanel">
+            <div class="notif-panel-header">
+                <h3><i class="fas fa-bell"></i> الإشعارات والتنبيهات</h3>
+                <button class="notif-close-btn" id="notifCloseBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="notif-actions">
+                <button class="mark-all-read" id="markAllRead"><i class="fas fa-check-double"></i> تحديد الكل كمقروء</button>
+            </div>
+            <div class="notif-list" id="notifList">
+                <div class="notif-item unread">
+                    <div class="notif-icon match-notif"><i class="fas fa-futbol"></i></div>
+                    <div class="notif-body">
+                        <p class="notif-text"><strong>تذكير بالمباراة:</strong> شعب حضرموت vs التلال - الجمعة 3:30 عصراً</p>
+                        <span class="notif-time"><i class="far fa-clock"></i> منذ ساعة</span>
+                    </div>
+                    <span class="unread-dot"></span>
+                </div>
+                <div class="notif-item unread">
+                    <div class="notif-icon transfer-notif"><i class="fas fa-user-plus"></i></div>
+                    <div class="notif-body">
+                        <p class="notif-text"><strong>صفقة جديدة:</strong> توقيع رسمي مع نجم خط الوسط الدولي لـ 3 مواسم</p>
+                        <span class="notif-time"><i class="far fa-clock"></i> منذ 3 ساعات</span>
+                    </div>
+                    <span class="unread-dot"></span>
+                </div>
+                <div class="notif-item">
+                    <div class="notif-icon result-notif"><i class="fas fa-trophy"></i></div>
+                    <div class="notif-body">
+                        <p class="notif-text"><strong>انتصار ثمين:</strong> نوارس حضرموت تفوز على الوحدة بنتيجة 2 - 1 ⚽🔥</p>
+                        <span class="notif-time"><i class="far fa-clock"></i> أمس</span>
+                    </div>
+                </div>
+                <div class="notif-item">
+                    <div class="notif-icon anthem-notif"><i class="fas fa-music"></i></div>
+                    <div class="notif-body">
+                        <p class="notif-text"><strong>نشيد جديد:</strong> استمع الآن إلى النشيد الحماسي الجديد للجماهير 🎵</p>
+                        <span class="notif-time"><i class="far fa-clock"></i> منذ يومين</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SIDE MENU ============ -->
+        <div class="side-menu-overlay" id="sideMenuOverlay"></div>
+        <nav class="side-menu" id="sideMenu">
+            <div class="side-menu-header">
+                <div class="side-menu-logo">
+                    <img src="images/logo.png" alt="شعار نادي شعب حضرموت" class="official-logo-img small">
+                </div>
+                <h3>نادي شعب حضرموت</h3>
+                <p>Shaab Hadramout Club</p>
+            </div>
+            <ul class="side-menu-list">
+                <li class="active" data-navigate="homePage"><i class="fas fa-home"></i><span>الرئيسية</span></li>
+                <li data-navigate="fansPage"><i class="fas fa-users"></i><span>جمهور نادي الشعب</span></li>
+                <li data-navigate="basketballPage"><i class="fas fa-basketball"></i><span>كرة السلة</span></li>
+                <li data-navigate="volleyballPage"><i class="fas fa-volleyball"></i><span>كرة الطائرة</span></li>
+                <li data-navigate="handballPage"><i class="fas fa-hand"></i><span>كرة اليد</span></li>
+                <li data-navigate="tennisPage"><i class="fas fa-table-tennis-paddle-ball"></i><span>التنس</span></li>
+                <li data-navigate="taekwondoPage"><i class="fas fa-user-ninja"></i><span>التايكواندو</span></li>
+                <li data-navigate="athleticsPage"><i class="fas fa-person-running"></i><span>ألعاب القوى</span></li>
+                <li data-navigate="otherSportsPage"><i class="fas fa-medal"></i><span>ألعاب أخرى</span></li>
+                <li data-navigate="boardPage"><i class="fas fa-users-gear"></i><span>مجلس الإدارة</span></li>
+                <li data-navigate="presidentsPage"><i class="fas fa-user-tie"></i><span>رؤساء النادي</span></li>
+                <li data-navigate="aboutPage"><i class="fas fa-landmark"></i><span>تاريخ النادي</span></li>
+                <li data-navigate="membershipPage"><i class="fas fa-id-card"></i><span>عضوية النادي</span></li>
+                <li data-navigate="foundationPage"><i class="fas fa-hand-holding-heart"></i><span>مؤسسة النادي المجتمعية</span></li>
+                <li data-navigate="contactPage"><i class="fas fa-phone"></i><span>تواصل معنا</span></li>
+                <li id="openStoreMenuItem"><i class="fas fa-shirt text-gold"></i><span>متجر النادي الرسمي 👕</span></li>
+            </ul>
+            <div class="side-menu-footer">
+                <p>تطبيق نادي شعب حضرموت الرسمي © 2026</p>
+            </div>
+        </nav>
+
+        <!-- ============ INTERACTIVE MODALS ============ -->
+
+        <!-- 1. Player Detail Modal -->
+        <div class="modal-overlay" id="playerModalOverlay"></div>
+        <div class="app-modal-sheet" id="playerModalSheet">
+            <div class="modal-sheet-header">
+                <button class="sheet-close-btn" id="closePlayerModalBtn"><i class="fas fa-times"></i></button>
+                <h3 id="modalPlayerTitle">بطاقة اللاعب</h3>
+                <button class="sheet-share-btn" id="sharePlayerBtn"><i class="fas fa-share-nodes"></i></button>
+            </div>
+            <div class="modal-sheet-body" id="playerModalBody">
+                <!-- Dynamically generated in JS -->
+            </div>
+        </div>
+
+        <!-- 2. Match Center & E-Ticket Modal -->
+        <div class="modal-overlay" id="matchModalOverlay"></div>
+        <div class="app-modal-sheet" id="matchModalSheet">
+            <div class="modal-sheet-header">
+                <button class="sheet-close-btn" id="closeMatchModalBtn"><i class="fas fa-times"></i></button>
+                <h3>مركز المباراة والتذاكر</h3>
+                <div style="width:30px;"></div>
+            </div>
+            <div class="modal-sheet-body" id="matchModalBody">
+                <!-- Dynamically generated in JS -->
+            </div>
+        </div>
+
+        <!-- 3. News Article Reader Modal -->
+        <div class="modal-overlay" id="articleModalOverlay"></div>
+        <div class="app-modal-sheet" id="articleModalSheet">
+            <div class="modal-sheet-header">
+                <button class="sheet-close-btn" id="closeArticleModalBtn"><i class="fas fa-times"></i></button>
+                <h3>تفاصيل الخبر</h3>
+                <button class="sheet-share-btn" id="shareArticleBtn"><i class="fas fa-share-nodes"></i></button>
+            </div>
+            <div class="modal-sheet-body" id="articleModalBody">
+                <!-- Dynamically generated in JS -->
+            </div>
+        </div>
+
+        <!-- 4. Club Official Store & Jersey Customizer Modal -->
+        <div class="modal-overlay" id="storeModalOverlay"></div>
+        <div class="app-modal-sheet" id="storeModalSheet">
+            <div class="modal-sheet-header">
+                <button class="sheet-close-btn" id="closeStoreModalBtn"><i class="fas fa-times"></i></button>
+                <h3>متجر قميص النوارس الرسمي 👕</h3>
+                <div style="width:30px;"></div>
+            </div>
+            <div class="modal-sheet-body">
+                <div class="jersey-preview-container">
+                    <div class="jersey-shirt" id="jerseyShirtElement">
+                        <div class="jersey-collar"></div>
+                        <div class="jersey-club-crest">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <div class="jersey-custom-name" id="jerseyNameDisplay">أيمن</div>
+                        <div class="jersey-custom-number" id="jerseyNumberDisplay">10</div>
+                        <div class="jersey-sponsor">حضرموت الحضارة</div>
+                    </div>
+                </div>
+
+                <div class="store-custom-controls">
+                    <div class="store-input-group">
+                        <label>الاسم المطبوع على ظهر القميص:</label>
+                        <input type="text" id="customJerseyNameInput" value="أيمن" maxlength="12" placeholder="اكتب اسمك هنا...">
+                    </div>
+                    <div class="store-input-group">
+                        <label>رقم القميص المفضل:</label>
+                        <input type="number" id="customJerseyNumberInput" value="10" min="1" max="99">
+                    </div>
+                    <div class="store-input-group">
+                        <label>المقاس:</label>
+                        <div class="size-selector-row">
+                            <button class="size-pill-btn active">S</button>
+                            <button class="size-pill-btn">M</button>
+                            <button class="size-pill-btn">L</button>
+                            <button class="size-pill-btn">XL</button>
+                            <button class="size-pill-btn">XXL</button>
+                        </div>
+                    </div>
+                    <div class="store-price-box">
+                        <div class="price-info">
+                            <span>السعر الإجمالي:</span>
+                            <strong>15,000 ريال يمني</strong>
+                        </div>
+                        <button class="order-jersey-btn" id="orderJerseyBtn">
+                            <i class="fas fa-bag-shopping"></i> طلب القميص الرسمي
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Photo Lightbox Modal -->
+        <div class="photo-lightbox-modal" id="photoLightbox">
+            <button class="lightbox-close-btn" id="closeLightboxBtn"><i class="fas fa-times"></i></button>
+            <div class="lightbox-content">
+                <img id="lightboxImage" src="" alt="صورة مكبرة">
+                <p id="lightboxCaption"></p>
+            </div>
+        </div>
+
+        <!-- 6. Fullscreen Instagram/Reels Stories Viewer Modal -->
+        <div class="story-viewer-modal" id="storyViewerModal">
+            <!-- Top Progress Bars -->
+            <div class="story-progress-bar-wrap" id="storyProgressBars">
+                <!-- Dynamically generated bars -->
+            </div>
+
+            <!-- Story Header -->
+            <div class="story-header-bar">
+                <div class="story-author-info">
+                    <img src="images/logo.png" alt="شعب حضرموت" class="story-author-avatar">
+                    <div>
+                        <strong class="story-author-name">نادي شعب حضرموت</strong>
+                        <span class="story-time-label" id="storyTimeLabel">منذ ساعة</span>
+                    </div>
+                </div>
+                <button class="story-close-btn" id="closeStoryViewerBtn"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Main Media Slide -->
+            <div class="story-media-container" id="storyMediaContainer">
+                <img id="storyMediaImage" src="" alt="Story">
+                <video id="storyMediaVideo" playsinline controls preload="metadata" style="display:none"></video>
+                <!-- Tap Navigation Overlays -->
+                <div class="story-tap-prev" id="storyTapPrev" title="السابق"></div>
+                <div class="story-tap-next" id="storyTapNext" title="التالي"></div>
+            </div>
+
+            <!-- Bottom Caption & Actions -->
+            <div class="story-bottom-bar">
+                <p class="story-caption-text" id="storyCaptionText"></p>
+                <div class="story-actions-row">
+                    <div class="story-reply-box">
+                        <input type="text" placeholder="أرسل رسالة للنادي..." id="storyReplyInput">
+                    </div>
+                    <button class="story-action-btn" id="storyLikeBtn"><i class="fas fa-heart"></i></button>
+                    <button class="story-action-btn" id="storyShareBtn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <!-- Floating Hearts Container -->
+            <div class="floating-hearts-container" id="floatingHeartsContainer"></div>
+        </div>
+
+        <!-- Confetti Canvas -->
+        <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+        <!-- Bottom Curved Wave Accent (Pixel Match) -->
+        <div class="bottom-curved-wave">
+            <svg viewBox="0 0 430 45" preserveAspectRatio="none">
+                <path d="M0,20 Q110,45 215,20 Q320,-5 430,20 L430,45 L0,45 Z" fill="#DB1E24"></path>
+                <path d="M0,28 Q215,48 430,28 L430,45 L0,45 Z" fill="#B5121B"></path>
+            </svg>
+        </div>
+
+        <!-- ============ BOTTOM NAVIGATION ============ -->
+        <nav class="bottom-nav">
+            <div class="bottom-nav-items">
+                <div class="nav-item" data-tab="news" data-navigate="newsPage">
+                    <i class="fas fa-newspaper"></i>
+                    <span>الأخبار</span>
+                </div>
+                <div class="nav-item" data-tab="matches" data-navigate="matchesPage">
+                    <i class="fas fa-calendar-days"></i>
+                    <span>المباريات</span>
+                </div>
+                <div class="nav-item nav-item-home active" data-tab="home" data-navigate="homePage">
+                    <div class="home-icon-wrapper">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <span>الرئيسية</span>
+                </div>
+                <div class="nav-item" data-tab="notifications" id="notifNavBtn">
+                    <div class="nav-icon-wrapper">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notifBadge">2</span>
+                    </div>
+                    <span>الإشعارات</span>
+                </div>
+                <div class="nav-item" data-tab="settings" data-navigate="settingsPage">
+                    <i class="fas fa-gear"></i>
+                    <span>الإعدادات</span>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <script src="js/app.js?v=2.3"></script>
+</body>
+</html>

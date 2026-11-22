@@ -2046,3 +2046,10 @@ body.welcome-open{overflow:hidden}
 @media (prefers-reduced-motion: reduce) {
     .app-page.active, .bottom-nav .nav-item.active i { animation: none !important; }
 }
+
+
+/* Make Shaab Hadramout crest visually match the opponent crest in the next-match banner */
+.next-match-card .team-club .team-logo-img .official-logo-img {
+    transform: scale(1.22);
+    transform-origin: center;
+}

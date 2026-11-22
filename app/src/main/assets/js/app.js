@@ -966,6 +966,14 @@ document.addEventListener('DOMContentLoaded', function() {
             <div style="font-size:12.5px; line-height:1.8; color:var(--text-gray); white-space:pre-line;">
                 ${article.content}
             </div>
+            ${article.images && article.images.length ? `
+                <section class="news-attached-gallery" aria-label="معرض الصور المصاحبة">
+                    <h4><i class="fas fa-images"></i> معرض الصور المصاحبة</h4>
+                    <div class="news-attached-gallery-grid">
+                        ${article.images.map((url, index) => `<a class="news-attached-gallery-item" href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="صورة مصاحبة للخبر ${index + 1}" loading="lazy"></a>`).join('')}
+                    </div>
+                </section>
+            ` : ''}
             <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
                 <button onclick="navigator.clipboard.writeText(window.location.href); showToast('تم نسخ رابط المقال للمشاركة');" style="background:var(--card-bg); border:1px solid var(--border-color); padding:8px 16px; border-radius:20px; font-size:12px; font-family:'Cairo'; font-weight:700; cursor:pointer;">
                     <i class="fas fa-share-nodes text-red"></i> مشاركة الخبر
@@ -1841,8 +1849,8 @@ document.addEventListener('DOMContentLoaded', function() {
             id: Number(item.id), title: item.title || '', date: clubDate(item.created_at),
             cat: 'أخبار النادي', readTime: 'خبر من المركز الإعلامي',
             author: 'المركز الإعلامي لنادي شعب حضرموت',
-            img: item.image_url || (item.images && item.images[0] && item.images[0].url) || '',
-            content: item.content || '', images: item.images || []
+            img: item.image_url || '',
+            content: item.content || '', images: Array.isArray(item.images) ? item.images.map(image => typeof image === 'string' ? image : image?.url).filter(Boolean) : []
         }));
         renderAllNews();
         refreshHomeNews();

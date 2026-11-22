@@ -2078,7 +2078,6 @@ document.addEventListener('DOMContentLoaded', function() {
             ['/api/news', d => applyClubNews(d.news)],
             ['/api/players', d => applyClubPlayers(d.players)],
             ['/api/matches', d => applyClubMatches(d.matches)],
-            ['/api/tournaments', () => loadPublicTournaments()],
             ['/api/transfers', d => applyClubTransfers(d.transfers)],
             ['/api/gallery', d => applyClubGallery(d.media)],
             ['/api/anthems', d => applyClubAnthems(d.anthems)],
@@ -2089,7 +2088,8 @@ document.addEventListener('DOMContentLoaded', function() {
         await Promise.allSettled(jobs.map(async job => {
             try { const data = await clubGet(job[0]); job[1](data); }
             catch (error) { console.warn('CMS section load failed: ' + job[0], error); }
-        }));
+            await loadPublicTournaments();
+    }));
     }
     // Native-style pull down refresh: reload current CMS data without leaving the screen.
     function setupPullToRefresh() {

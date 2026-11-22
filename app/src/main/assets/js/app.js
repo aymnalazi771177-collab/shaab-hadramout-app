@@ -1183,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const rowsHtml = STANDINGS_DATA.map(row => `
             <tr class="${row.isShaab ? 'highlight-shaab' : ''}">
                 <td><strong>${row.rank}</strong></td>
-                <td class="text-right"><strong>${row.team}</strong> ${row.isShaab ? '⭐' : ''}</td>
+                <td class="text-right">${row.logo && /^(https?:\\/\\/|\\/api\\/media\\/)/i.test(row.logo) ? `<img src="${row.logo.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" alt="" style="width:30px;height:30px;object-fit:contain;vertical-align:middle;margin-left:8px" loading="lazy">` : ''}<strong>${row.team}</strong> ${row.isShaab ? '⭐' : ''}</td>
                 <td>${row.played}</td>
                 <td>${row.won}</td>
                 <td>${row.draw}</td>
@@ -1925,7 +1925,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyClubStandings(rows) {
         if (!Array.isArray(rows)) rows = [];
         STANDINGS_DATA = rows.map((item,index) => ({
-            rank:index+1, team:item.team_name || '', played:Number(item.played||0),
+            rank:index+1, team:item.team_name || '', logo:(item.logo_url||''), played:Number(item.played||0),
             won:Number(item.wins||0), draw:Number(item.draws||0), lost:Number(item.losses||0),
             diff:(Number(item.goals_for||0)-Number(item.goals_against||0)) > 0 ? '+'+(Number(item.goals_for||0)-Number(item.goals_against||0)) : String(Number(item.goals_for||0)-Number(item.goals_against||0)),
             points:Number(item.points||0), isShaab:(item.team_name||'').includes('شعب حضرموت')

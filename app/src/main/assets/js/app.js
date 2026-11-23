@@ -188,32 +188,51 @@ document.addEventListener('DOMContentLoaded', function() {
         foundation:'المؤسسة المجتمعية',contact:'تواصل معنا'
     };
     const escapeManagedText = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const managedSectionPromises = new Map();
+    const managedSectionReady = new Set();
+    function renderManagedSection(key, payload) {
+        const target = document.getElementById('managedContent-' + key);
+        if (!target || !payload || !Array.isArray(payload.items)) return;
+        if (!payload.items.length) {
+            target.innerHTML = '<div class="managed-empty">لا توجد مواد منشورة في قسم ' + escapeManagedText(MANAGED_SECTION_TITLES[key]) + ' حتى الآن.</div>';
+            return;
+        }
+        target.innerHTML = payload.items.map(item => {
+            const title = escapeManagedText(item.title);
+            const body = escapeManagedText(item.content);
+            const image = item.image_url ? '<img src="' + escapeManagedText(item.image_url) + '" alt="' + title + '" loading="eager" decoding="async">' : '';
+            let media = '';
+            if (item.media_url) {
+                if (/\\.(mp4|webm|mov)(\\?|$)/i.test(item.media_url)) media = '<video controls playsinline preload="metadata" src="' + escapeManagedText(item.media_url) + '"></video>';
+                else media = '<a class="managed-content-link" href="' + escapeManagedText(item.media_url) + '" target="_blank" rel="noopener">عرض الملف المرفق</a>';
+            }
+            const price = item.price ? '<span class="managed-content-price">' + escapeManagedText(item.price) + '</span>' : '';
+            return '<article class="managed-content-card">' + image + media + '<div class="managed-content-body"><h3>' + title + '</h3>' + (body ? '<p>' + body + '</p>' : '') + price + '</div></article>';
+        }).join('');
+    }
     async function loadManagedSection(key) {
         const target = document.getElementById('managedContent-' + key);
         if (!target) return;
-        target.innerHTML = '<div class="managed-loading">جارٍ تحميل محتوى القسم...</div>';
-        try {
-            const payload = await clubGet('/api/sections?section=' + encodeURIComponent(key));
-            if (!payload.success || !Array.isArray(payload.items)) throw new Error(payload.message || 'تعذر تحميل المحتوى');
-            if (!payload.items.length) {
-                target.innerHTML = '<div class="managed-empty">لا توجد مواد منشورة في قسم ' + escapeManagedText(MANAGED_SECTION_TITLES[key]) + ' حتى الآن.</div>';
-                return;
+        const apiPath = '/api/sections?section=' + encodeURIComponent(key);
+        const cached = readClubSnapshot(apiPath);
+        if (cached) renderManagedSection(key, cached);
+        if (managedSectionReady.has(key)) return;
+        if (managedSectionPromises.has(key)) return managedSectionPromises.get(key);
+        if (!cached) target.innerHTML = '<div class="managed-loading">جارٍ تجهيز محتوى القسم...</div>';
+        const task = (async () => {
+            try {
+                const payload = await clubGet(apiPath);
+                if (!payload.success || !Array.isArray(payload.items)) throw new Error(payload.message || 'تعذر تحميل المحتوى');
+                renderManagedSection(key, payload);
+                managedSectionReady.add(key);
+            } catch (error) {
+                if (!cached) target.innerHTML = '<div class="managed-error">' + escapeManagedText(error.message || 'تعذر تحميل القسم حالياً') + '</div>';
+            } finally {
+                managedSectionPromises.delete(key);
             }
-            target.innerHTML = payload.items.map(item => {
-                const title = escapeManagedText(item.title);
-                const body = escapeManagedText(item.content);
-                const image = item.image_url ? '<img src="' + escapeManagedText(item.image_url) + '" alt="' + title + '" loading="lazy">' : '';
-                let media = '';
-                if (item.media_url) {
-                    if (/\.(mp4|webm|mov)(\?|$)/i.test(item.media_url)) media = '<video controls playsinline preload="metadata" src="' + escapeManagedText(item.media_url) + '"></video>';
-                    else media = '<a class="managed-content-link" href="' + escapeManagedText(item.media_url) + '" target="_blank" rel="noopener">عرض الملف المرفق</a>';
-                }
-                const price = item.price ? '<span class="managed-content-price">' + escapeManagedText(item.price) + '</span>' : '';
-                return '<article class="managed-content-card">' + image + media + '<div class="managed-content-body"><h3>' + title + '</h3>' + (body ? '<p>' + body + '</p>' : '') + price + '</div></article>';
-            }).join('');
-        } catch (error) {
-            target.innerHTML = '<div class="managed-error">' + escapeManagedText(error.message || 'تعذر تحميل القسم حالياً') + '</div>';
-        }
+        })();
+        managedSectionPromises.set(key, task);
+        return task;
     }
 
     let currentAppPage = document.querySelector(".page.active")?.id || "homePage";
@@ -1881,6 +1900,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     let publicTournamentLoadStarted = false;
     async function loadPublicTournaments() {
+        publicTournamentLoadStarted = true;
         const select=document.getElementById('publicTournamentSelect');
         if(!select)return;
         try {
@@ -2064,12 +2084,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.warn('CMS section unavailable; keeping saved content: ' + job[0], error);
             }
         }));
-        // Load the home-screen essentials first; defer secondary sections until the first paint.
-        const priorityPaths = new Set(['/api/news', '/api/players', '/api/matches', '/api/carousel']);
-        await refreshGroup(jobs.filter(job => priorityPaths.has(job[0])));
-        const secondaryJobs = jobs.filter(job => !priorityPaths.has(job[0]));
-        const defer = window.requestIdleCallback || (callback => window.setTimeout(callback, 900));
-        defer(() => { refreshGroup(secondaryJobs); });
+        // Prepare every shared CMS feed together during the opening screen.
+        await refreshGroup(jobs);
     }
     // Native-style pull down refresh: reload current CMS data without leaving the screen.
     function setupPullToRefresh() {
@@ -2144,6 +2160,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }, {passive:true});
     }
     setupPullToRefresh();
+    // During the 5-second logo intro, warm every section so first navigation is immediate.
     loadAllClubContent();
+    loadPublicTournaments();
+    loadClubStore();
+    Object.keys(MANAGED_SECTION_PAGES).forEach(key => loadManagedSection(key));
 
 });

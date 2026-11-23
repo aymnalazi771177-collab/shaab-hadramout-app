@@ -904,6 +904,8 @@ body {
     cursor: pointer; transition: var(--transition);
 }
 .lightbox-like-btn i { font-size: 18px; }
+.lightbox-like-count { display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:22px; padding:0 6px; margin-inline-start:2px; border-radius:12px; background:rgba(255,255,255,.2); font-size:12px; font-weight:900; line-height:1; }
+.lightbox-like-btn:disabled { opacity:.72; cursor:wait; }
 .lightbox-like-btn.liked { background: var(--primary-red); border-color: var(--primary-red); color: #fff; }
 .media-photo-open { cursor: zoom-in; }
 

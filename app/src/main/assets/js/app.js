@@ -966,6 +966,11 @@ document.addEventListener('DOMContentLoaded', function() {
             history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, "", location.href);
         }
         window.__activeNewsArticle = article;
+        const commentsSection = document.createElement('section');
+        commentsSection.id = 'newsCommentsSection';
+        commentsSection.style.cssText = 'margin-top:22px;padding-top:16px;border-top:1px solid var(--border-color)';
+        body.appendChild(commentsSection);
+        loadNewsComments(Number(article.id));
         articleOverlay.classList.add('active');
         articleSheet.classList.add('open');
         // Reset once more after the sheet becomes visible to avoid restoring its previous scroll position.
@@ -1746,6 +1751,81 @@ document.addEventListener('DOMContentLoaded', function() {
     let fanGoogleScriptPromise = null;
     let fanGoogleButtonRendered = false;
 
+
+    async function loadNewsComments(newsId) {
+        const host = document.getElementById('newsCommentsSection');
+        if (!host || !Number.isInteger(Number(newsId)) || Number(newsId) < 1) return;
+        const id = Number(newsId);
+        host.innerHTML = '<div style="padding:14px;text-align:center;color:var(--text-light)">جارٍ تحميل التعليقات...</div>';
+        try {
+            const response = await fetch(CLUB_API_BASE + '/api/news-comments?news_id=' + id, { cache: 'no-store' });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data.success) throw new Error(data.message || 'تعذر تحميل التعليقات');
+            if (String(window.__activeNewsArticle?.id) !== String(id)) return;
+            const comments = Array.isArray(data.comments) ? data.comments : [];
+            const token = localStorage.getItem(FAN_TOKEN_KEY);
+            host.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                    <h4 style="margin:0;font-size:15px;font-weight:800;color:var(--text-dark)"><i class="far fa-comments" style="color:var(--primary-red)"></i> التعليقات</h4>
+                    <span style="font-size:11px;color:var(--text-light)">${comments.length} تعليق</span>
+                </div>
+                <div class="news-comments-list">
+                    ${comments.length ? comments.map(comment => `
+                        <div style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--border-color)">
+                            <div style="width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:rgba(181,18,27,.09);color:var(--primary-red);display:grid;place-items:center"><i class="fas fa-user"></i></div>
+                            <div style="min-width:0;flex:1">
+                                <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+                                    <strong style="font-size:12px;color:var(--text-dark)">${fanEscape(comment.member_name)}</strong>
+                                    <small style="font-size:10px;color:var(--text-light)">${fanEscape(comment.created_at || '')}</small>
+                                </div>
+                                <p style="font-size:12px;line-height:1.8;color:var(--text-gray);white-space:pre-wrap;overflow-wrap:anywhere;margin:4px 0 0">${fanEscape(comment.comment)}</p>
+                            </div>
+                        </div>`).join('') : '<p style="text-align:center;padding:16px;color:var(--text-light);font-size:12px">كن أول من يعلّق على هذا الخبر</p>'}
+                </div>
+                ${token ? `
+                    <form id="newsCommentForm" style="margin-top:14px;display:flex;gap:8px;align-items:flex-end">
+                        <textarea name="comment" maxlength="1000" required placeholder="اكتب تعليقك..." rows="2" style="flex:1;min-width:0;resize:vertical;border:1px solid var(--border-color);border-radius:12px;padding:10px;font:inherit;font-size:12px;background:var(--card-bg);color:var(--text-dark)"></textarea>
+                        <button type="submit" style="border:0;border-radius:12px;background:var(--primary-red);color:#fff;padding:11px 14px;font:inherit;font-size:12px;font-weight:800"><i class="fas fa-paper-plane"></i> إرسال</button>
+                    </form>
+                    <small style="display:block;margin-top:7px;color:var(--text-light);font-size:10px">سيظهر تعليقك باسم حسابك المسجل.</small>
+                ` : `
+                    <button type="button" data-news-comment-login style="width:100%;margin-top:12px;border:1px solid var(--primary-red);border-radius:12px;background:transparent;color:var(--primary-red);padding:11px;font:inherit;font-size:12px;font-weight:800"><i class="fas fa-user-lock"></i> سجّل الدخول لتتمكن من التعليق</button>
+                `}
+            `;
+        } catch (error) {
+            host.innerHTML = '<p style="padding:12px;text-align:center;color:var(--text-light);font-size:12px">تعذر تحميل التعليقات حالياً.</p>';
+        }
+    }
+
+    const newsCommentsHost = document.getElementById('articleModalBody');
+    newsCommentsHost?.addEventListener('click', event => {
+        if (event.target.closest('[data-news-comment-login]')) {
+            closeArticleModalWithHistory();
+            navigateToPage('fansPage');
+        }
+    });
+    newsCommentsHost?.addEventListener('submit', async event => {
+        const form = event.target.closest('#newsCommentForm');
+        if (!form) return;
+        event.preventDefault();
+        const articleId = Number(window.__activeNewsArticle?.id || 0);
+        const field = form.elements.comment;
+        const comment = String(field?.value || '').trim();
+        if (!articleId || !comment) return;
+        const submit = form.querySelector('button[type="submit"]');
+        submit.disabled = true;
+        try {
+            await fanApi('/api/news-comments', { method: 'POST', body: JSON.stringify({ news_id: articleId, comment }) });
+            await loadNewsComments(articleId);
+            showToast('تم نشر تعليقك بنجاح');
+        } catch (error) {
+            showToast(error.status === 401 ? 'سجّل الدخول بحسابك أولاً' : (error.message || 'تعذر إرسال التعليق'));
+            if (error.status === 401) { closeArticleModalWithHistory(); navigateToPage('fansPage'); }
+        } finally {
+            if (submit.isConnected) submit.disabled = false;
+        }
+    });
+
     async function fanApi(path, options = {}) {
         const token = localStorage.getItem(FAN_TOKEN_KEY) || '';
         const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
@@ -2331,7 +2411,12 @@ document.addEventListener('DOMContentLoaded', function() {
             '<h3 style="font-size:17px;font-weight:800;line-height:1.6;margin-bottom:12px">' + safeTitle + '</h3>' +
             '<div style="font-size:13px;line-height:1.9;color:var(--text-gray);white-space:pre-line">' + clubEscape(item.content || 'لا توجد تفاصيل إضافية لهذا الخبر.') + '</div>';
         if (!overlay.classList.contains('active')) history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, '', location.href);
-        window.__activeNewsArticle = { title:item.title || '', content:item.content || '', img:item.image_url || '', images:[] };
+        window.__activeNewsArticle = { id:Number(item.id || 0), title:item.title || '', content:item.content || '', img:item.image_url || '', images:[] };
+        const commentsSection = document.createElement('section');
+        commentsSection.id = 'newsCommentsSection';
+        commentsSection.style.cssText = 'margin-top:22px;padding-top:16px;border-top:1px solid var(--border-color)';
+        body.appendChild(commentsSection);
+        if (Number(item.id) > 0) loadNewsComments(Number(item.id));
         // Reset the carousel article scroll position every time it is opened.
         body.scrollTop = 0;
         sheet.scrollTop = 0;

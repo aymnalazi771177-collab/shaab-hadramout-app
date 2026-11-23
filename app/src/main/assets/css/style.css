@@ -1636,11 +1636,29 @@ input:checked + .slider.round:before { transform: translateX(20px); }
     top: 0; left: 0; right: 0; bottom: 0;
     width: 100%; height: 100%;
     z-index: 10;
+    overflow: hidden;
+    background: #000;
 }
-.story-media-container img {
-    width: 100%; height: 100%;
+.story-media-container .story-media-backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    filter: blur(24px);
+    transform: scale(1.12);
+    opacity: .48;
+    z-index: 0;
+    pointer-events: none;
+}
+.story-media-container > img:not(.story-media-backdrop) {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     display: block;
+    background: transparent;
 }
 
 /* Tap Navigation Overlays */
@@ -1759,7 +1777,7 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 }
 
 
-.story-media-container video{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+.story-media-container video{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;background:transparent;display:block}
 
 .managed-section-content{display:grid;gap:13px;padding:16px 18px 24px}
 .managed-loading,.managed-empty,.managed-error{background:#fff;border:1px solid #eee;border-radius:14px;padding:24px 16px;text-align:center;color:#858585;font-size:13px;line-height:1.8}

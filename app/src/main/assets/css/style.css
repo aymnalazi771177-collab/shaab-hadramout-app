@@ -2068,44 +2068,38 @@ body.dark-mode .tournament-picker-menu{border-color:rgba(219,30,36,.3)}
     opacity:1; visibility:visible; transition:opacity .5s ease,visibility .5s ease;
 }
 .welcome-screen[hidden]{display:none!important}
-.welcome-screen:before,.welcome-screen:after{content:"";position:absolute;inset:-20%;pointer-events:none;border-radius:50%}
-.welcome-screen:before{border:1px solid rgba(255,255,255,.12);transform:scale(.72);animation:welcome-backdrop-pulse 4s ease-in-out infinite}
-.welcome-screen:after{inset:12%;border:1px solid rgba(255,255,255,.08);animation:welcome-backdrop-spin 24s linear infinite}
 .welcome-logo-stage{
     position:relative;z-index:5;width:min(62vw,270px);aspect-ratio:1;display:grid;place-items:center;
     border-radius:50%;background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(255,255,255,.88));
     border:1px solid rgba(255,255,255,.9);box-shadow:0 22px 65px rgba(48,0,5,.28),inset 0 2px 12px rgba(255,255,255,.9);
     animation:welcome-stage-in 1s cubic-bezier(.18,.85,.25,1) both;
 }
-.welcome-logo-stage:before,.welcome-logo-stage:after{content:"";position:absolute;inset:-13px;border-radius:50%;border:1px solid rgba(255,255,255,.52);animation:welcome-stage-ring 3s ease-out infinite}
+.welcome-logo-stage:before,.welcome-logo-stage:after{content:"";position:absolute;inset:-13px;border-radius:50%;border:1px solid rgba(255,255,255,.42);animation:welcome-stage-ring 3s ease-out infinite}
 .welcome-logo-stage:after{inset:-25px;animation-delay:1.5s}
 .welcome-logo-glow{position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,rgba(198,24,38,.1),transparent 70%);animation:welcome-glow 2.4s ease-in-out infinite alternate}
 .welcome-logo{position:relative;z-index:2;display:block;width:72%;height:72%;object-fit:contain;filter:drop-shadow(0 8px 12px rgba(35,0,0,.16));animation:welcome-logo-float 3.2s ease-in-out infinite}
-.welcome-orbit{position:absolute;z-index:2;left:50%;top:50%;border:1px solid rgba(255,255,255,.32);border-radius:50%;pointer-events:none}
-.welcome-orbit-one{width:min(82vw,350px);aspect-ratio:1;transform:translate(-50%,-50%) rotate(-25deg);border-style:dashed;animation:welcome-orbit-spin 18s linear infinite}
-.welcome-orbit-two{width:min(105vw,450px);aspect-ratio:1;transform:translate(-50%,-50%);border-color:rgba(255,255,255,.15);animation:welcome-orbit-spin 28s linear infinite reverse}
-.welcome-orbit-three{width:min(125vw,540px);aspect-ratio:1;transform:translate(-50%,-50%);border:1px dashed rgba(255,255,255,.12);animation:welcome-orbit-spin 36s linear infinite}
-.welcome-shape{position:absolute;z-index:3;display:block;pointer-events:none}
-.welcome-diamond{width:17px;height:17px;left:calc(50% - min(36vw,150px));top:calc(50% - min(30vw,125px));border:2px solid #fff;transform:rotate(45deg);animation:welcome-diamond-drift 4s ease-in-out infinite}
-.welcome-ring{width:24px;height:24px;right:calc(50% - min(39vw,165px));bottom:calc(50% - min(32vw,135px));border:2px solid rgba(255,255,255,.9);border-radius:50%;animation:welcome-ring-bob 3.6s ease-in-out infinite}
-.welcome-dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 15px rgba(255,255,255,.8)}
-.welcome-dot-one{top:22%;left:23%;animation:welcome-dot-float 3s ease-in-out infinite}
-.welcome-dot-two{top:29%;right:18%;width:6px;height:6px;animation:welcome-dot-float 3.8s ease-in-out infinite .4s}
-.welcome-dot-three{bottom:22%;left:19%;width:5px;height:5px;animation:welcome-dot-float 3.4s ease-in-out infinite .8s}
-.welcome-dot-four{bottom:18%;right:25%;width:9px;height:9px;animation:welcome-dot-float 4.2s ease-in-out infinite .2s}
+.welcome-sport-icon{
+    position:absolute;z-index:3;display:grid;place-items:center;width:42px;height:42px;
+    color:rgba(255,255,255,.94);font-size:27px;opacity:.9;pointer-events:none;
+    filter:drop-shadow(0 3px 8px rgba(70,0,8,.22));
+}
+.welcome-sport-icon i{display:block}
+.sport-football{top:23%;left:20%;animation:sport-float-a 4s ease-in-out infinite}
+.sport-basketball{top:31%;right:17%;font-size:30px;animation:sport-float-b 4.8s ease-in-out infinite .3s}
+.sport-volleyball{bottom:23%;left:17%;font-size:28px;animation:sport-float-b 4.4s ease-in-out infinite .7s}
+.sport-trophy{bottom:19%;right:22%;font-size:29px;animation:sport-float-a 4.6s ease-in-out infinite .2s}
+.sport-runner{top:49%;right:8%;font-size:31px;animation:sport-float-c 5s ease-in-out infinite .5s}
 .welcome-screen-leaving{opacity:0;visibility:hidden;pointer-events:none}
 body.welcome-open{overflow:hidden}
 @keyframes welcome-stage-in{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
 @keyframes welcome-logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes welcome-glow{from{transform:scale(.9);opacity:.55}to{transform:scale(1.12);opacity:1}}
-@keyframes welcome-orbit-spin{to{transform:translate(-50%,-50%) rotate(335deg)}}
 @keyframes welcome-stage-ring{0%{transform:scale(.92);opacity:.65}100%{transform:scale(1.28);opacity:0}}
-@keyframes welcome-backdrop-pulse{0%,100%{transform:scale(.72);opacity:.5}50%{transform:scale(.9);opacity:1}}
-@keyframes welcome-backdrop-spin{to{transform:rotate(360deg)}}
-@keyframes welcome-diamond-drift{0%,100%{transform:translate(0,0) rotate(45deg)}50%{transform:translate(7px,-12px) rotate(135deg)}}
-@keyframes welcome-ring-bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.12)}}
-@keyframes welcome-dot-float{0%,100%{transform:translateY(0) scale(.85);opacity:.65}50%{transform:translateY(-13px) scale(1.25);opacity:1}}
-@media(prefers-reduced-motion:reduce){.welcome-screen *,.welcome-screen:before,.welcome-screen:after{animation:none!important}.welcome-screen{transition-duration:.01ms}}
+@keyframes sport-float-a{0%,100%{transform:translate3d(0,0,0) rotate(-8deg)}50%{transform:translate3d(5px,-13px,0) rotate(9deg)}}
+@keyframes sport-float-b{0%,100%{transform:translate3d(0,0,0) rotate(10deg)}50%{transform:translate3d(-7px,-11px,0) rotate(-8deg)}}
+@keyframes sport-float-c{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-8px,-10px,0) scale(1.12)}}
+@media(max-width:380px){.welcome-sport-icon{font-size:23px;width:36px;height:36px}.sport-basketball,.sport-trophy,.sport-runner{font-size:25px}}
+@media(prefers-reduced-motion:reduce){.welcome-screen *{animation:none!important}.welcome-screen{transition-duration:.01ms}}
 
 
 /* Smooth native-like page and touch transitions */

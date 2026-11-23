@@ -907,10 +907,13 @@
 
         <!-- 5. Photo Lightbox Modal -->
         <div class="photo-lightbox-modal" id="photoLightbox">
-            <button class="lightbox-close-btn" id="closeLightboxBtn"><i class="fas fa-times"></i></button>
+            <button class="lightbox-close-btn" id="closeLightboxBtn" aria-label="إغلاق الصورة"><i class="fas fa-times"></i></button>
             <div class="lightbox-content">
                 <img id="lightboxImage" src="" alt="صورة مكبرة">
                 <p id="lightboxCaption"></p>
+                <button class="lightbox-like-btn" id="lightboxLikeBtn" type="button" aria-label="إعجاب بالصورة" aria-pressed="false">
+                    <i class="far fa-heart"></i><span>إعجاب</span>
+                </button>
             </div>
         </div>
 

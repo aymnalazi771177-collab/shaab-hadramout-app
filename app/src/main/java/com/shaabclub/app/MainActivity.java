@@ -38,7 +38,25 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) webView.goBack();
-        else super.onBackPressed();
+        if (webView == null) {
+            super.onBackPressed();
+            return;
+        }
+
+        // Check the Reel viewer before navigating WebView history or exiting.
+        webView.evaluateJavascript(
+            "(function(){return window.handleNativeBackFromReel ? window.handleNativeBackFromReel() : false;})()",
+            value -> {
+                if ("true".equals(value)) {
+                    // The Reel handler already returned the app to Home.
+                    // Clear stale WebView entries so the next Back on Home exits normally.
+                    webView.clearHistory();
+                } else if (webView.canGoBack()) {
+                    webView.goBack();
+                } else {
+                    MainActivity.super.onBackPressed();
+                }
+            }
+        );
     }
 }

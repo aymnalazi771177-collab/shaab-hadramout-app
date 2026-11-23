@@ -968,14 +968,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تحميل أعداد الإعجابات');
             const counts = new Map((data.counts || []).map(row => [Number(row.media_id), Number(row.count || 0)]));
             container.querySelectorAll('.media-like-count[data-media-id]').forEach(node => {
-                node.textContent = String(counts.get(Number(node.dataset.mediaId)) || 0);
+                const value = node.querySelector('.media-like-count-value');
+                if (value) value.textContent = String(counts.get(Number(node.dataset.mediaId)) || 0);
             });
         } catch (error) {
             console.warn('Gallery likes unavailable', error);
         }
     }
     function updateGalleryLikeCount(mediaId, count) {
-        const node = document.querySelector('.media-like-count[data-media-id="' + Number(mediaId) + '"]');
+        const node = document.querySelector('.media-like-count[data-media-id="' + Number(mediaId) + '"] .media-like-count-value');
         if (node) node.textContent = String(Number(count || 0));
     }
     async function loadMediaLikeState(mediaId) {
@@ -1262,7 +1263,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const media = type === 'videos'
                 ? '<video controls playsinline preload="metadata" poster="' + safePoster + '" src="' + safeUrl + '" style="width:100%;height:100%;object-fit:cover"></video>'
                 : '<img class="media-photo-open" data-photo-index="' + index + '" src="' + safeUrl + '" alt="' + safeTitle + '" loading="lazy" role="button" tabindex="0" aria-label="فتح الصورة: ' + safeTitle + '">';
-            const likeBadge = type === 'photos' ? '<span class="media-like-count" data-media-id="' + Number(item.id || 0) + '" aria-label="عدد القلوب"><i class="fas fa-heart"></i>0</span>' : '';
+            const likeBadge = type === 'photos' ? '<span class="media-like-count" data-media-id="' + Number(item.id || 0) + '" aria-label="عدد القلوب"><i class="fas fa-heart"></i><span class="media-like-count-value">0</span></span>' : '';
             return '<div class="media-item-box"><div class="media-item-thumb">' + media + likeBadge + '</div><div class="media-item-title">' + safeTitle + '</div></div>';
         }).join('');
         if (type === 'photos') loadGalleryLikeCounts();

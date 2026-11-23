@@ -337,17 +337,25 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const payload = await clubGet('/api/reels');
             if (!payload.success || !Array.isArray(payload.reels)) return;
-            STORIES_DATA = payload.reels.map((item, index) => ({
-                id: item.id,
-                title: item.title || ('يوميات النوارس ' + (index + 1)),
-                badge: item.media_type === 'video' ? 'فيديو ▶' : 'صورة',
-                time: item.created_at ? 'من يوميات النادي' : 'جديد',
-                thumb: item.thumbnail_url || item.media_url,
-                fullImg: item.media_url,
-                mediaUrl: item.media_url,
-                mediaType: item.media_type || 'image',
-                caption: item.caption || item.title || ''
-            }));
+            STORIES_DATA = payload.reels.map((group, index) => {
+                const stories = (group.stories || []).map((item, storyIndex) => ({
+                    id: item.id,
+                    title: group.title || ('يوميات النوارس ' + (index + 1)),
+                    time: 'من يوميات النادي',
+                    thumb: item.thumbnail_url || item.media_url,
+                    fullImg: item.media_url,
+                    mediaUrl: item.media_url,
+                    mediaType: item.media_type || 'image',
+                    caption: item.caption || group.title || ('الحالة ' + (storyIndex + 1))
+                }));
+                return {
+                    id: group.id,
+                    title: group.title || ('يوميات النوارس ' + (index + 1)),
+                    badge: stories.length + ' حالة',
+                    thumb: stories[0]?.thumb || 'images/logo.png',
+                    stories
+                };
+            }).filter(group => group.stories.length);
             const container = document.getElementById('storiesScrollContainer');
             if (container) {
                 container.innerHTML = '';
@@ -360,11 +368,14 @@ document.addEventListener('DOMContentLoaded', function() {
     loadClubReels();
 
     let currentStoryIdx = 0;
+    let currentStoryItems = [];
     let storyTimer = null;
     let storyProgressPct = 0;
 
     function openStoryViewer(idx) {
-        currentStoryIdx = idx;
+        currentStoryIdx = 0;
+        const group = STORIES_DATA[idx];
+        currentStoryItems = group?.stories?.length ? group.stories : (group ? [group] : []);
         const modal = document.getElementById('storyViewerModal');
         if (!modal) return;
 
@@ -378,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const wrap = document.getElementById('storyProgressBars');
         if (!wrap) return;
 
-        wrap.innerHTML = STORIES_DATA.map((_, i) => `
+        wrap.innerHTML = currentStoryItems.map((_, i) => `
             <div class="story-progress-seg ${i < currentStoryIdx ? 'filled' : ''}" id="storySeg_${i}">
                 <div class="story-progress-seg-fill" id="storySegFill_${i}" style="width: ${i < currentStoryIdx ? '100%' : '0%'}"></div>
             </div>
@@ -387,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadStory(idx) {
         currentStoryIdx = idx;
-        const s = STORIES_DATA[idx];
+        const s = currentStoryItems[idx];
         if (!s) {
             closeStoryViewer();
             return;
@@ -409,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
             storyVideo.load();
             storyVideo.play().catch(() => {});
             storyVideo.onended = () => {
-                if (currentStoryIdx + 1 < STORIES_DATA.length) loadStory(currentStoryIdx + 1);
+                if (currentStoryIdx + 1 < currentStoryItems.length) loadStory(currentStoryIdx + 1);
                 else closeStoryViewer();
             };
         } else {
@@ -427,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('storyCaptionText').textContent = s.caption;
         document.getElementById('storyTimeLabel').textContent = s.time;
 
-        for (let i = 0; i < STORIES_DATA.length; i++) {
+        for (let i = 0; i < currentStoryItems.length; i++) {
             const seg = document.getElementById(`storySeg_${i}`);
             const fill = document.getElementById(`storySegFill_${i}`);
             if (i < idx) {

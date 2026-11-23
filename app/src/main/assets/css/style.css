@@ -1773,11 +1773,28 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 .m-team-logo { overflow:hidden; flex-shrink:0; }
 .m-team-logo .match-team-logo-img { width:100%; height:100%; object-fit:contain; padding:5px; display:block; }
 
-/* Tournament picker */
+/* Tournament picker — custom club-branded dropdown */
 .tournament-picker-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;text-align:right}
 .tournament-picker-bar label{font-weight:800;color:#fff;display:block;width:100%;text-align:right}
-.tournament-picker-bar select{display:block;width:100%;min-width:0;max-width:100%;min-height:54px;padding:12px 16px;border:1px solid #e1e5ec;border-radius:14px;background-color:#fff!important;color:#263246!important;-webkit-text-fill-color:#263246!important;font-family:inherit;font-size:15px;font-weight:800;outline:none;text-align:right;text-align-last:right;direction:rtl;appearance:auto;color-scheme:light}
-.tournament-picker-bar select option{background:#fff!important;color:#263246!important;font-weight:700}
+.tournament-select-wrap{position:relative;width:100%;min-width:0}
+.tournament-native-select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;inset:auto!important}
+.tournament-picker-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:58px;padding:13px 17px;border:1px solid rgba(255,255,255,.75);border-radius:16px;background:linear-gradient(135deg,#fff 0%,#fff7f7 100%);color:#202b3d;font-family:inherit;font-size:16px;font-weight:900;text-align:right;direction:rtl;box-shadow:0 5px 16px rgba(120,10,18,.12);cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.tournament-picker-trigger:active{transform:scale(.99);border-color:var(--primary-red);box-shadow:0 3px 12px rgba(219,30,36,.18)}
+.tournament-picker-trigger>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tournament-picker-trigger>i{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:10px;background:rgba(219,30,36,.1);color:var(--primary-red);font-size:13px;transition:transform .2s ease}
+.tournament-picker-trigger[aria-expanded="true"]>i{transform:rotate(180deg)}
+.tournament-picker-menu{position:absolute;top:calc(100% + 9px);right:0;left:0;z-index:500;max-height:min(48vh,360px);overflow-y:auto;padding:7px;border:1px solid rgba(219,30,36,.18);border-radius:17px;background:var(--card-bg);box-shadow:0 14px 38px rgba(25,20,25,.22);overscroll-behavior:contain;animation:tournamentMenuIn .18s ease-out}
+.tournament-picker-menu[hidden]{display:none}
+.tournament-option{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;padding:11px 13px;border:0;border-radius:12px;background:transparent;color:var(--text-dark);font-family:inherit;font-size:14px;font-weight:800;text-align:right;direction:rtl;cursor:pointer}
+.tournament-option+.tournament-option{margin-top:3px}
+.tournament-option:active{background:rgba(219,30,36,.08)}
+.tournament-option.active{background:linear-gradient(105deg,rgba(219,30,36,.12),rgba(219,30,36,.045));color:var(--primary-red)}
+.tournament-option-check{display:grid;place-items:center;flex:0 0 25px;width:25px;height:25px;border:1.5px solid var(--border-color);border-radius:50%;color:transparent;font-size:11px}
+.tournament-option.active .tournament-option-check{border-color:var(--primary-red);background:var(--primary-red);color:#fff}
+@keyframes tournamentMenuIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+body.dark-mode .tournament-picker-trigger{background:linear-gradient(135deg,#252a34,#1b2029);border-color:#454b58;color:var(--text-dark)}
+body.dark-mode .tournament-picker-menu{border-color:rgba(219,30,36,.3)}
+@media(prefers-reduced-motion:reduce){.tournament-picker-menu,.tournament-picker-trigger,.tournament-picker-trigger>i{animation:none;transition:none}}
 
 
 /* Attached photo gallery at the end of news articles */

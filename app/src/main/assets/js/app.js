@@ -959,6 +959,25 @@ document.addEventListener('DOMContentLoaded', function() {
             : '<i class="far fa-heart"></i><span>إعجاب</span>') +
             '<span class="lightbox-like-count" aria-label="عدد الإعجابات">' + Number(activeMediaLikeState.count || 0) + '</span>';
     }
+    async function loadGalleryLikeCounts() {
+        const container = document.getElementById('mediaGalleryContainer');
+        if (!container) return;
+        try {
+            const response = await fetch(CLUB_API_BASE + '/api/media-likes', { cache: 'no-store' });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تحميل أعداد الإعجابات');
+            const counts = new Map((data.counts || []).map(row => [Number(row.media_id), Number(row.count || 0)]));
+            container.querySelectorAll('.media-like-count[data-media-id]').forEach(node => {
+                node.textContent = String(counts.get(Number(node.dataset.mediaId)) || 0);
+            });
+        } catch (error) {
+            console.warn('Gallery likes unavailable', error);
+        }
+    }
+    function updateGalleryLikeCount(mediaId, count) {
+        const node = document.querySelector('.media-like-count[data-media-id="' + Number(mediaId) + '"]');
+        if (node) node.textContent = String(Number(count || 0));
+    }
     async function loadMediaLikeState(mediaId) {
         if (!Number.isInteger(Number(mediaId)) || Number(mediaId) < 1) {
             activeMediaLikeState = { mediaId: 0, count: 0, liked: false, loading: false };
@@ -1016,6 +1035,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (Number(lb.dataset.mediaId) !== mediaId) return;
             activeMediaLikeState = { mediaId, count: Number(data.count || 0), liked: !!data.liked, loading: false };
             paintMediaLikeButton();
+            updateGalleryLikeCount(mediaId, data.count);
             showToast(data.liked ? 'أعجبتك الصورة ❤️' : 'تم إلغاء الإعجاب');
         } catch (error) {
             button.disabled = false;
@@ -1242,8 +1262,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const media = type === 'videos'
                 ? '<video controls playsinline preload="metadata" poster="' + safePoster + '" src="' + safeUrl + '" style="width:100%;height:100%;object-fit:cover"></video>'
                 : '<img class="media-photo-open" data-photo-index="' + index + '" src="' + safeUrl + '" alt="' + safeTitle + '" loading="lazy" role="button" tabindex="0" aria-label="فتح الصورة: ' + safeTitle + '">';
-            return '<div class="media-item-box"><div class="media-item-thumb">' + media + '</div><div class="media-item-title">' + safeTitle + '</div></div>';
+            const likeBadge = type === 'photos' ? '<span class="media-like-count" data-media-id="' + Number(item.id || 0) + '" aria-label="عدد القلوب"><i class="fas fa-heart"></i>0</span>' : '';
+            return '<div class="media-item-box"><div class="media-item-thumb">' + media + likeBadge + '</div><div class="media-item-title">' + safeTitle + '</div></div>';
         }).join('');
+        if (type === 'photos') loadGalleryLikeCounts();
     }
     renderMedia('photos');
 

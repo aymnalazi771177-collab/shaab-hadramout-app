@@ -553,6 +553,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (modal) modal.classList.remove('active');
     }
 
+    // Native Android Back handling: consume Back while a Reel is open,
+    // close the viewer, and always return to the home page.
+    window.handleNativeBackFromReel = function() {
+        const modal = document.getElementById('storyViewerModal');
+        if (!modal?.classList.contains('active')) return false;
+        closeStoryViewer();
+        navigateToPage('homePage', true);
+        return true;
+    };
+
     document.getElementById('closeStoryViewerBtn')?.addEventListener('click', closeStoryViewer);
 
     document.getElementById('storyTapNext')?.addEventListener('click', () => {

@@ -6,7 +6,7 @@ const $=id=>document.getElementById(id);
 const token=()=>sessionStorage.getItem(TOKEN_KEY)||"";
 const names={
 overview:"الرئيسية",news:"الأخبار والتقارير",matches:"إدارة المباريات وحالتها",players:"اللاعبون والجهاز الفني",team:"اللاعبون والجهاز الفني",anthems:"الأناشيد",
-transfers:"الانتقالات",media:"الصور والفيديو",reels:"يوميات النوارس REELS",standings:"البطولات",
+transfers:"الانتقالات",media:"الصور والفيديو",archive:"ذاكرة النوارس",reels:"يوميات النوارس REELS",standings:"البطولات",
 basketball:"كرة السلة",volleyball:"كرة الطائرة",handball:"كرة اليد",tennis:"التنس",taekwondo:"التايكواندو",
 athletics:"ألعاب القوى",otherSports:"ألعاب أخرى",board:"مجلس الإدارة",presidents:"رؤساء النادي",
 history:"تاريخ النادي",membership:"عضوية النادي",foundation:"المؤسسة المجتمعية",anthem:"الأناشيد",
@@ -15,7 +15,7 @@ store:"متجر النادي الرسمي",contact:"تواصل معنا",carouse
 const permissionMap={players:"team",anthem:"anthems"};
 const permissions=[
 ["carousel","السلايدر الرئيسي"],["news","الأخبار والتقارير"],["matches","المباريات والنتائج"],["team","اللاعبون والجهاز الفني"],
-["transfers","الانتقالات"],["media","الصور والفيديو"],["reels","يوميات النوارس REELS"],["standings","الترتيب والبطولات"],
+["transfers","الانتقالات"],["media","الصور والفيديو"],["archive","ذاكرة النوارس"],["reels","يوميات النوارس REELS"],["standings","الترتيب والبطولات"],
 ["basketball","كرة السلة"],["volleyball","كرة الطائرة"],["handball","كرة اليد"],["tennis","التنس"],["taekwondo","التايكواندو"],
 ["athletics","ألعاب القوى"],["otherSports","ألعاب أخرى"],["board","مجلس الإدارة"],["presidents","رؤساء النادي"],
 ["history","تاريخ النادي"],["membership","عضوية النادي"],["foundation","المؤسسة المجتمعية"],["anthems","الأناشيد"],
@@ -27,6 +27,7 @@ matches:[{name:"opponent",label:"الفريق المنافس",required:true},{na
 players:[{name:"name",label:"اسم اللاعب",required:true},{name:"position",label:"المركز",type:"select",required:true,options:[["حراس المرمى","حراس المرمى"],["الدفاع","الدفاع"],["الوسط","الوسط"],["الهجوم","الهجوم"],["المدرب","الجهاز الفني"]]},{name:"number",label:"رقم القميص"},{name:"image_url",label:"رابط صورة اللاعب",type:"url"},{name:"image_file",label:"رفع صورة اللاعب",type:"file",accept:"image/*"},{name:"nationality",label:"الجنسية"},{name:"age",label:"العمر",type:"number"},{name:"height",label:"الطول (مثال: 188 سم)"},{name:"matches",label:"عدد المباريات",type:"number"},{name:"clean_sheets",label:"الشباك النظيفة (لحراس المرمى)",type:"number"},{name:"saves",label:"التصديات (لحراس المرمى)",type:"number"},{name:"goals",label:"الأهداف",type:"number"},{name:"assists",label:"التمريرات الحاسمة",type:"number"},{name:"tackles",label:"الافتكاكات",type:"number"},{name:"readiness",label:"الجاهزية (%)",type:"number"},{name:"bio",label:"نبذة عن اللاعب",type:"textarea",full:true}],
 transfers:[{name:"player_name",label:"اسم اللاعب",required:true},{name:"direction",label:"نوع الحركة",type:"select",options:[["incoming","انتقال إلى النادي"],["outgoing","انتقال من النادي"]]},{name:"transfer_type",label:"نوع الانتقال",type:"select",options:[["permanent","انتقال نهائي"],["loan","إعارة"]]},{name:"from_club",label:"من نادي"},{name:"to_club",label:"إلى نادي"},{name:"transfer_date",label:"التاريخ",type:"date"},{name:"image_url",label:"رابط صورة اللاعب",type:"url"},{name:"image_file",label:"رفع صورة اللاعب",type:"file",accept:"image/*"},{name:"details",label:"تفاصيل الانتقال",type:"textarea",full:true}],
 media:[{name:"title",label:"عنوان المادة",required:true},{name:"description",label:"الوصف",type:"textarea",full:true},{name:"media_type",label:"نوع المادة",type:"select",options:[["image","صورة"],["video","فيديو"]]},{name:"media_url",label:"رابط الملف",type:"url"},{name:"media_file",label:"رفع صورة أو فيديو",type:"file",accept:"image/*,video/mp4,video/webm,video/quicktime"}],
+archive:[{name:"title",label:"عنوان المادة التاريخية",required:true},{name:"description",label:"الوصف والتفاصيل",type:"textarea",full:true},{name:"media_type",label:"نوع المادة",type:"select",options:[["image","صورة تاريخية"],["video","فيديو تاريخي"]]},{name:"media_url",label:"رابط الملف (اختياري عند الرفع)",type:"url"},{name:"media_file",label:"رفع الصورة أو الفيديو التاريخي",type:"file",accept:"image/*,video/mp4,video/webm,video/quicktime",hint:"يمكنك رفع ملف جديد أو إدخال رابط ملف محفوظ."}],
 reels:[{name:"title",label:"عنوان الريل",required:true},{name:"caption",label:"الوصف أو النص",type:"textarea",full:true},{name:"media_type",label:"نوع الريل",type:"select",options:[["video","فيديو"],["image","صورة"]]},{name:"media_url",label:"رابط الفيديو أو الصورة",type:"url"},{name:"media_file",label:"رفع ملف الريل",type:"file",accept:"video/mp4,video/webm,video/quicktime,image/jpeg,image/png,image/webp"},{name:"thumbnail_url",label:"رابط صورة الغلاف",type:"url"},{name:"thumbnail_file",label:"رفع صورة الغلاف",type:"file",accept:"image/*"},{name:"sort_order",label:"ترتيب العرض",type:"number"},{name:"active",label:"إظهار الريل في التطبيق",type:"checkbox"}],
 standings:[{name:"team_name",label:"اسم الفريق",required:true},{name:"logo_url",label:"رابط شعار الفريق",type:"url"},{name:"logo_file",label:"رفع شعار الفريق من الجهاز",type:"file",accept:"image/*"},{name:"played",label:"لعب",type:"number"},{name:"wins",label:"فاز",type:"number"},{name:"draws",label:"تعادل",type:"number"},{name:"losses",label:"خسر",type:"number"},{name:"goals_for",label:"الأهداف له",type:"number"},{name:"goals_against",label:"الأهداف عليه",type:"number"},{name:"points",label:"النقاط",type:"number"}],
 anthem:[{name:"title",label:"اسم النشيد",required:true},{name:"description",label:"الوصف",type:"textarea",full:true},{name:"audio_url",label:"رابط الملف الصوتي",type:"url"},{name:"audio_file",label:"رفع ملف صوتي",type:"file",accept:"audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/aac"}],
@@ -42,6 +43,7 @@ matches:{endpoint:"/api/matches",key:"matches",cols:["opponent","match_date","st
 players:{endpoint:"/api/players",key:"players",cols:["name","position","number","age","matches"],labels:["الاسم","المركز","الرقم","العمر","المباريات"]},
 transfers:{endpoint:"/api/transfers",key:"transfers",cols:["player_name","direction","transfer_date"],labels:["اللاعب","الاتجاه","التاريخ"]},
 media:{endpoint:"/api/gallery",key:"media",cols:["title","media_type","created_at"],labels:["العنوان","النوع","تاريخ الإضافة"]},
+archive:{endpoint:"/api/archive",key:"media",cols:["title","media_type","created_at"],labels:["العنوان","النوع","تاريخ الإضافة"]},
 reels:{endpoint:"/api/reels",key:"reels",cols:["title","media_type","sort_order","active"],labels:["العنوان","النوع","الترتيب","الحالة"]},
 standings:{endpoint:"/api/standings",key:"standings",cols:["logo_url","team_name","played","points"],labels:["شعار الفريق","الفريق","لعب","النقاط"]},
 anthem:{endpoint:"/api/anthems",key:"anthems",cols:["title","description"],labels:["النشيد","الوصف"]},
@@ -130,7 +132,7 @@ if(current==="news"){const primaryFile=file("image_file");if(primaryFile){const 
 if(current==="players"){const f=file("image_file");if(f)d.image_url=(await upload(f,"team")).url}
 if(current==="transfers"){const f=file("image_file");if(f)d.image_url=(await upload(f,"transfers")).url}
 if(current==="matches"){for(const [n,scope] of [["opponent_logo_file","matches"],["home_logo_file","matches"]]){const f=file(n);if(f)d[n==="opponent_logo_file"?"opponent_logo_url":"home_logo_url"]=(await upload(f,scope)).url}}
-if(current==="media"){const f=file("media_file");if(f){const u=await upload(f,"media");d.media_url=u.url;d.media_key=u.key;d.media_type=u.media_type}}
+if(current==="media"||current==="archive"){const f=file("media_file");if(f){const u=await upload(f,current==="archive"?"archive":"media");d.media_url=u.url;d.media_key=u.key;d.media_type=u.media_type}if(!String(d.media_url||"").trim())throw new Error("ارفع ملفاً أو أدخل رابط الملف أولاً");if(editing!==null){const oldItem=items.find(x=>x.id===editing);d.media_key=d.media_key||oldItem?.media_key||""}}
 if(current==="reels"){const f=file("media_file");if(f){const u=await upload(f,"reels");d.media_url=u.url;d.media_key=u.key;d.media_type=u.media_type==="image"?"image":"video"}const t=file("thumbnail_file");if(t){const u=await upload(t,"reels");d.thumbnail_url=u.url;d.thumbnail_key=u.key}}
 if(current==="anthem"){const f=file("audio_file");if(f){const u=await upload(f,"anthems");d.audio_url=u.url;d.file_key=u.key}}
 if(current==="carousel"){const f=file("image_file");if(f){const u=await upload(f,"carousel");d.image_url=u.url;d.image_key=u.key}if(editing!==null){const oldItem=items.find(x=>x.id===editing);d.image_key=d.image_key||oldItem?.image_key||""}}

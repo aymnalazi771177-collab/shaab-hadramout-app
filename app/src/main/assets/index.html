@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=2.7">
+    <link rel="stylesheet" href="css/style.css?v=2.8">
 </head>
 <body>
     <div class="app-container">
@@ -312,7 +312,17 @@
                 <div class="header-action-icon"><i class="fas fa-chart-simple"></i></div>
             </div>
             <div class="page-scroll-content">
-                <div class="standings-season-bar tournament-picker-bar"><label for="publicTournamentSelect">اختر البطولة</label><select id="publicTournamentSelect"><option value="">جارٍ تحميل البطولات...</option></select></div><p id="tournamentEmpty" class="empty-state" hidden>لا توجد بطولات منشورة حالياً.</p>
+                <div class="standings-season-bar tournament-picker-bar">
+                    <label for="tournamentPickerButton">اختر البطولة</label>
+                    <div class="tournament-select-wrap">
+                        <select id="publicTournamentSelect" class="tournament-native-select" aria-hidden="true" tabindex="-1"><option value="">جارٍ تحميل البطولات...</option></select>
+                        <button type="button" id="tournamentPickerButton" class="tournament-picker-trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span id="tournamentPickerValue">جارٍ تحميل البطولات...</span>
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div id="tournamentPickerMenu" class="tournament-picker-menu" role="listbox" aria-label="قائمة البطولات" hidden></div>
+                    </div>
+                </div><p id="tournamentEmpty" class="empty-state" hidden>لا توجد بطولات منشورة حالياً.</p>
                 <div class="standings-table-card">
                     <table class="standings-table">
                         <thead>
@@ -991,6 +1001,6 @@
         </nav>
     </div>
 
-    <script src="js/app.js?v=2.6"></script>
+    <script src="js/app.js?v=2.7"></script>
 </body>
 </html>

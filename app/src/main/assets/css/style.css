@@ -2147,3 +2147,53 @@ body.welcome-open{overflow:hidden}
     transform: scale(1.22);
     transform-origin: center;
 }
+
+
+/* ========== HOME CLUB SHORTCUTS ========== */
+.club-shortcuts-section {
+    padding: 14px 14px 4px;
+}
+.club-shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+.club-shortcut-card {
+    min-width: 0;
+    min-height: 104px;
+    padding: 13px 6px 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    text-align: center;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow-soft);
+}
+.club-shortcut-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: var(--primary-red);
+    background: rgba(181, 18, 27, .08);
+    font-size: 20px;
+}
+.club-shortcut-title {
+    color: var(--text-dark);
+    font-family: 'Cairo', sans-serif;
+    font-size: clamp(10px, 3vw, 12px);
+    line-height: 1.45;
+    font-weight: 800;
+    white-space: normal;
+}
+@media (max-width: 350px) {
+    .club-shortcuts-grid { gap: 7px; }
+    .club-shortcut-card { min-height: 96px; padding-inline: 3px; }
+    .club-shortcut-icon { width: 39px; height: 39px; font-size: 18px; }
+    .club-shortcut-title { font-size: 10px; }
+}

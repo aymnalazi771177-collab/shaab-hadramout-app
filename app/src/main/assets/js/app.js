@@ -517,7 +517,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const storyImage = document.getElementById('storyMediaImage');
         const storyVideo = document.getElementById('storyMediaVideo');
+        const storyBackdrop = document.getElementById('storyMediaBackdrop');
         const mediaUrl = s.mediaUrl || s.fullImg;
+        if (storyBackdrop) {
+            storyBackdrop.src = s.thumb || mediaUrl;
+            storyBackdrop.style.display = 'block';
+        }
         if (storyVideo) {
             storyVideo.pause();
             storyVideo.onended = null;

@@ -1,15 +1,19 @@
 package com.shaabclub.app;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.graphics.Color;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private OnBackInvokedCallback backInvokedCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,16 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient());
         setContentView(webView);
         webView.loadUrl("file:///android_asset/index.html");
+
+        // Android 13+ uses the platform back dispatcher. Route it through the
+        // same app-wide JavaScript handler used by every section and viewer.
+        if (Build.VERSION.SDK_INT >= 33) {
+            backInvokedCallback = this::handleAppBack;
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                backInvokedCallback
+            );
+        }
     }
 
     private void handleAppBack() {
@@ -41,10 +55,11 @@ public class MainActivity extends Activity {
             finish();
             return;
         }
+
         webView.evaluateJavascript(
             "(function(){try{return typeof window.handleNativeBackFromApp === 'function' && window.handleNativeBackFromApp() === true;}catch(e){return false;}})()",
             value -> {
-                if (!"true".equals(value)) {
+                if (!"true".equals(value) && !isFinishing()) {
                     finish();
                 }
             }
@@ -53,11 +68,20 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        handleAppBack();
+        // Legacy Android versions do not use OnBackInvokedDispatcher.
+        if (Build.VERSION.SDK_INT < 33) {
+            handleAppBack();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
     protected void onDestroy() {
+        if (Build.VERSION.SDK_INT >= 33 && backInvokedCallback != null) {
+            getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(backInvokedCallback);
+            backInvokedCallback = null;
+        }
         if (webView != null) {
             webView.destroy();
             webView = null;

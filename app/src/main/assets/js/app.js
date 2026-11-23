@@ -317,15 +317,14 @@ document.addEventListener('DOMContentLoaded', function() {
             window.__activeNewsArticle = null;
             return;
         }
-        const previousPage = event.state && event.state.appPage;
-        if (previousPage && document.getElementById(previousPage)) {
-            navigateToPage(previousPage, true);
-        } else if (currentAppPage !== "homePage") {
+        // Android/browser Back from any section returns directly to Home.
+        // Do not restore the previously visited section from the hamburger menu history.
+        if (currentAppPage !== "homePage") {
             navigateToPage("homePage", true);
-        } else {
-            // Keep the app on its home page when the WebView has no in-app page to return to.
-            try { history.pushState({ appPage: "homePage" }, "", location.href); } catch (e) {}
         }
+        // Keep a Home entry on the history stack so Back from Home does not
+        // navigate out to a stale section or an external page.
+        try { history.pushState({ appPage: "homePage" }, "", location.href); } catch (e) {}
     });
 
     document.querySelectorAll('[data-navigate]').forEach(el => {

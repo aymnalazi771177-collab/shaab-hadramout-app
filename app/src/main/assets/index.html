@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=2.11">
+    <link rel="stylesheet" href="css/style.css?v=2.12">
 </head>
 <body>
     <div class="app-container">
@@ -482,6 +482,28 @@
             </div>
         </section>
 
+        <!-- أرشيف النادي: صور ولقطات وذكريات النوارس -->
+        <section class="app-page sub-page" id="archivePage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>أرشيف النادي</h2>
+                <div class="header-action-icon"><i class="fas fa-photo-film"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="about-card" style="margin-bottom:16px">
+                    <h4><i class="fas fa-book-open text-red"></i> ذاكرة النوارس</h4>
+                    <p class="about-text">محطات وصور ولقطات من مسيرة نادي شعب حضرموت وذكرياته الرياضية</p>
+                </div>
+                <div class="category-tabs archive-media-tabs">
+                    <button class="cat-tab active" data-archive-tab="photos"><i class="fas fa-image"></i> الصور والذكريات</button>
+                    <button class="cat-tab" data-archive-tab="videos"><i class="fas fa-play"></i> الفيديوهات</button>
+                </div>
+                <div class="media-gallery-grid" id="clubArchiveGallery">
+                    <div class="empty-state">جارٍ تحميل أرشيف النادي...</div>
+                </div>
+            </div>
+        </section>
+
         <!-- 8. صفحة الأخبار الكاملة -->
         <section class="app-page sub-page" id="newsPage">
             <div class="sub-page-header">
@@ -814,7 +836,7 @@
                 <li data-navigate="otherSportsPage"><i class="fas fa-medal"></i><span>ألعاب أخرى</span></li>
                 <li data-navigate="boardPage"><i class="fas fa-users-gear"></i><span>مجلس الإدارة</span></li>
                 <li data-navigate="presidentsPage"><i class="fas fa-user-tie"></i><span>رؤساء النادي</span></li>
-                <li data-navigate="aboutPage"><i class="fas fa-landmark"></i><span>تاريخ النادي</span></li>
+                <li data-navigate="archivePage"><i class="fas fa-photo-film"></i><span>أرشيف النادي</span></li>
                 <li data-navigate="membershipPage"><i class="fas fa-id-card"></i><span>عضوية النادي</span></li>
                 <li data-navigate="foundationPage"><i class="fas fa-hand-holding-heart"></i><span>مؤسسة النادي المجتمعية</span></li>
                 <li data-navigate="contactPage"><i class="fas fa-phone"></i><span>تواصل معنا</span></li>
@@ -1018,6 +1040,6 @@
         </nav>
     </div>
 
-    <script src="js/app.js?v=2.7"></script>
+    <script src="js/app.js?v=2.8"></script>
 </body>
 </html>

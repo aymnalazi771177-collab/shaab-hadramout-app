@@ -1800,7 +1800,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const newsCommentsHost = document.getElementById('articleModalBody');
     newsCommentsHost?.addEventListener('click', event => {
         if (event.target.closest('[data-news-comment-login]')) {
-            closeArticleModalWithHistory();
+            try { history.replaceState({ appPage: currentAppPage }, '', location.href); } catch (error) {}
+            closeAllModals();
+            window.__activeNewsArticle = null;
             navigateToPage('fansPage');
         }
     });
@@ -1820,7 +1822,12 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast('تم نشر تعليقك بنجاح');
         } catch (error) {
             showToast(error.status === 401 ? 'سجّل الدخول بحسابك أولاً' : (error.message || 'تعذر إرسال التعليق'));
-            if (error.status === 401) { closeArticleModalWithHistory(); navigateToPage('fansPage'); }
+            if (error.status === 401) {
+                try { history.replaceState({ appPage: currentAppPage }, '', location.href); } catch (historyError) {}
+                closeAllModals();
+                window.__activeNewsArticle = null;
+                navigateToPage('fansPage');
+            }
         } finally {
             if (submit.isConnected) submit.disabled = false;
         }
@@ -2411,12 +2418,7 @@ document.addEventListener('DOMContentLoaded', function() {
             '<h3 style="font-size:17px;font-weight:800;line-height:1.6;margin-bottom:12px">' + safeTitle + '</h3>' +
             '<div style="font-size:13px;line-height:1.9;color:var(--text-gray);white-space:pre-line">' + clubEscape(item.content || 'لا توجد تفاصيل إضافية لهذا الخبر.') + '</div>';
         if (!overlay.classList.contains('active')) history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, '', location.href);
-        window.__activeNewsArticle = { id:Number(item.id || 0), title:item.title || '', content:item.content || '', img:item.image_url || '', images:[] };
-        const commentsSection = document.createElement('section');
-        commentsSection.id = 'newsCommentsSection';
-        commentsSection.style.cssText = 'margin-top:22px;padding-top:16px;border-top:1px solid var(--border-color)';
-        body.appendChild(commentsSection);
-        if (Number(item.id) > 0) loadNewsComments(Number(item.id));
+        window.__activeNewsArticle = { title:item.title || '', content:item.content || '', img:item.image_url || '', images:[] };
         // Reset the carousel article scroll position every time it is opened.
         body.scrollTop = 0;
         sheet.scrollTop = 0;

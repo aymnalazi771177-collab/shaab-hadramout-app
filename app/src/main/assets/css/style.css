@@ -2203,38 +2203,47 @@ body.welcome-open{overflow:hidden}
 .history-sections-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 13px;
+    gap: 10px;
+    width: 100%;
 }
 .history-section-card {
-    min-height: 142px;
-    padding: 20px 12px;
+    min-width: 0;
+    min-height: 104px;
+    padding: 13px 6px 11px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 13px;
+    gap: 9px;
     text-align: center;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 18px;
+    border-radius: 16px;
     box-shadow: var(--shadow-soft);
 }
 .history-section-icon {
-    width: 56px;
-    height: 56px;
+    width: 43px;
+    height: 43px;
     display: grid;
     place-items: center;
-    border-radius: 17px;
+    border-radius: 13px;
     color: var(--primary-red);
-    background: rgba(181, 18, 27, .09);
-    font-size: 25px;
+    background: rgba(181, 18, 27, .08);
+    font-size: 20px;
 }
 .history-section-card h3 {
     margin: 0;
     color: var(--text-dark);
     font-family: 'Cairo', sans-serif;
-    font-size: 15px;
+    font-size: clamp(10px, 3vw, 12px);
+    line-height: 1.45;
     font-weight: 800;
+}
+@media (max-width: 350px) {
+    .history-sections-grid { gap: 7px; }
+    .history-section-card { min-height: 96px; padding-inline: 3px; }
+    .history-section-icon { width: 39px; height: 39px; font-size: 18px; }
+    .history-section-card h3 { font-size: 10px; }
 }
 .club-shortcut-card[data-navigate] { cursor: pointer; }
 .club-shortcut-card[data-navigate]:active { transform: scale(.97); }

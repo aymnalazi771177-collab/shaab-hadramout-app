@@ -332,6 +332,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     renderStories();
 
+    // Resolve media paths returned by the CMS against the club API host.
+    // Older reel records may contain /api/media/... rather than an absolute URL.
+    function resolveClubMediaUrl(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        if (/^https?:\/\//i.test(raw) || /^data:/i.test(raw) || /^blob:/i.test(raw)) return raw;
+        if (raw.startsWith('//')) return 'https:' + raw;
+        return CLUB_API_BASE.replace(/\/$/, '') + '/' + raw.replace(/^\//, '');
+    }
+
     // Load club-managed Reels from the club CMS; keep the built-in preview stories as fallback.
     async function loadClubReels() {
         try {
@@ -342,9 +352,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     id: item.id,
                     title: group.title || ('يوميات النوارس ' + (index + 1)),
                     time: 'من يوميات النادي',
-                    thumb: item.thumbnail_url || item.media_url,
-                    fullImg: item.media_url,
-                    mediaUrl: item.media_url,
+                    thumb: resolveClubMediaUrl(item.thumbnail_url || item.media_url),
+                    fullImg: resolveClubMediaUrl(item.media_url),
+                    mediaUrl: resolveClubMediaUrl(item.media_url),
                     mediaType: item.media_type || 'image',
                     caption: item.caption || group.title || ('الحالة ' + (storyIndex + 1))
                 }));

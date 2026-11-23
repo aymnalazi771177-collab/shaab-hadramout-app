@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let TRANSFERS_DATA = {in:[],out:[],renew:[]};
 
     let MEDIA_DATA = {photos:[],videos:[]};
+    let ARCHIVE_DATA = {photos:[],videos:[]};
 
     let ANTHEMS_DATA = [];
 
@@ -1375,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderMedia(type = 'photos') {
         const container = document.getElementById('mediaGalleryContainer');
         if (!container) return;
-        const list = MEDIA_DATA[type] || [];
+        const list = ARCHIVE_DATA[type] || [];
         container.innerHTML = list.map((item, index) => {
             const title = String(item.title || '');
             const url = String(item.media_url || item.img || '');
@@ -1415,7 +1416,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
     });
 
-    // Club Archive uses the same live media feed as the club gallery.
+    // ذاكرة النوارس مستقلة عن معرض الصور والفيديوهات الحالي.
     function renderArchiveMedia(type = 'photos') {
         const container = document.getElementById('clubArchiveGallery');
         if (!container) return;
@@ -1447,7 +1448,7 @@ document.addEventListener('DOMContentLoaded', function() {
     archiveGallery?.addEventListener('click', function(event) {
         const photo = event.target.closest('.archive-photo-open');
         if (!photo) return;
-        const item = (MEDIA_DATA.photos || [])[Number(photo.dataset.archivePhotoIndex)];
+        const item = (ARCHIVE_DATA.photos || [])[Number(photo.dataset.archivePhotoIndex)];
         if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
     });
     archiveGallery?.addEventListener('keydown', function(event) {
@@ -2420,8 +2421,6 @@ document.addEventListener('DOMContentLoaded', function() {
         MEDIA_DATA = {photos, videos};
         const tab = document.querySelector('[data-media-tab].active');
         renderMedia(tab ? tab.getAttribute('data-media-tab') : 'photos');
-        const archiveTab = document.querySelector('[data-archive-tab].active');
-        renderArchiveMedia(archiveTab ? archiveTab.getAttribute('data-archive-tab') : 'photos');
     }
     function applyClubAnthems(rows) {
         if (!Array.isArray(rows)) rows = [];
@@ -2572,6 +2571,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ['/api/matches', d => applyClubMatches(d.matches)],
             ['/api/transfers', d => applyClubTransfers(d.transfers)],
             ['/api/gallery', d => applyClubGallery(d.media)],
+            ['/api/archive', d => applyClubArchive(d.media)],
             ['/api/anthems', d => applyClubAnthems(d.anthems)],
             ['/api/carousel', d => applyClubCarousel(d.slides)],
             ['/api/history', d => loadClubHistory(d)],

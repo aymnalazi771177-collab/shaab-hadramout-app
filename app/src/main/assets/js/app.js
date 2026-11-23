@@ -1267,7 +1267,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if ((event.key !== 'Enter' && event.key !== ' ') || !event.target.matches('.media-photo-open')) return;
         event.preventDefault();
         const item = (MEDIA_DATA.photos || [])[Number(event.target.dataset.photoIndex)];
-        if (item) openLightbox(item.media_url || item.img || '', item.title || '');
+        if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
     });
 
     // Render Anthems

@@ -24,3 +24,16 @@
 @media(max-width:600px){.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}.editor-modal{padding:20px}.head-actions{gap:7px}.login-action{padding:7px 9px}}
 
 .tournament-tools{margin:12px 0;padding:14px}.tournament-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}.tournament-controls select{min-width:180px;flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;font:700 13px Tajawal;background:#fff;color:#263246}.tournament-tools small{color:var(--muted)}
+
+/* Reel groups and nested story editor */
+.reel-groups-list{display:grid;gap:12px;padding:4px}
+.reel-group-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 3px 12px #17203308}
+.reel-group-info{display:grid;gap:5px;min-width:0}.reel-group-info b{font-size:13px;color:var(--ink)}.reel-group-info span{font-size:10px;color:var(--muted)}
+.reels-editor{display:grid;gap:12px}.reel-stories-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.reel-stories-head b{font-size:13px}
+.add-story-btn{border:0;border-radius:8px;background:#c51e2b;color:#fff;padding:9px 12px;font:800 11px Tajawal,Arial;cursor:pointer}
+.reel-story-row{display:grid;gap:7px;padding:13px;margin:10px 0;border:1px solid var(--line);border-radius:12px;background:#fafbfd}
+.reel-story-row-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.reel-story-row-head b{font-size:11px}
+.reel-story-row-head button{border:0;border-radius:6px;background:#fff0f1;color:#b51f2a;padding:6px 9px;font:700 10px Tajawal,Arial;cursor:pointer}
+.reel-story-row label{font-size:10px;font-weight:800;margin-top:3px}.reel-story-row textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;font:11px Tajawal,Arial;resize:vertical}.reel-story-row input[type=file]{font-size:10px}
+.reel-story-row small,.reels-editor>small{font-size:10px;color:var(--muted);line-height:1.7}
+@media(max-width:600px){.reel-group-card{align-items:flex-start;flex-direction:column}.reel-group-card .record-actions{width:100%}.reel-group-card .record-actions button{flex:1}}

@@ -298,6 +298,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.addEventListener("popstate", function(event) {
+        // Android hardware Back from a Reel always returns to the app home page,
+        // regardless of which section was open before the Reel viewer.
+        const storyViewer = document.getElementById("storyViewerModal");
+        if (storyViewer?.classList.contains("active")) {
+            closeStoryViewer();
+            navigateToPage("homePage", true);
+            return;
+        }
         const galleryViewer = document.getElementById("newsGalleryLightbox");
         if (galleryViewer?.classList.contains("active")) {
             galleryViewer.classList.remove("active");

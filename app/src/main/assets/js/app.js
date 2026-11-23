@@ -1206,7 +1206,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = list.map((item, index) => {
             const title = String(item.title || '');
             const url = String(item.media_url || item.img || '');
-            const safeTitle = title.replace(/[&<>\\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\\"':'&quot;',"'":'&#39;'}[ch]));
+            const safeTitle = title.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
             const safeUrl = url.replace(/[\\"']/g, '');
             const safePoster = String(item.img || '').replace(/[\\"']/g, '');
             const media = type === 'videos'

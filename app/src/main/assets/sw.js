@@ -1,5 +1,5 @@
 // Shaab Hadramout Service Worker
-const CACHE_NAME = 'shaab-hadramout-v6';
+const CACHE_NAME = 'shaab-hadramout-v7';
 const MEDIA_CACHE = 'shaab-hadramout-media-v1';
 const ASSETS = [
   'index.html',

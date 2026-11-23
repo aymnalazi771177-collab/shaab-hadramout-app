@@ -946,17 +946,59 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast(`تم استلام طلب قميص النوارس باسم: ${name} (#${num}) بنجاح! 👕🎉`);
     });
 
-    // --- 5. Photo Lightbox ---
+    // --- 5. Photo Lightbox + saved likes on this device ---
+    const MEDIA_LIKES_KEY = 'shaab_media_likes_v1';
+    function getLikedMedia() {
+        try {
+            const value = JSON.parse(localStorage.getItem(MEDIA_LIKES_KEY) || '[]');
+            return Array.isArray(value) ? value : [];
+        } catch (e) { return []; }
+    }
+    function mediaIsLiked(src) {
+        return !!src && getLikedMedia().includes(src);
+    }
+    function updateMediaLikeButton(src) {
+        const button = document.getElementById('lightboxLikeBtn');
+        if (!button) return;
+        const liked = mediaIsLiked(src);
+        button.classList.toggle('liked', liked);
+        button.setAttribute('aria-pressed', liked ? 'true' : 'false');
+        button.innerHTML = liked
+            ? '<i class="fas fa-heart"></i><span>أعجبني</span>'
+            : '<i class="far fa-heart"></i><span>إعجاب</span>';
+    }
     window.openLightbox = function(imgSrc, caption) {
         const lb = document.getElementById('photoLightbox');
-        if (!lb) return;
+        if (!lb || !imgSrc) return;
         document.getElementById('lightboxImage').src = imgSrc;
-        document.getElementById('lightboxCaption').textContent = caption;
+        document.getElementById('lightboxCaption').textContent = caption || '';
+        lb.dataset.mediaSrc = imgSrc;
+        updateMediaLikeButton(imgSrc);
         lb.classList.add('active');
     };
 
+    document.getElementById('lightboxLikeBtn')?.addEventListener('click', function() {
+        const lb = document.getElementById('photoLightbox');
+        const src = lb?.dataset.mediaSrc;
+        if (!src) return;
+        const likes = getLikedMedia();
+        const index = likes.indexOf(src);
+        if (index >= 0) {
+            likes.splice(index, 1);
+            showToast('تم إلغاء الإعجاب');
+        } else {
+            likes.push(src);
+            showToast('أعجبتك الصورة ❤️');
+        }
+        try { localStorage.setItem(MEDIA_LIKES_KEY, JSON.stringify(likes)); } catch (e) {}
+        updateMediaLikeButton(src);
+    });
+
     document.getElementById('closeLightboxBtn')?.addEventListener('click', () => {
         document.getElementById('photoLightbox')?.classList.remove('active');
+    });
+    document.getElementById('photoLightbox')?.addEventListener('click', function(event) {
+        if (event.target === this) this.classList.remove('active');
     });
 
     // ============================================
@@ -1161,17 +1203,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('mediaGalleryContainer');
         if (!container) return;
         const list = MEDIA_DATA[type] || [];
-        container.innerHTML = list.map(item => {
+        container.innerHTML = list.map((item, index) => {
             const title = String(item.title || '');
             const url = String(item.media_url || item.img || '');
-            const safeTitle = title.replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
-            const safeUrl = url.replace(/[\"']/g, '');
+            const safeTitle = title.replace(/[&<>\\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\\"':'&quot;',"'":'&#39;'}[ch]));
+            const safeUrl = url.replace(/[\\"']/g, '');
+            const safePoster = String(item.img || '').replace(/[\\"']/g, '');
             const media = type === 'videos'
-                ? '<video controls playsinline preload="metadata" poster="' + (item.img || '') + '" src="' + safeUrl + '" style="width:100%;height:100%;object-fit:cover"></video>'
-                : '<img src="' + safeUrl + '" alt="' + safeTitle + '" loading="lazy">';
+                ? '<video controls playsinline preload="metadata" poster="' + safePoster + '" src="' + safeUrl + '" style="width:100%;height:100%;object-fit:cover"></video>'
+                : '<img class="media-photo-open" data-photo-index="' + index + '" src="' + safeUrl + '" alt="' + safeTitle + '" loading="lazy" role="button" tabindex="0" aria-label="فتح الصورة: ' + safeTitle + '">';
             return '<div class="media-item-box"><div class="media-item-thumb">' + media + '</div><div class="media-item-title">' + safeTitle + '</div></div>';
         }).join('');
-    }    renderMedia('photos');
+    }
+    renderMedia('photos');
 
     document.querySelectorAll('[data-media-tab]').forEach(tab => {
         tab.addEventListener('click', function() {
@@ -1179,6 +1223,21 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             renderMedia(this.getAttribute('data-media-tab'));
         });
+    });
+
+    // Open a photo in the full-screen viewer when its thumbnail is tapped.
+    const mediaGallery = document.getElementById('mediaGalleryContainer');
+    mediaGallery?.addEventListener('click', function(event) {
+        const photo = event.target.closest('.media-photo-open');
+        if (!photo) return;
+        const item = (MEDIA_DATA.photos || [])[Number(photo.dataset.photoIndex)];
+        if (item) openLightbox(item.media_url || item.img || '', item.title || '');
+    });
+    mediaGallery?.addEventListener('keydown', function(event) {
+        if ((event.key !== 'Enter' && event.key !== ' ') || !event.target.matches('.media-photo-open')) return;
+        event.preventDefault();
+        const item = (MEDIA_DATA.photos || [])[Number(event.target.dataset.photoIndex)];
+        if (item) openLightbox(item.media_url || item.img || '', item.title || '');
     });
 
     // Render Anthems

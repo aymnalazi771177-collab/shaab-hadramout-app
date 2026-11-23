@@ -2247,3 +2247,16 @@ body.welcome-open{overflow:hidden}
 }
 .club-shortcut-card[data-navigate] { cursor: pointer; }
 .club-shortcut-card[data-navigate]:active { transform: scale(.97); }
+
+
+/* Force the two club-history shortcuts to stay side by side */
+#historyPage .history-sections-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: stretch;
+    width: 100%;
+}
+#historyPage .history-section-card {
+    width: 100%;
+    min-width: 0;
+}

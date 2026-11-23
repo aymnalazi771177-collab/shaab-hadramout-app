@@ -1943,6 +1943,28 @@ document.addEventListener('DOMContentLoaded', function() {
         catch(error) { console.warn('Tournament standings unavailable',error); applyClubStandings([]); }
     }
     let publicTournamentLoadStarted = false;
+    function closeTournamentPicker() {
+        const button=document.getElementById('tournamentPickerButton');
+        const menu=document.getElementById('tournamentPickerMenu');
+        if(button)button.setAttribute('aria-expanded','false');
+        if(menu)menu.hidden=true;
+    }
+    function renderTournamentPicker() {
+        const select=document.getElementById('publicTournamentSelect');
+        const button=document.getElementById('tournamentPickerButton');
+        const value=document.getElementById('tournamentPickerValue');
+        const menu=document.getElementById('tournamentPickerMenu');
+        if(!select||!button||!value||!menu)return;
+        const options=Array.from(select.options).filter(option=>option.value);
+        const current=options.find(option=>String(option.value)===String(select.value));
+        value.textContent=current?current.textContent:((select.options[0]?.textContent)||'اختر البطولة');
+        button.disabled=!options.length;
+        button.classList.toggle('is-disabled',!options.length);
+        menu.innerHTML=options.map(option=>{
+            const active=String(option.value)===String(select.value);
+            return '<button type="button" class="tournament-option'+(active?' active':'')+'" role="option" aria-selected="'+active+'" data-tournament-id="'+clubEscape(option.value)+'"><span>'+clubEscape(option.textContent)+'</span><span class="tournament-option-check"><i class="fas fa-check"></i></span></button>';
+        }).join('');
+    }
     async function loadPublicTournaments() {
         publicTournamentLoadStarted = true;
         const select=document.getElementById('publicTournamentSelect');
@@ -1951,10 +1973,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const data=await clubGet('/api/tournaments'); const rows=data.tournaments||[];
             select.innerHTML=rows.map(t=>'<option value="'+clubEscape(t.id)+'">'+clubEscape(t.name)+(t.season_year?' — '+clubEscape(t.season_year):'')+'</option>').join('')||'<option value="">لا توجد بطولات</option>';
             const empty=document.getElementById('tournamentEmpty'); if(empty)empty.hidden=rows.length>0;
-            if(!rows.length){applyClubStandings([]);return;}
+            if(!rows.length){renderTournamentPicker();applyClubStandings([]);return;}
             if(!rows.some(t=>String(t.id)===String(selectedPublicTournament)))selectedPublicTournament=String(rows[0].id);
-            select.value=selectedPublicTournament; await loadPublicTournamentStandings(selectedPublicTournament);
-        } catch(error) { console.warn('Tournaments unavailable',error); select.innerHTML='<option value="">تعذر تحميل البطولات</option>'; }
+            select.value=selectedPublicTournament;
+            renderTournamentPicker();
+            await loadPublicTournamentStandings(selectedPublicTournament);
+        } catch(error) {
+            console.warn('Tournaments unavailable',error);
+            select.innerHTML='<option value="">تعذر تحميل البطولات</option>';
+            renderTournamentPicker();
+        }
     }
     function applyClubTransfers(rows) {
         if (!Array.isArray(rows)) rows = [];
@@ -2101,7 +2129,33 @@ document.addEventListener('DOMContentLoaded', function() {
             if (badge) { badge.textContent = String(rows.length); badge.style.display = rows.length ? 'flex' : 'none'; }
         } catch (error) { console.warn('Club notifications unavailable', error); }
     }
-    document.addEventListener('change', event => { if(event.target?.id==='publicTournamentSelect'){selectedPublicTournament=event.target.value;loadPublicTournamentStandings(selectedPublicTournament);} });
+    document.addEventListener('click', event => {
+        const button=event.target.closest('#tournamentPickerButton');
+        const option=event.target.closest('.tournament-option');
+        if(button){
+            const menu=document.getElementById('tournamentPickerMenu');
+            const opening=button.getAttribute('aria-expanded')!=='true';
+            if(menu)menu.hidden=!opening;
+            button.setAttribute('aria-expanded',String(opening));
+            return;
+        }
+        if(option){
+            const select=document.getElementById('publicTournamentSelect');
+            if(select){
+                selectedPublicTournament=option.getAttribute('data-tournament-id')||'';
+                select.value=selectedPublicTournament;
+                renderTournamentPicker();
+                closeTournamentPicker();
+                loadPublicTournamentStandings(selectedPublicTournament);
+            }
+            return;
+        }
+        if(!event.target.closest('.tournament-select-wrap'))closeTournamentPicker();
+    });
+    document.addEventListener('keydown', event => {
+        if(event.key==='Escape')closeTournamentPicker();
+    });
+    document.addEventListener('change', event => { if(event.target?.id==='publicTournamentSelect'){selectedPublicTournament=event.target.value;renderTournamentPicker();loadPublicTournamentStandings(selectedPublicTournament);} });
     async function loadAllClubContent() {
         const jobs = [
             ['/api/news', d => applyClubNews(d.news)],

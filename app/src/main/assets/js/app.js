@@ -1422,7 +1422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
         const list = ARCHIVE_DATA[type] || [];
         if (!list.length) {
-            container.innerHTML = '<div class="empty-state">' + (type === 'photos' ? 'لا توجد صور وذكريات منشورة في الأرشيف حالياً.' : 'لا توجد فيديوهات منشورة في الأرشيف حالياً.') + '</div>';
+            container.innerHTML = '<div class="empty-state">' + (type === 'photos' ? 'لا توجد صور وذكريات منشورة في ذاكرة النوارس حالياً.' : 'لا توجد فيديوهات منشورة في ذاكرة النوارس حالياً.') + '</div>';
             return;
         }
         container.innerHTML = list.map((item, index) => {

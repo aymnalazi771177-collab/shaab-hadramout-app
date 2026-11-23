@@ -894,6 +894,19 @@ body {
     max-width: 100%; max-height: 70vh; border-radius: 12px; object-fit: contain;
 }
 .lightbox-content p { color: #fff; margin-top: 12px; font-size: 14px; font-weight: 700; }
+.lightbox-content { display: flex; flex-direction: column; align-items: center; }
+.lightbox-like-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    min-width: 116px; margin: 14px auto 0; padding: 10px 22px;
+    border: 1px solid rgba(255,255,255,0.35); border-radius: 24px;
+    background: rgba(255,255,255,0.12); color: #fff;
+    font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 800;
+    cursor: pointer; transition: var(--transition);
+}
+.lightbox-like-btn i { font-size: 18px; }
+.lightbox-like-btn.liked { background: var(--primary-red); border-color: var(--primary-red); color: #fff; }
+.media-photo-open { cursor: zoom-in; }
+
 
 /* --- Confetti Canvas --- */
 .confetti-canvas {

@@ -1070,6 +1070,16 @@ body {
 }
 .media-item-box:hover { transform: translateY(-2px); }
 .media-item-thumb { height: 115px; position: relative; overflow: hidden; }
+.media-like-count {
+    position: absolute; bottom: 7px; left: 7px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 8px; border-radius: 20px;
+    background: rgba(20, 20, 20, 0.76); color: #fff;
+    font-size: 11px; font-weight: 800; line-height: 1;
+    direction: ltr; pointer-events: none;
+}
+.media-like-count i { color: #ff3b54; font-size: 11px; }
+
 .media-item-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
 .media-item-box:hover .media-item-thumb img { transform: scale(1.08); }
 .video-play-overlay {

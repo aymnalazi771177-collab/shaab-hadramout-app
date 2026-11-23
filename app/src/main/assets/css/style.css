@@ -1718,7 +1718,28 @@ input:checked + .slider.round:before { transform: translateX(20px); }
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: var(--transition);
 }
-.story-action-btn:active { transform: scale(1.25); color: var(--bright-red); }
+.story-action-btn:active { transform: scale(1.12); color: var(--bright-red); }
+.story-action-btn.story-like-btn {
+    width: auto;
+    min-width: 58px;
+    padding: 0 12px;
+    gap: 7px;
+    border-radius: 24px;
+}
+.story-action-btn.story-like-btn .story-like-count {
+    min-width: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+}
+.story-action-btn.story-like-btn.liked {
+    color: #fff;
+    background: #db1e24;
+    border-color: #ff6469;
+    box-shadow: 0 0 0 3px rgba(219,30,36,.16), 0 4px 14px rgba(219,30,36,.28);
+}
+.story-action-btn.story-like-btn:disabled { opacity: .78; cursor: default; }
 
 /* Floating Hearts Animation */
 .floating-hearts-container {

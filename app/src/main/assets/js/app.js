@@ -760,18 +760,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         saveReelLikeState(storyId, liked, version);
     });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تسجيل الإعجاب');
-            if (reelLikeState.storyId !== storyId) return;
-            reelLikeState = { storyId, count: Number(data.count || 0), liked: true, loading: false };
-            paintStoryLikeButton();
-            animateStoryLike();
-            showToast('أعجبتك هذه الحالة ❤️');
-        } catch (error) {
-            if (reelLikeState.storyId === storyId) button.disabled = false;
-            showToast(error.message || 'تعذر تسجيل الإعجاب');
-        }
-    });
 
     document.getElementById('storyReplyInput')?.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && this.value.trim()) {

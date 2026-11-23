@@ -518,6 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const storyImage = document.getElementById('storyMediaImage');
         const storyVideo = document.getElementById('storyMediaVideo');
         const storyBackdrop = document.getElementById('storyMediaBackdrop');
+        loadStoryLikeState(s.id);
         const mediaUrl = s.mediaUrl || s.fullImg;
         if (storyBackdrop) {
             storyBackdrop.src = s.thumb || mediaUrl;
@@ -636,21 +637,94 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('storyLikeBtn')?.addEventListener('click', function() {
+    const REEL_VISITOR_KEY = 'shaab_reel_visitor_v1';
+    let reelLikeState = { storyId: 0, count: 0, liked: false, loading: false };
+    function getReelVisitorKey() {
+        try {
+            let key = localStorage.getItem(REEL_VISITOR_KEY);
+            if (!key) {
+                key = window.crypto?.randomUUID?.() || ('visitor-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+                localStorage.setItem(REEL_VISITOR_KEY, key);
+            }
+            return key;
+        } catch (error) {
+            return 'visitor-' + (window.crypto?.randomUUID?.() || Math.random().toString(36).slice(2));
+        }
+    }
+    function paintStoryLikeButton() {
+        const button = document.getElementById('storyLikeBtn');
+        if (!button) return;
+        const currentId = Number(currentStoryItems[currentStoryIdx]?.id || 0);
+        const valid = Number.isInteger(currentId) && currentId > 0;
+        button.style.display = valid ? '' : 'none';
+        const liked = reelLikeState.storyId === currentId && reelLikeState.liked;
+        button.classList.toggle('liked', liked);
+        button.setAttribute('aria-pressed', liked ? 'true' : 'false');
+        button.disabled = !valid || (reelLikeState.storyId === currentId && reelLikeState.loading);
+        const icon = button.querySelector('i');
+        if (icon) icon.className = liked ? 'fas fa-heart' : 'far fa-heart';
+        const count = button.querySelector('.story-like-count');
+        if (count) count.textContent = reelLikeState.storyId === currentId ? String(reelLikeState.count) : '0';
+    }
+    async function loadStoryLikeState(storyId) {
+        const id = Number(storyId || 0);
+        reelLikeState = { storyId: id, count: 0, liked: false, loading: !!id };
+        paintStoryLikeButton();
+        if (!Number.isInteger(id) || id < 1) return;
+        try {
+            const visitorKey = encodeURIComponent(getReelVisitorKey());
+            const response = await fetch(CLUB_API_BASE + '/api/reel-likes?story_id=' + id + '&visitor_key=' + visitorKey, { cache: 'no-store' });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تحميل الإعجابات');
+            if (reelLikeState.storyId !== id) return;
+            reelLikeState = { storyId: id, count: Number(data.count || 0), liked: !!data.liked, loading: false };
+        } catch (error) {
+            if (reelLikeState.storyId === id) reelLikeState.loading = false;
+            console.warn('Reel likes unavailable', error);
+        }
+        paintStoryLikeButton();
+    }
+    function animateStoryLike() {
         playFanCheerSound();
         const container = document.getElementById('floatingHeartsContainer');
-        if (container) {
-            for (let i = 0; i < 6; i++) {
-                setTimeout(() => {
-                    const heart = document.createElement('i');
-                    heart.className = 'fas fa-heart floating-heart';
-                    heart.style.left = `${50 + (Math.random() * 60 - 30)}px`;
-                    container.appendChild(heart);
-                    setTimeout(() => heart.remove(), 1500);
-                }, i * 120);
-            }
+        if (!container) return;
+        for (let i = 0; i < 6; i++) {
+            setTimeout(() => {
+                const heart = document.createElement('i');
+                heart.className = 'fas fa-heart floating-heart';
+                heart.style.left = `${50 + (Math.random() * 60 - 30)}px`;
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), 1500);
+            }, i * 120);
         }
-        showToast('أرسلت إعجاباً بالنوارس ❤️');
+    }
+    document.getElementById('storyLikeBtn')?.addEventListener('click', async function() {
+        const button = this;
+        const storyId = Number(currentStoryItems[currentStoryIdx]?.id || 0);
+        if (!Number.isInteger(storyId) || storyId < 1 || reelLikeState.storyId !== storyId || reelLikeState.loading) return;
+        if (reelLikeState.liked) {
+            showToast('سبق وأعجبتك هذه الحالة ❤️');
+            return;
+        }
+        button.disabled = true;
+        try {
+            const response = await fetch(CLUB_API_BASE + '/api/reel-likes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ story_id: storyId, visitor_key: getReelVisitorKey() }),
+                cache: 'no-store'
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تسجيل الإعجاب');
+            if (reelLikeState.storyId !== storyId) return;
+            reelLikeState = { storyId, count: Number(data.count || 0), liked: true, loading: false };
+            paintStoryLikeButton();
+            animateStoryLike();
+            showToast('أعجبتك هذه الحالة ❤️');
+        } catch (error) {
+            if (reelLikeState.storyId === storyId) button.disabled = false;
+            showToast(error.message || 'تعذر تسجيل الإعجاب');
+        }
     });
 
     document.getElementById('storyReplyInput')?.addEventListener('keydown', function(e) {

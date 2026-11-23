@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try { history.pushState({ appPage: "homePage" }, "", location.href); } catch (e) {}
     });
 
-    // Native Android Back bridge: handle app navigation directly instead of relying on WebView history.
+    // Native Android Back bridge: one consistent rule for every app section and overlay.
     window.handleNativeBackFromApp = function() {
         const storyViewer = document.getElementById("storyViewerModal");
         if (storyViewer?.classList.contains("active")) {
@@ -335,21 +335,44 @@ document.addEventListener('DOMContentLoaded', function() {
             navigateToPage("homePage", true);
             return true;
         }
+
         const galleryViewer = document.getElementById("newsGalleryLightbox");
         if (galleryViewer?.classList.contains("active")) {
             galleryViewer.classList.remove("active");
             return true;
         }
+
         const articleOverlay = document.getElementById("articleModalOverlay");
-        if (articleOverlay?.classList.contains("active")) {
+        const photoLightbox = document.getElementById("photoLightbox");
+        const hasOpenModal = !!(
+            articleOverlay?.classList.contains("active") ||
+            photoLightbox?.classList.contains("active") ||
+            document.querySelector(".app-modal-sheet.open, .modal-overlay.active, .modal.active, .overlay.active, .drawer.open")
+        );
+        if (hasOpenModal) {
             closeAllModals();
             window.__activeNewsArticle = null;
             return true;
         }
-        if (currentAppPage !== "homePage") {
+
+        const menu = document.getElementById("sideMenuOverlay");
+        const notifications = document.getElementById("notifOverlay");
+        if (menu?.classList.contains("active") || notifications?.classList.contains("active")) {
+            closeMenu();
+            closeNotifications();
+            return true;
+        }
+
+        // Read the actually visible page instead of relying only on cached navigation state.
+        const visiblePage = document.querySelector(".app-page.active");
+        const activePageId = visiblePage?.id || currentAppPage;
+        if (activePageId && activePageId !== "homePage") {
             navigateToPage("homePage", true);
             return true;
         }
+
+        // Keep the cached state synchronized if the DOM was changed by a section controller.
+        currentAppPage = "homePage";
         return false;
     };
 

@@ -1376,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderMedia(type = 'photos') {
         const container = document.getElementById('mediaGalleryContainer');
         if (!container) return;
-        const list = ARCHIVE_DATA[type] || [];
+        const list = MEDIA_DATA[type] || [];
         container.innerHTML = list.map((item, index) => {
             const title = String(item.title || '');
             const url = String(item.media_url || item.img || '');
@@ -1420,7 +1420,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderArchiveMedia(type = 'photos') {
         const container = document.getElementById('clubArchiveGallery');
         if (!container) return;
-        const list = MEDIA_DATA[type] || [];
+        const list = ARCHIVE_DATA[type] || [];
         if (!list.length) {
             container.innerHTML = '<div class="empty-state">' + (type === 'photos' ? 'لا توجد صور وذكريات منشورة في الأرشيف حالياً.' : 'لا توجد فيديوهات منشورة في الأرشيف حالياً.') + '</div>';
             return;
@@ -1454,7 +1454,7 @@ document.addEventListener('DOMContentLoaded', function() {
     archiveGallery?.addEventListener('keydown', function(event) {
         if ((event.key !== 'Enter' && event.key !== ' ') || !event.target.matches('.archive-photo-open')) return;
         event.preventDefault();
-        const item = (MEDIA_DATA.photos || [])[Number(event.target.dataset.archivePhotoIndex)];
+        const item = (ARCHIVE_DATA.photos || [])[Number(event.target.dataset.archivePhotoIndex)];
         if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
     });
     renderArchiveMedia('photos');
@@ -2421,6 +2421,17 @@ document.addEventListener('DOMContentLoaded', function() {
         MEDIA_DATA = {photos, videos};
         const tab = document.querySelector('[data-media-tab].active');
         renderMedia(tab ? tab.getAttribute('data-media-tab') : 'photos');
+    }
+    function applyClubArchive(rows) {
+        if (!Array.isArray(rows)) rows = [];
+        const photos = [], videos = [];
+        rows.forEach(item => {
+            const record = { id:Number(item.id), title:item.title || '', img:item.media_type === 'image' ? item.media_url : '', media_url:item.media_url || '', description:item.description || '' };
+            (item.media_type === 'video' ? videos : photos).push(record);
+        });
+        ARCHIVE_DATA = {photos, videos};
+        const tab = document.querySelector('[data-archive-tab].active');
+        renderArchiveMedia(tab ? tab.getAttribute('data-archive-tab') : 'photos');
     }
     function applyClubAnthems(rows) {
         if (!Array.isArray(rows)) rows = [];

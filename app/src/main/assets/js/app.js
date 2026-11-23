@@ -327,6 +327,32 @@ document.addEventListener('DOMContentLoaded', function() {
         try { history.pushState({ appPage: "homePage" }, "", location.href); } catch (e) {}
     });
 
+    // Native Android Back bridge: handle app navigation directly instead of relying on WebView history.
+    window.handleNativeBackFromApp = function() {
+        const storyViewer = document.getElementById("storyViewerModal");
+        if (storyViewer?.classList.contains("active")) {
+            closeStoryViewer();
+            navigateToPage("homePage", true);
+            return true;
+        }
+        const galleryViewer = document.getElementById("newsGalleryLightbox");
+        if (galleryViewer?.classList.contains("active")) {
+            galleryViewer.classList.remove("active");
+            return true;
+        }
+        const articleOverlay = document.getElementById("articleModalOverlay");
+        if (articleOverlay?.classList.contains("active")) {
+            closeAllModals();
+            window.__activeNewsArticle = null;
+            return true;
+        }
+        if (currentAppPage !== "homePage") {
+            navigateToPage("homePage", true);
+            return true;
+        }
+        return false;
+    };
+
     document.querySelectorAll('[data-navigate]').forEach(el => {
         el.addEventListener('click', function(e) {
             e.preventDefault();

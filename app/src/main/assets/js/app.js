@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.add('active');
         playTone(550, 'sine', 0.1);
         renderStoryProgressBars();
-        loadStory(idx);
+        loadStory(0);
     }
 
     function renderStoryProgressBars() {
@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (storyProgressPct >= 100) {
                 clearInterval(storyTimer);
-                if (currentStoryIdx + 1 < STORIES_DATA.length) {
+                if (currentStoryIdx + 1 < currentStoryItems.length) {
                     loadStory(currentStoryIdx + 1);
                 } else {
                     closeStoryViewer();
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('storyTapNext')?.addEventListener('click', () => {
         clearInterval(storyTimer);
-        if (currentStoryIdx + 1 < STORIES_DATA.length) {
+        if (currentStoryIdx + 1 < currentStoryItems.length) {
             loadStory(currentStoryIdx + 1);
         } else {
             closeStoryViewer();

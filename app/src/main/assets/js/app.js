@@ -946,52 +946,82 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast(`تم استلام طلب قميص النوارس باسم: ${name} (#${num}) بنجاح! 👕🎉`);
     });
 
-    // --- 5. Photo Lightbox + saved likes on this device ---
-    const MEDIA_LIKES_KEY = 'shaab_media_likes_v1';
-    function getLikedMedia() {
-        try {
-            const value = JSON.parse(localStorage.getItem(MEDIA_LIKES_KEY) || '[]');
-            return Array.isArray(value) ? value : [];
-        } catch (e) { return []; }
-    }
-    function mediaIsLiked(src) {
-        return !!src && getLikedMedia().includes(src);
-    }
-    function updateMediaLikeButton(src) {
+    // --- 5. Shared photo likes (stored in the club database per fan account) ---
+    let activeMediaLikeState = { mediaId: 0, count: 0, liked: false, loading: false };
+    function paintMediaLikeButton() {
         const button = document.getElementById('lightboxLikeBtn');
         if (!button) return;
-        const liked = mediaIsLiked(src);
-        button.classList.toggle('liked', liked);
-        button.setAttribute('aria-pressed', liked ? 'true' : 'false');
-        button.innerHTML = liked
+        button.classList.toggle('liked', !!activeMediaLikeState.liked);
+        button.disabled = !!activeMediaLikeState.loading;
+        button.setAttribute('aria-pressed', activeMediaLikeState.liked ? 'true' : 'false');
+        button.innerHTML = (activeMediaLikeState.liked
             ? '<i class="fas fa-heart"></i><span>أعجبني</span>'
-            : '<i class="far fa-heart"></i><span>إعجاب</span>';
+            : '<i class="far fa-heart"></i><span>إعجاب</span>') +
+            '<span class="lightbox-like-count" aria-label="عدد الإعجابات">' + Number(activeMediaLikeState.count || 0) + '</span>';
     }
-    window.openLightbox = function(imgSrc, caption) {
+    async function loadMediaLikeState(mediaId) {
+        if (!Number.isInteger(Number(mediaId)) || Number(mediaId) < 1) {
+            activeMediaLikeState = { mediaId: 0, count: 0, liked: false, loading: false };
+            paintMediaLikeButton();
+            return;
+        }
+        const requestedId = Number(mediaId);
+        activeMediaLikeState = { mediaId: requestedId, count: 0, liked: false, loading: true };
+        paintMediaLikeButton();
+        try {
+            const response = await fetch(CLUB_API_BASE + '/api/media-likes?media_id=' + requestedId, {
+                headers: localStorage.getItem(FAN_TOKEN_KEY)
+                    ? { Authorization: 'Bearer ' + localStorage.getItem(FAN_TOKEN_KEY) } : {},
+                cache: 'no-store'
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تحميل الإعجابات');
+            if (activeMediaLikeState.mediaId !== requestedId) return;
+            activeMediaLikeState = { mediaId: requestedId, count: Number(data.count || 0), liked: !!data.liked, loading: false };
+        } catch (error) {
+            if (activeMediaLikeState.mediaId === requestedId) activeMediaLikeState.loading = false;
+            console.warn('Shared media likes unavailable', error);
+        }
+        paintMediaLikeButton();
+    }
+    window.openLightbox = function(imgSrc, caption, mediaId) {
         const lb = document.getElementById('photoLightbox');
         if (!lb || !imgSrc) return;
         document.getElementById('lightboxImage').src = imgSrc;
         document.getElementById('lightboxCaption').textContent = caption || '';
         lb.dataset.mediaSrc = imgSrc;
-        updateMediaLikeButton(imgSrc);
+        lb.dataset.mediaId = String(mediaId || '');
         lb.classList.add('active');
+        loadMediaLikeState(mediaId);
     };
 
-    document.getElementById('lightboxLikeBtn')?.addEventListener('click', function() {
+    document.getElementById('lightboxLikeBtn')?.addEventListener('click', async function() {
         const lb = document.getElementById('photoLightbox');
-        const src = lb?.dataset.mediaSrc;
-        if (!src) return;
-        const likes = getLikedMedia();
-        const index = likes.indexOf(src);
-        if (index >= 0) {
-            likes.splice(index, 1);
-            showToast('تم إلغاء الإعجاب');
-        } else {
-            likes.push(src);
-            showToast('أعجبتك الصورة ❤️');
+        const mediaId = Number(lb?.dataset.mediaId || 0);
+        if (!mediaId || activeMediaLikeState.loading) return;
+        const token = localStorage.getItem(FAN_TOKEN_KEY);
+        if (!token) {
+            showToast('سجّل الدخول بحساب المشجع أولاً للإعجاب ❤️');
+            navigateToPage('fansPage');
+            return;
         }
-        try { localStorage.setItem(MEDIA_LIKES_KEY, JSON.stringify(likes)); } catch (e) {}
-        updateMediaLikeButton(src);
+        const button = this;
+        const desiredLiked = !activeMediaLikeState.liked;
+        button.disabled = true;
+        try {
+            const data = await fanApi('/api/media-likes', {
+                method: 'POST',
+                body: JSON.stringify({ media_id: mediaId, liked: desiredLiked })
+            });
+            if (Number(lb.dataset.mediaId) !== mediaId) return;
+            activeMediaLikeState = { mediaId, count: Number(data.count || 0), liked: !!data.liked, loading: false };
+            paintMediaLikeButton();
+            showToast(data.liked ? 'أعجبتك الصورة ❤️' : 'تم إلغاء الإعجاب');
+        } catch (error) {
+            button.disabled = false;
+            showToast(error.status === 401 ? 'انتهت جلستك، سجّل الدخول مرة أخرى' : (error.message || 'تعذر تسجيل الإعجاب'));
+            if (error.status === 401) navigateToPage('fansPage');
+        }
     });
 
     document.getElementById('closeLightboxBtn')?.addEventListener('click', () => {
@@ -1231,7 +1261,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const photo = event.target.closest('.media-photo-open');
         if (!photo) return;
         const item = (MEDIA_DATA.photos || [])[Number(photo.dataset.photoIndex)];
-        if (item) openLightbox(item.media_url || item.img || '', item.title || '');
+        if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
     });
     mediaGallery?.addEventListener('keydown', function(event) {
         if ((event.key !== 'Enter' && event.key !== ' ') || !event.target.matches('.media-photo-open')) return;
@@ -2112,7 +2142,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const photos = [], videos = [];
         rows.forEach(item => {
             const record = {
-                title:item.title || '', img:item.media_type === 'image' ? item.media_url : '',
+                id:Number(item.id), title:item.title || '', img:item.media_type === 'image' ? item.media_url : '',
                 media_url:item.media_url || '', description:item.description || ''
             };
             (item.media_type === 'video' ? videos : photos).push(record);

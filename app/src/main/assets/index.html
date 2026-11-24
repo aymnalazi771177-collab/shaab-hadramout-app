@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=2.14">
+    <link rel="stylesheet" href="css/style.css?v=2.15-legends">
 </head>
 <body>
     <div class="app-container">
@@ -520,7 +520,25 @@
                     <h4><i class="fas fa-medal text-red"></i> أساطير نادي شعب حضرموت</h4>
                     <p class="about-text">وفاءً لمن صنعوا تاريخ النادي وتركوا بصمتهم في مسيرة النوارس.</p>
                 </div>
-                <div class="empty-state">سيتم إضافة أساطير النادي هنا قريباً.</div>
+                <div class="legends-grid" id="clubLegendsGrid"><div class="empty-state">جارٍ تحميل أساطير النادي...</div></div>
+            </div>
+        </section>
+
+
+        <section class="app-page sub-page" id="legendDetailPage">
+            <div class="sub-page-header">
+                <button class="back-btn" id="legendDetailBack" aria-label="العودة إلى الأساطير"><i class="fas fa-arrow-right"></i></button>
+                <h2 id="legendDetailHeading">ملف الأسطورة</h2>
+                <div class="header-action-icon"><i class="fas fa-medal"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div id="legendDetailHero" class="legend-detail-hero"></div>
+                <div class="category-tabs legend-detail-tabs">
+                    <button class="cat-tab active" data-legend-tab="info">معلومات الأسطورة</button>
+                    <button class="cat-tab" data-legend-tab="photos">صور الأسطورة</button>
+                    <button class="cat-tab" data-legend-tab="videos">فيديوهات الأسطورة</button>
+                </div>
+                <div id="legendDetailContent" class="legend-detail-content"></div>
             </div>
         </section>
 

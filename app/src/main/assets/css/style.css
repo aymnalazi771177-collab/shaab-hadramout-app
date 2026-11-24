@@ -2254,3 +2254,39 @@ body.welcome-open{overflow:hidden}
     width: 100%;
     min-width: 0;
 }
+
+/* Club legends archive */
+.legends-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:2px 0 22px}
+.legend-card{display:flex;align-items:center;gap:10px;min-width:0;padding:10px;background:var(--card-bg,#fff);border:1px solid var(--border-color,#eceef2);border-radius:15px;text-align:right;color:var(--text-dark);box-shadow:0 4px 14px rgba(20,30,50,.045)}
+.legend-card-photo{width:68px;height:78px;flex:0 0 68px;overflow:hidden;border-radius:11px;background:#f3f4f6}
+.legend-card-photo img{width:100%;height:100%;object-fit:cover}
+.legend-card-info{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.legend-card-info strong{font-size:12px;font-weight:900;line-height:1.5}
+.legend-card-info small{font-size:10px;color:var(--text-gray);line-height:1.4}
+.legend-card-info em{font-size:9px;color:var(--primary-red);font-style:normal}
+.legend-card>i{font-size:11px;color:var(--primary-red)}
+.legend-detail-hero{display:flex;align-items:center;gap:16px;padding:17px;margin:2px 0 16px;background:var(--card-bg,#fff);border:1px solid var(--border-color,#eceef2);border-radius:17px}
+.legend-detail-photo{width:112px;height:132px;flex:0 0 112px;overflow:hidden;border-radius:13px;background:#f1f2f4}
+.legend-detail-photo img{width:100%;height:100%;object-fit:cover}
+.legend-detail-title span{font-size:10px;color:var(--primary-red);font-weight:800}
+.legend-detail-title h2{font-size:19px;margin:7px 0;font-weight:900;color:var(--text-dark)}
+.legend-detail-title p{font-size:11px;color:var(--text-gray);margin:0;line-height:1.7}
+.legend-detail-tabs{margin:0 0 15px;overflow-x:auto;flex-wrap:nowrap}
+.legend-detail-tabs .cat-tab{white-space:nowrap;flex:1;min-width:max-content}
+.legend-info-card,.legend-facts-grid>div{background:var(--card-bg,#fff);border:1px solid var(--border-color,#eceef2);border-radius:13px;padding:15px;margin-bottom:11px}
+.legend-info-card h3{font-size:14px;margin:0 0 9px;color:var(--text-dark)}
+.legend-info-card h3 i{color:var(--primary-red);margin-left:6px}
+.legend-info-card p{font-size:12px;line-height:2;color:var(--text-gray);white-space:pre-wrap;margin:0}
+.legend-facts-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.legend-facts-grid>div{margin:0;display:flex;flex-direction:column;gap:6px}
+.legend-facts-grid small{font-size:10px;color:var(--text-gray)}
+.legend-facts-grid strong{font-size:12px;color:var(--text-dark)}
+.legend-media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.legend-media-photo{height:175px;padding:0;border:0;border-radius:12px;overflow:hidden;background:#eee}
+.legend-media-photo img{width:100%;height:100%;object-fit:cover}
+.legend-video-list{display:grid;gap:12px}
+.legend-video-card{overflow:hidden;border:1px solid var(--border-color,#eceef2);border-radius:13px;background:var(--card-bg,#fff)}
+.legend-video-card video{display:block;width:100%;max-height:280px;background:#111}
+.legend-video-card p{font-size:11px;padding:0 12px;color:var(--text-dark)}
+@media(max-width:370px){.legends-grid{gap:8px}.legend-card{padding:7px;gap:7px}.legend-card-photo{width:57px;height:68px;flex-basis:57px}.legend-card-info strong{font-size:11px}.legend-detail-hero{gap:10px;padding:12px}.legend-detail-photo{width:88px;height:110px;flex-basis:88px}.legend-detail-title h2{font-size:16px}}
+@media(min-width:600px){.legends-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.legend-media-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}

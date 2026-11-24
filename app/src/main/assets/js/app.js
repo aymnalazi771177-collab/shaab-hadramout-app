@@ -911,7 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div style="background:#f7f7f7;border-radius:10px;padding:11px;text-align:center;grid-column:1/-1"><small style="color:#888">ملعب المباراة</small><b style="display:block;font-size:12px;margin-top:4px">${esc(match.stadium || 'لم يحدد')}</b></div>
                 </div>
                 ${lineupHtml}
-                ${match.managed ? `<div class="fan-prediction-box" data-prediction-match="${Number(match.id)}"><div class="fan-prediction-title"><i class="fas fa-bullseye"></i> توقع نتيجة المباراة</div><div class="fan-prediction-actions"><button type="button" data-fan-predict="win" data-match-id="${Number(match.id)}">فوز شعب حضرموت</button><button type="button" data-fan-predict="draw" data-match-id="${Number(match.id)}">تعادل</button><button type="button" data-fan-predict="loss" data-match-id="${Number(match.id)}">خسارة شعب حضرموت</button></div><p class="fan-prediction-status">سجل دخولك للمشاركة في التوقعات</p></div>` : ''}
+                ${match.managed ? `<div class="fan-prediction-box" data-prediction-match="${Number(match.id)}"><div class="fan-prediction-title"><i class="fas fa-bullseye"></i> توقع نتيجة المباراة</div><div class="fan-prediction-actions"><button type="button" data-fan-predict="win" data-match-id="${Number(match.id)}">فوز الشعب</button><button type="button" data-fan-predict="draw" data-match-id="${Number(match.id)}">تعادل</button><button type="button" data-fan-predict="loss" data-match-id="${Number(match.id)}">فوز</button></div><p class="fan-prediction-status">سجل دخولك للمشاركة في التوقعات</p></div>` : ''}
             `;
         }
         document.getElementById('matchModalOverlay')?.classList.add('active');
@@ -1280,7 +1280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="match-venue">
                         <i class="far fa-calendar"></i> ${safeMatchText(m.date)} | <i class="fas fa-location-dot"></i> ${safeMatchText(m.stadium)}
                     </div>
-                    ${m.managed ? `<div class="fan-prediction-box" data-prediction-match="${Number(m.id)}"><div class="fan-prediction-title"><i class="fas fa-bullseye"></i> توقع نتيجة المباراة</div><div class="fan-prediction-actions"><button type="button" data-fan-predict="win" data-match-id="${Number(m.id)}">فوز شعب حضرموت</button><button type="button" data-fan-predict="draw" data-match-id="${Number(m.id)}">تعادل</button><button type="button" data-fan-predict="loss" data-match-id="${Number(m.id)}">خسارة شعب حضرموت</button></div><p class="fan-prediction-status">سجل دخولك للمشاركة في التوقعات</p></div>` : ''}
+                    ${m.managed ? `<div class="fan-prediction-box" data-prediction-match="${Number(m.id)}"><div class="fan-prediction-title"><i class="fas fa-bullseye"></i> توقع نتيجة المباراة</div><div class="fan-prediction-actions"><button type="button" data-fan-predict="win" data-match-id="${Number(m.id)}">فوز الشعب</button><button type="button" data-fan-predict="draw" data-match-id="${Number(m.id)}">تعادل</button><button type="button" data-fan-predict="loss" data-match-id="${Number(m.id)}">فوز</button></div><p class="fan-prediction-status">سجل دخولك للمشاركة في التوقعات</p></div>` : ''}
                 </div>`;
             }).join('');
         } else {

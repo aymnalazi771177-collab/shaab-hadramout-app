@@ -898,7 +898,7 @@ document.addEventListener('DOMContentLoaded', function() {
         playTone(520, 'sine', 0.12);
         const body = document.getElementById('matchModalBody');
         if (!body) return;
-        const match = MATCHES_UPCOMING.find(item => Number(item.id) === Number(matchId)) || MATCHES_UPCOMING[0] || MATCHES_RESULTS[0];
+        const match = MATCHES_UPCOMING.find(item => Number(item.id) === Number(matchId)) || MATCHES_RESULTS.find(item => Number(item.id) === Number(matchId)) || MATCHES_UPCOMING[0] || MATCHES_RESULTS[0];
         if (!match) { body.innerHTML = '<p style="text-align:center;padding:24px">لا توجد تفاصيل متاحة لهذه المباراة حالياً.</p>'; }
         else {
             const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));

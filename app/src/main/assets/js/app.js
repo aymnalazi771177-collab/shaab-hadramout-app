@@ -277,6 +277,8 @@ document.addEventListener('DOMContentLoaded', function() {
         targetPage.classList.add('active');
         targetPage.scrollTop = 0;
         if (pageId === "fansPage") renderFansPage();
+        if (pageId === "legendsPage") loadClubLegends();
+        if (pageId === "legendDetailPage") renderLegendDetail();
         if (pageId === "archivePage") {
             const archiveTab = document.querySelector("[data-archive-tab].active");
             renderArchiveMedia(archiveTab ? archiveTab.getAttribute("data-archive-tab") : "photos");
@@ -1458,6 +1460,92 @@ document.addEventListener('DOMContentLoaded', function() {
         if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
     });
     renderArchiveMedia('photos');
+
+
+    // أساطير النادي: ملفات مستقلة لكل أسطورة، مع صور وفيديوهات مرتبطة به.
+    let CLUB_LEGENDS = [];
+    let currentClubLegend = null;
+    let currentLegendTab = 'info';
+    const legendEscape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    async function loadClubLegends() {
+        const grid = document.getElementById('clubLegendsGrid');
+        if (!grid) return;
+        grid.innerHTML = '<div class="empty-state">جارٍ تحميل أساطير النادي...</div>';
+        try {
+            const payload = await clubGet('/api/legends');
+            CLUB_LEGENDS = Array.isArray(payload.legends) ? payload.legends : [];
+            renderClubLegends();
+        } catch (error) {
+            grid.innerHTML = '<div class="empty-state">تعذر تحميل أساطير النادي حالياً. حاول مرة أخرى لاحقاً.</div>';
+        }
+    }
+    function renderClubLegends() {
+        const grid = document.getElementById('clubLegendsGrid');
+        if (!grid) return;
+        if (!CLUB_LEGENDS.length) {
+            grid.innerHTML = '<div class="empty-state">لم تتم إضافة أساطير النادي بعد. ستجد هنا نجوم النوارس الذين صنعوا تاريخ النادي.</div>';
+            return;
+        }
+        grid.innerHTML = CLUB_LEGENDS.map((legend, index) => {
+            const name = legendEscape(legend.name);
+            const image = legendEscape(legend.image_url || 'images/logo.png');
+            const role = legendEscape(legend.role || 'من أساطير النادي');
+            const years = legendEscape(legend.active_years || '');
+            return '<button type="button" class="legend-card" data-legend-index="' + index + '">' +
+                '<span class="legend-card-photo"><img src="' + image + '" alt="' + name + '" loading="lazy"></span>' +
+                '<span class="legend-card-info"><strong>' + name + '</strong><small>' + role + '</small>' +
+                (years ? '<em>' + years + '</em>' : '') + '</span><i class="fas fa-chevron-left"></i></button>';
+        }).join('');
+    }
+    function openClubLegend(index) {
+        const legend = CLUB_LEGENDS[Number(index)];
+        if (!legend) return;
+        currentClubLegend = legend;
+        currentLegendTab = 'info';
+        document.querySelectorAll('[data-legend-tab]').forEach(tab => tab.classList.toggle('active', tab.dataset.legendTab === 'info'));
+        navigateToPage('legendDetailPage');
+    }
+    function renderLegendDetail() {
+        const legend = currentClubLegend;
+        const hero = document.getElementById('legendDetailHero');
+        const content = document.getElementById('legendDetailContent');
+        if (!legend || !hero || !content) return;
+        document.getElementById('legendDetailHeading').textContent = legend.name || 'ملف الأسطورة';
+        hero.innerHTML = '<div class="legend-detail-photo"><img src="' + legendEscape(legend.image_url || 'images/logo.png') + '" alt="' + legendEscape(legend.name) + '"></div>' +
+            '<div class="legend-detail-title"><span>من ذاكرة النوارس</span><h2>' + legendEscape(legend.name) + '</h2><p>' + legendEscape(legend.role || 'أحد أساطير نادي شعب حضرموت') + '</p></div>';
+        document.querySelectorAll('[data-legend-tab]').forEach(tab => tab.classList.toggle('active', tab.dataset.legendTab === currentLegendTab));
+        if (currentLegendTab === 'info') {
+            const facts = [
+                ['المسيرة الرياضية', legend.active_years],
+                ['تاريخ الميلاد', legend.birth_date],
+                ['تاريخ الوفاة', legend.death_date]
+            ].filter(item => item[1]);
+            content.innerHTML = '<section class="legend-info-card"><h3><i class="fas fa-user-tie"></i> نبذة عن الأسطورة</h3><p>' + legendEscape(legend.bio || 'سيتم إضافة السيرة الذاتية لهذه الشخصية قريباً.') + '</p></section>' +
+                (facts.length ? '<section class="legend-facts-grid">' + facts.map(item => '<div><small>' + item[0] + '</small><strong>' + legendEscape(item[1]) + '</strong></div>').join('') + '</section>' : '');
+        } else if (currentLegendTab === 'photos') {
+            const photos = Array.isArray(legend.photos) ? legend.photos : [];
+            content.innerHTML = photos.length ? '<div class="legend-media-grid">' + photos.map((photo, index) => '<button type="button" class="legend-media-photo" data-legend-photo-index="' + index + '"><img src="' + legendEscape(photo.media_url) + '" alt="' + legendEscape(photo.title || legend.name) + '" loading="lazy"></button>').join('') + '</div>' : '<div class="empty-state">لا توجد صور مضافة لهذه الأسطورة حالياً.</div>';
+        } else {
+            const videos = Array.isArray(legend.videos) ? legend.videos : [];
+            content.innerHTML = videos.length ? '<div class="legend-video-list">' + videos.map(video => '<article class="legend-video-card"><video controls playsinline preload="metadata" src="' + legendEscape(video.media_url) + '"></video>' + (video.title ? '<p>' + legendEscape(video.title) + '</p>' : '') + '</article>').join('') + '</div>' : '<div class="empty-state">لا توجد فيديوهات مضافة لهذه الأسطورة حالياً.</div>';
+        }
+    }
+    const legendsGrid = document.getElementById('clubLegendsGrid');
+    legendsGrid?.addEventListener('click', event => {
+        const card = event.target.closest('[data-legend-index]');
+        if (card) openClubLegend(card.dataset.legendIndex);
+    });
+    document.getElementById('legendDetailBack')?.addEventListener('click', () => navigateToPage('legendsPage'));
+    document.querySelectorAll('[data-legend-tab]').forEach(tab => tab.addEventListener('click', () => {
+        currentLegendTab = tab.dataset.legendTab || 'info';
+        renderLegendDetail();
+    }));
+    document.getElementById('legendDetailContent')?.addEventListener('click', event => {
+        const photo = event.target.closest('[data-legend-photo-index]');
+        if (!photo || !currentClubLegend) return;
+        const item = (currentClubLegend.photos || [])[Number(photo.dataset.legendPhotoIndex)];
+        if (item) openLightbox(item.media_url, item.title || currentClubLegend.name, item.id);
+    });
 
     // Render Anthems
     function renderAnthems() {

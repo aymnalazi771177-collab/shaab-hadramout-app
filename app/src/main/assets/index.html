@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=2.13">
+    <link rel="stylesheet" href="css/style.css?v=2.14">
 </head>
 <body>
     <div class="app-container">
@@ -264,6 +264,10 @@
                         <span class="club-shortcut-icon"><i class="fas fa-book-open"></i></span>
                         <span class="club-shortcut-title">ذاكرة النوارس</span>
                     </article>
+                    <article class="club-shortcut-card" data-navigate="legendsPage" role="button" tabindex="0">
+                        <span class="club-shortcut-icon"><i class="fas fa-medal"></i></span>
+                        <span class="club-shortcut-title">أساطير النادي</span>
+                    </article>
                 </div>
             </section>
 
@@ -501,6 +505,22 @@
                 <div class="media-gallery-grid" id="clubArchiveGallery">
                     <div class="empty-state">جارٍ تحميل ذاكرة النوارس...</div>
                 </div>
+            </div>
+        </section>
+
+        <!-- أساطير النادي -->
+        <section class="app-page sub-page" id="legendsPage">
+            <div class="sub-page-header">
+                <button class="back-btn" data-back><i class="fas fa-arrow-right"></i></button>
+                <h2>أساطير النادي</h2>
+                <div class="header-action-icon"><i class="fas fa-medal"></i></div>
+            </div>
+            <div class="page-scroll-content">
+                <div class="about-card" style="margin-bottom:16px">
+                    <h4><i class="fas fa-medal text-red"></i> أساطير نادي شعب حضرموت</h4>
+                    <p class="about-text">وفاءً لمن صنعوا تاريخ النادي وتركوا بصمتهم في مسيرة النوارس.</p>
+                </div>
+                <div class="empty-state">سيتم إضافة أساطير النادي هنا قريباً.</div>
             </div>
         </section>
 

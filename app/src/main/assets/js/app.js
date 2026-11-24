@@ -899,6 +899,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const body = document.getElementById('matchModalBody');
         if (!body) return;
         const match = MATCHES_UPCOMING.find(item => Number(item.id) === Number(matchId)) || MATCHES_RESULTS.find(item => Number(item.id) === Number(matchId)) || MATCHES_UPCOMING[0] || MATCHES_RESULTS[0];
+        body.dataset.matchId = match ? String(match.id) : '';
         if (!match) { body.innerHTML = '<p style="text-align:center;padding:24px">لا توجد تفاصيل متاحة لهذه المباراة حالياً.</p>'; }
         else {
             const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -951,6 +952,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('closeMatchModalBtn')?.addEventListener('click', closeAllModals);
     document.getElementById('matchModalOverlay')?.addEventListener('click', closeAllModals);
+    document.getElementById('matchModalBody')?.addEventListener('click', async event => {
+        if (event.target.closest('[data-man-login]')) {
+            closeAllModals();
+            navigateToPage('fansPage');
+            return;
+        }
+        const button = event.target.closest('[data-man-vote]');
+        if (!button) return;
+        const token = localStorage.getItem(FAN_TOKEN_KEY);
+        if (!token) { closeAllModals(); navigateToPage('fansPage'); return; }
+        const matchId = Number(document.getElementById('matchModalBody')?.dataset.matchId);
+        const playerId = Number(button.getAttribute('data-man-vote'));
+        if (!matchId || !playerId) return;
+        button.disabled = true;
+        try {
+            const saved = await fanApi('/api/man-of-match', { method: 'POST', body: JSON.stringify({ match_id: matchId, player_id: playerId }) });
+            showToast(saved.message || 'تم تسجيل صوتك بنجاح');
+            const match = MATCHES_RESULTS.find(item => Number(item.id) === matchId);
+            if (match) await loadManOfMatchPoll(match);
+        } catch (error) {
+            showToast(error.message || 'تعذر تسجيل التصويت');
+            if (error.status === 401) { closeAllModals(); navigateToPage('fansPage'); }
+            else button.disabled = false;
+        }
+    });
 
     // --- 3. News Article Modal ---
     window.openArticleModal = function(newsId) {

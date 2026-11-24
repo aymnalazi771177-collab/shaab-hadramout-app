@@ -866,6 +866,34 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('playerModalOverlay')?.addEventListener('click', closeAllModals);
 
     // --- 2. Match Center & E-Ticket Modal ---
+    async function loadManOfMatchPoll(match) {
+        const host = document.getElementById('manOfMatchPoll');
+        if (!host || !match?.id) return;
+        host.innerHTML = '<div style="padding:14px;text-align:center;color:#777">جارٍ تحميل تصويت رجل المباراة...</div>';
+        try {
+            const data = await fanApi('/api/man-of-match?match_id=' + Number(match.id));
+            if (data.status === 'not_open') {
+                host.innerHTML = '<div style="margin-top:14px;padding:14px;border:1px solid #eee;border-radius:14px;text-align:center;color:#777;font-size:12px">سيُفتح تصويت رجل المباراة بعد اعتماد انتهاء اللقاء من الإدارة.</div>';
+                return;
+            }
+            if (data.status === 'closed') {
+                const winners = Array.isArray(data.winner) ? data.winner : [];
+                host.innerHTML = '<section style="margin-top:16px;padding:15px;border:1px solid #f0d4d6;border-radius:15px;background:#fffafa"><h3 style="margin:0 0 12px;color:#bd1724;font-size:16px">🏆 رجل المباراة</h3>' +
+                    (winners.length ? winners.map(p => '<div style="display:flex;align-items:center;gap:10px;margin:8px 0"><img src="' + fanEscape(p.image_url || 'images/logo.png') + '" onerror="this.src=\'images/logo.png\'" style="width:52px;height:52px;object-fit:cover;border-radius:50%;background:#fff;border:2px solid #d91f2b"><div style="flex:1"><b>' + fanEscape(p.name) + '</b><small style="display:block;color:#777">' + Number(p.votes) + ' صوت</small></div><b style="color:#d91f2b">الفائز</b></div>').join('') : '<p style="text-align:center;color:#777">لم يحصل أي لاعب على أصوات.</p>') +
+                    '<p style="margin:10px 0 0;text-align:center;font-size:12px;color:#777">إجمالي الأصوات: ' + Number(data.totalVotes || 0) + '</p></section>';
+                return;
+            }
+            const token = localStorage.getItem(FAN_TOKEN_KEY);
+            const voted = !!data.myVote;
+            host.innerHTML = '<section style="margin-top:16px;padding:15px;border:1px solid #f0d4d6;border-radius:15px;background:#fffafa"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0;color:#bd1724;font-size:16px">🏆 من هو رجل المباراة؟</h3><span style="font-size:10px;color:#bd1724;background:#fff0f1;padding:5px 8px;border-radius:20px">التصويت مفتوح</span></div><p style="margin:7px 0 12px;color:#777;font-size:11px">صوّت لأفضل لاعب شارك في المباراة. ينتهي التصويت بعد 24 ساعة.</p>' +
+                data.players.map(p => '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #f1e3e4"><img src="' + fanEscape(p.image_url || 'images/logo.png') + '" onerror="this.src=\'images/logo.png\'" style="width:46px;height:46px;object-fit:cover;border-radius:50%;background:#fff;border:1px solid #eee"><div style="flex:1;min-width:0"><b style="font-size:12px">' + fanEscape(p.name) + '</b><small style="display:block;color:#888">رقم ' + fanEscape(p.number || '—') + '</small></div>' +
+                (voted ? (Number(data.myVote) === Number(p.id) ? '<b style="font-size:11px;color:#18834a">صوتك ✓</b>' : '') : (token && data.canVote ? '<button type="button" data-man-vote="' + Number(p.id) + '" style="border:0;border-radius:9px;background:#d91f2b;color:#fff;padding:8px 13px;font:inherit;font-size:11px;font-weight:800">صوّت</button>' : '')) + '</div>').join('') +
+                (voted ? '<p style="margin:10px 0 0;color:#18834a;font-size:12px;text-align:center">تم تسجيل صوتك، ولا يمكن تغييره.</p>' : (!token ? '<button type="button" data-man-login style="width:100%;margin-top:12px;padding:11px;border:1px solid #d91f2b;border-radius:10px;background:#fff;color:#d91f2b;font:inherit;font-weight:800">سجّل الدخول للتصويت</button>' : '')) +
+                '</section>';
+        } catch (error) {
+            host.innerHTML = '<p style="margin-top:12px;padding:12px;text-align:center;color:#777;font-size:12px">تعذر تحميل تصويت رجل المباراة حالياً.</p>';
+        }
+    }
     window.openMatchModal = function(matchId) {
         playTone(520, 'sine', 0.12);
         const body = document.getElementById('matchModalBody');
@@ -911,12 +939,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div style="background:#f7f7f7;border-radius:10px;padding:11px;text-align:center;grid-column:1/-1"><small style="color:#888">ملعب المباراة</small><b style="display:block;font-size:12px;margin-top:4px">${esc(match.stadium || 'لم يحدد')}</b></div>
                 </div>
                 ${lineupHtml}
-                ${match.managed ? `<div class="fan-prediction-box" data-prediction-match="${Number(match.id)}"><div class="fan-prediction-title"><i class="fas fa-bullseye"></i> توقع نتيجة المباراة</div><div class="fan-prediction-actions"><button type="button" data-fan-predict="win" data-match-id="${Number(match.id)}">فوز الشعب</button><button type="button" data-fan-predict="draw" data-match-id="${Number(match.id)}">تعادل</button><button type="button" data-fan-predict="loss" data-match-id="${Number(match.id)}">فوز</button></div><p class="fan-prediction-status">سجل دخولك للمشاركة في التوقعات</p></div>` : ''}
+                ${match.managed && match.status !== 'finished' ? `<div class="fan-prediction-box" data-prediction-match="${Number(match.id)}"><div class="fan-prediction-title"><i class="fas fa-bullseye"></i> توقع نتيجة المباراة</div><div class="fan-prediction-actions"><button type="button" data-fan-predict="win" data-match-id="${Number(match.id)}">فوز الشعب</button><button type="button" data-fan-predict="draw" data-match-id="${Number(match.id)}">تعادل</button><button type="button" data-fan-predict="loss" data-match-id="${Number(match.id)}">فوز</button></div><p class="fan-prediction-status">سجل دخولك للمشاركة في التوقعات</p></div>` : ''}
+                ${match.status === 'finished' ? '<div id="manOfMatchPoll"></div>' : ''}
             `;
         }
         document.getElementById('matchModalOverlay')?.classList.add('active');
         document.getElementById('matchModalSheet')?.classList.add('open');
-        if (window.__fanApiReady) refreshPredictionsUI();
+        if (match && match.status === 'finished') loadManOfMatchPoll(match);
+        if (window.__fanApiReady && match && match.status !== 'finished') refreshPredictionsUI();
     };
 
     document.getElementById('closeMatchModalBtn')?.addEventListener('click', closeAllModals);
@@ -1285,7 +1315,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }).join('');
         } else {
             container.innerHTML = MATCHES_RESULTS.map(m => `
-                <div class="match-card-full">
+                <div class="match-card-full" onclick="openMatchModal(${Number(m.id)})" style="cursor:pointer">
                     <div class="match-competition-tag">
                         <span><i class="fas fa-trophy"></i> ${m.round}</span>
                         <span>${m.date}</span>

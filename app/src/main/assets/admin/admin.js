@@ -5,7 +5,7 @@ const TOKEN_KEY="shaab-admin-token";
 const $=id=>document.getElementById(id);
 const token=()=>sessionStorage.getItem(TOKEN_KEY)||"";
 const names={
-overview:"الرئيسية",news:"الأخبار والتقارير",matches:"إدارة المباريات وحالتها",players:"اللاعبون والجهاز الفني",team:"اللاعبون والجهاز الفني",anthems:"الأناشيد",
+overview:"الرئيسية",legends:"أساطير النادي",news:"الأخبار والتقارير",matches:"إدارة المباريات وحالتها",players:"اللاعبون والجهاز الفني",team:"اللاعبون والجهاز الفني",anthems:"الأناشيد",
 transfers:"الانتقالات",media:"الصور والفيديو",archive:"ذاكرة النوارس",reels:"يوميات النوارس REELS",standings:"البطولات",
 basketball:"كرة السلة",volleyball:"كرة الطائرة",handball:"كرة اليد",tennis:"التنس",taekwondo:"التايكواندو",
 athletics:"ألعاب القوى",otherSports:"ألعاب أخرى",board:"مجلس الإدارة",presidents:"رؤساء النادي",
@@ -14,7 +14,7 @@ store:"متجر النادي الرسمي",contact:"تواصل معنا",carouse
 };
 const permissionMap={players:"team",anthem:"anthems"};
 const permissions=[
-["carousel","السلايدر الرئيسي"],["news","الأخبار والتقارير"],["matches","المباريات والنتائج"],["team","اللاعبون والجهاز الفني"],
+["carousel","السلايدر الرئيسي"],["legends","أساطير النادي"],["news","الأخبار والتقارير"],["matches","المباريات والنتائج"],["team","اللاعبون والجهاز الفني"],
 ["transfers","الانتقالات"],["media","الصور والفيديو"],["archive","ذاكرة النوارس"],["reels","يوميات النوارس REELS"],["standings","الترتيب والبطولات"],
 ["basketball","كرة السلة"],["volleyball","كرة الطائرة"],["handball","كرة اليد"],["tennis","التنس"],["taekwondo","التايكواندو"],
 ["athletics","ألعاب القوى"],["otherSports","ألعاب أخرى"],["board","مجلس الإدارة"],["presidents","رؤساء النادي"],
@@ -36,8 +36,10 @@ notifications:[{name:"title",label:"عنوان الإشعار",required:true},{n
 admins:[{name:"username",label:"اسم المستخدم (إنجليزي)",required:true,createOnly:true},{name:"display_name",label:"اسم المشرف",required:true},{name:"password",label:"كلمة المرور",type:"password",required:true,optionalEdit:true},{name:"permissions",label:"صلاحيات المشرف",type:"permissions",full:true}],
 carousel:[{name:"title",label:"عنوان الشريحة",required:true},{name:"content",label:"التفاصيل",type:"textarea",full:true},{name:"image_url",label:"رابط الصورة",type:"url"},{name:"image_file",label:"رفع صورة",type:"file",accept:"image/*"},{name:"sort_order",label:"ترتيب الظهور",type:"number"},{name:"active",label:"إظهار الشريحة",type:"checkbox"}],
 section:[{name:"title",label:"العنوان",required:true},{name:"content",label:"التفاصيل",type:"textarea",full:true},{name:"image_url",label:"رابط الصورة",type:"url"},{name:"image_file",label:"رفع صورة",type:"file",accept:"image/*"},{name:"media_url",label:"رابط ملف أو فيديو",type:"url"},{name:"media_file",label:"رفع ملف أو فيديو",type:"file",accept:"image/*,video/mp4,video/webm,video/quicktime"},{name:"price",label:"السعر (إن وجد)"},{name:"sort_order",label:"ترتيب الظهور",type:"number"},{name:"active",label:"إظهار المحتوى",type:"checkbox"}]
+legends:[{name:"name",label:"اسم الأسطورة",required:true},{name:"role",label:"مركزه أو صفته في النادي"},{name:"active_years",label:"سنوات تمثيله للنادي"},{name:"birth_date",label:"تاريخ الميلاد"},{name:"death_date",label:"تاريخ الوفاة (إن وجد)"},{name:"image_url",label:"رابط الصورة الشخصية",type:"url"},{name:"image_file",label:"رفع الصورة الشخصية",type:"file",accept:"image/*",hint:"الصورة الأساسية التي تظهر في بطاقة الأسطورة."},{name:"bio",label:"السيرة والمعلومات",type:"textarea",full:true},{name:"photo_files",label:"صور الأسطورة (يمكن اختيار عدة صور)",type:"file",accept:"image/*",multiple:true,full:true},{name:"video_files",label:"فيديوهات الأسطورة (يمكن اختيار عدة فيديوهات)",type:"file",accept:"video/mp4,video/webm,video/quicktime",multiple:true,full:true},{name:"sort_order",label:"ترتيب الظهور",type:"number"},{name:"active",label:"إظهار الأسطورة في التطبيق",type:"checkbox"}],
 };
 const configs={
+legends:{endpoint:"/api/legends?admin=1",key:"legends",cols:["name","role","active_years","active"],labels:["اسم الأسطورة","الصفة","سنوات المسيرة","الحالة"]},
 news:{endpoint:"/api/news",key:"news",cols:["title","created_at"],labels:["العنوان","تاريخ الإضافة"]},
 matches:{endpoint:"/api/matches",key:"matches",cols:["opponent","match_date","status"],labels:["المنافس","التاريخ","حالة المباراة"]},
 players:{endpoint:"/api/players",key:"players",cols:["name","position","number","age","matches"],labels:["الاسم","المركز","الرقم","العمر","المباريات"]},
@@ -130,6 +132,18 @@ if(configs[current]?.generic){const imageFile=file("image_file");if(imageFile){c
 if(current==="standings"){const f=file("logo_file");if(f)d.logo_url=(await upload(f,"standings")).url;else if(editing!==null){const oldItem=items.find(x=>x.id===editing);d.logo_url=d.logo_url||oldItem?.logo_url||""}}
 if(current==="news"){const primaryFile=file("image_file");if(primaryFile){const u=await upload(primaryFile,"news");d.image_url=u.url}if(!String(d.image_url||"").trim())throw new Error("أضف الصورة الأساسية للخبر أولاً");const galleryFiles=[...(form.querySelector('[name="gallery_files"]')?.files||[])];if(galleryFiles.length){const gallery=[];for(const galleryFile of galleryFiles){const uploaded=await upload(galleryFile,"news");gallery.push({url:uploaded.url})}d.images=gallery}}
 if(current==="players"){const f=file("image_file");if(f)d.image_url=(await upload(f,"team")).url}
+if(current==="legends"){
+ const oldLegend=editing!==null?items.find(x=>String(x.id)===String(editing)):null;
+ const portrait=file("image_file");
+ if(portrait){const u=await upload(portrait,"legends");d.image_url=u.url;d.image_key=u.key}
+ else if(oldLegend){d.image_url=d.image_url||oldLegend.image_url||"";d.image_key=oldLegend.image_key||""}
+ const photoFiles=[...(form.querySelector('[name="photo_files"]')?.files||[])];
+ const videoFiles=[...(form.querySelector('[name="video_files"]')?.files||[])];
+ d.photos=[];d.videos=[];
+ for(const f of photoFiles){const u=await upload(f,"legends");d.photos.push({media_url:u.url,media_key:u.key,title:f.name||"صورة من مسيرة الأسطورة"})}
+ for(const f of videoFiles){const u=await upload(f,"legends");d.videos.push({media_url:u.url,media_key:u.key,title:f.name||"فيديو من مسيرة الأسطورة"})}
+ if(editing!==null){d.image_key=d.image_key||oldLegend?.image_key||""}
+}
 if(current==="transfers"){const f=file("image_file");if(f)d.image_url=(await upload(f,"transfers")).url}
 if(current==="matches"){for(const [n,scope] of [["opponent_logo_file","matches"],["home_logo_file","matches"]]){const f=file(n);if(f)d[n==="opponent_logo_file"?"opponent_logo_url":"home_logo_url"]=(await upload(f,scope)).url}}
 if(current==="media"||current==="archive"){const f=file("media_file");if(f){const u=await upload(f,current==="archive"?"archive":"media");d.media_url=u.url;d.media_key=u.key;d.media_type=u.media_type}if(!String(d.media_url||"").trim())throw new Error("ارفع ملفاً أو أدخل رابط الملف أولاً");if(editing!==null){const oldItem=items.find(x=>x.id===editing);d.media_key=d.media_key||oldItem?.media_key||""}}

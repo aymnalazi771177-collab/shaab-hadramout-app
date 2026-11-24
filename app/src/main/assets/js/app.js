@@ -497,8 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('storyViewerModal');
         if (!modal) return;
 
-        modal.classList.add('active');
-        playTone(550, 'sine', 0.1);
+        modal.classList.add('active');        playTone(550, 'sine', 0.1);
         renderStoryProgressBars();
         loadStory(0);
     }
@@ -997,8 +996,7 @@ document.addEventListener('DOMContentLoaded', function() {
             viewer.innerHTML = '<button type="button" class="news-gallery-close" aria-label="إغلاق">×</button><img alt="صورة الخبر">';
             document.body.appendChild(viewer);
             viewer.addEventListener("click", event => { if (event.target === viewer || event.target.closest(".news-gallery-close")) history.back(); });
-        }
-        viewer.querySelector("img").src = url;
+        }        viewer.querySelector("img").src = url;
         viewer.classList.add("active");
         history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true, newsGallery: true }, "", location.href);
     }
@@ -1489,16 +1487,12 @@ document.addEventListener('DOMContentLoaded', function() {
         grid.innerHTML = CLUB_LEGENDS.map((legend, index) => {
             const name = legendEscape(legend.name);
             const image = legendEscape(legend.image_url || 'images/logo.png');
-            const role = legendEscape(legend.role || 'من أساطير النادي');
-            const years = legendEscape(legend.active_years || '');
             return '<button type="button" class="legend-card" data-legend-index="' + index + '">' +
                 '<span class="legend-card-photo"><img src="' + image + '" alt="' + name + '" loading="lazy"></span>' +
-                '<span class="legend-card-info"><strong>' + name + '</strong><small>' + role + '</small>' +
-                (years ? '<em>' + years + '</em>' : '') + '</span><i class="fas fa-chevron-left"></i></button>';
+                '<span class="legend-card-info"><strong>' + name + '</strong></span></button>';
         }).join('');
     }
-    function openClubLegend(index) {
-        const legend = CLUB_LEGENDS[Number(index)];
+    function openClubLegend(index) {        const legend = CLUB_LEGENDS[Number(index)];
         if (!legend) return;
         currentClubLegend = legend;
         currentLegendTab = 'info';
@@ -1998,7 +1992,6 @@ document.addEventListener('DOMContentLoaded', function() {
         box.className = 'fan-form-message ' + type;
         box.hidden = false;
     }
-
     function renderFanAuth() {
         if (!fanAuthRoot) return;
         if (fanCurrentUser) {
@@ -2497,8 +2490,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTransfers(tab ? tab.getAttribute('data-trans-tab') : 'in');
     }
     function applyClubGallery(rows) {
-        if (!Array.isArray(rows)) rows = [];
-        const photos = [], videos = [];
+        if (!Array.isArray(rows)) rows = [];        const photos = [], videos = [];
         rows.forEach(item => {
             const record = {
                 id:Number(item.id), title:item.title || '', img:item.media_type === 'image' ? item.media_url : '',

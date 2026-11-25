@@ -1042,6 +1042,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
+    // Open a specific news article when the app is launched from an FCM notification.
+    window.openNewsFromPush = function(newsId) {
+        const id = Number(newsId);
+        if (!Number.isInteger(id) || id < 1) return;
+        let attempts = 0;
+        const tryOpen = () => {
+            const article = Array.isArray(NEWS_ALL) ? NEWS_ALL.find(item => Number(item.id) === id) : null;
+            if (article) { window.openArticleModal(id); return; }
+            if (attempts++ < 40) { setTimeout(tryOpen, 250); return; }
+            fetch(CLUB_API_BASE + '/api/news?refresh=' + Date.now(), { cache: 'no-store' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && Array.isArray(data.news)) applyClubNews(data.news);
+                    if (Array.isArray(NEWS_ALL) && NEWS_ALL.some(item => Number(item.id) === id)) window.openArticleModal(id);
+                    else if (typeof showToast === 'function') showToast('تعذر العثور على الخبر المطلوب');
+                })
+                .catch(() => { if (typeof showToast === 'function') showToast('تعذر تحميل الخبر المطلوب'); });
+        };
+        tryOpen();
+    };
+
     function openNewsGalleryImage(url) {
         if (!url) return;
         let viewer = document.getElementById("newsGalleryLightbox");

@@ -2354,3 +2354,16 @@ body.welcome-open{overflow:hidden}
 @keyframes fanGateRise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 body.dark-mode .fan-prediction-gate-crest{background:linear-gradient(145deg,#252932,#1a1d24);border-color:rgba(255,255,255,.1)}
 body.dark-mode .fan-prediction-gate-choice{background:rgba(219,30,36,.1);border-color:rgba(219,30,36,.25)}
+
+
+/* ========== LIVE STREAM PAGE ========== */
+.live-stream-page-content { display:flex; flex-direction:column; gap:14px; }
+.live-stream-heading { display:flex; align-items:center; gap:9px; color:var(--text-dark); font-size:15px; font-weight:800; }
+.live-stream-status-dot { width:9px; height:9px; flex:0 0 9px; border-radius:50%; background:#db1e24; box-shadow:0 0 0 5px rgba(219,30,36,.10); }
+.live-stream-player { width:100%; aspect-ratio:16/9; min-height:190px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#101014; border-radius:16px; box-shadow:0 5px 18px rgba(0,0,0,.12); }
+.live-stream-player video,.live-stream-player iframe { display:block; width:100%; height:100%; min-height:190px; border:0; background:#101014; object-fit:contain; }
+.live-stream-message { width:100%; min-height:190px; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#fff; text-align:center; font-size:13px; }
+.live-stream-message i { color:#db1e24; font-size:28px; }
+.live-stream-message b { font-size:15px; }
+.live-stream-message span { color:#c9c9cf; }
+.live-stream-message-text { margin:0; color:var(--text-muted,#777); text-align:center; font-size:12px; line-height:1.8; }

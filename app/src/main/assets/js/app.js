@@ -1838,6 +1838,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function openNotifications() {
         notifPanel.classList.add('open');
         notifOverlay.classList.add('active');
+        loadClubNotifications();
     }
 
     function closeNotifications() {
@@ -2890,6 +2891,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     item.classList.remove('unread');
                     item.querySelector('.unread-dot')?.remove();
                     updateClubNotificationBadge();
+                    closeNotifications();
                     const ref = Number(item.dataset.notifRef);
                     if (!ref) return;
                     if (item.dataset.notifType === 'news' && typeof window.openArticleModal === 'function') window.openArticleModal(ref);

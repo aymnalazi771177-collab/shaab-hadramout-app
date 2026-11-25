@@ -2339,27 +2339,58 @@ document.addEventListener('DOMContentLoaded', function() {
         return fanGoogleScriptPromise;
     }
 
+    async function completeFanGoogleLogin(credential) {
+        try {
+            const result = await fanApi('/api/fans', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'google', credential })
+            });
+            localStorage.setItem(FAN_TOKEN_KEY, result.token);
+            fanCurrentUser = result.user;
+            renderFanAuth();
+        } catch (error) {
+            fanShowMessage(error.message || 'تعذر تسجيل الدخول عبر Google');
+        }
+    }
+
+    let nativeGoogleCallbackId = null;
+    window.__clubNativeGoogleResult = async (callbackId, credential, error) => {
+        if (!nativeGoogleCallbackId || callbackId !== nativeGoogleCallbackId) return;
+        nativeGoogleCallbackId = null;
+        const host = document.getElementById('fanGoogleButton');
+        if (error) {
+            if (error !== 'cancelled') fanShowMessage('تعذر تسجيل الدخول عبر Google. حاول مرة أخرى.');
+            if (host) host.querySelector('button')?.removeAttribute('disabled');
+            return;
+        }
+        if (credential) await completeFanGoogleLogin(credential);
+    };
+
     async function renderFanGoogleButton() {
         const host = document.getElementById('fanGoogleButton');
         if (!host || !fanGoogleClientId) return;
+
+        // Android APK: use the native Google sign-in flow. Embedded WebView GIS is blocked by Google.
+        if (window.ClubNativeAuth?.signInWithGoogle) {
+            host.innerHTML = '<button type="button" id="fanNativeGoogleBtn" style="width:100%;max-width:320px;min-height:48px;border:1px solid #dadce0;border-radius:8px;background:#fff;color:#3c4043;font:700 14px inherit;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer"><span style="font-size:20px;font-weight:900;color:#4285f4">G</span><span>المتابعة باستخدام Google</span></button>';
+            const button = document.getElementById('fanNativeGoogleBtn');
+            button.onclick = () => {
+                if (nativeGoogleCallbackId) return;
+                nativeGoogleCallbackId = 'google_' + Date.now();
+                button.disabled = true;
+                window.ClubNativeAuth.signInWithGoogle(fanGoogleClientId, nativeGoogleCallbackId);
+            };
+            fanGoogleButtonRendered = true;
+            return;
+        }
+
+        // Browser/PWA: keep the existing Google Identity Services flow unchanged.
         try {
             await loadFanGoogleScript();
             if (!window.google?.accounts?.id || !document.getElementById('fanGoogleButton')) return;
             window.google.accounts.id.initialize({
                 client_id: fanGoogleClientId,
-                callback: async response => {
-                    try {
-                        const result = await fanApi('/api/fans', {
-                            method: 'POST',
-                            body: JSON.stringify({ action: 'google', credential: response.credential })
-                        });
-                        localStorage.setItem(FAN_TOKEN_KEY, result.token);
-                        fanCurrentUser = result.user;
-                        renderFanAuth();
-                    } catch (error) {
-                        fanShowMessage(error.message || 'تعذر تسجيل الدخول عبر Google');
-                    }
-                }
+                callback: response => completeFanGoogleLogin(response.credential)
             });
             host.innerHTML = '';
             window.google.accounts.id.renderButton(host, {

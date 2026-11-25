@@ -2341,7 +2341,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function refreshHomeNews() {
         const wrap = document.querySelector('.news-cards-container');
         if (!wrap) return;
-        wrap.innerHTML = NEWS_ALL.length ? NEWS_ALL.slice(0, 4).map(n =>
+        wrap.innerHTML = NEWS_ALL.length ? NEWS_ALL.slice(0, 3).map(n =>
             '<div class="news-card" data-news-id="' + n.id + '" onclick="openArticleModal(' + n.id + ')">' +
             '<div class="news-card-image"><img src="' + clubEscape(n.img) + '" alt="' + clubEscape(n.title) + '" loading="eager" fetchpriority="high" decoding="sync"></div>' +
             '<div class="news-card-content"><h4>' + clubEscape(n.title) + '</h4><div class="news-date"><span>' + clubEscape(n.date) + '</span> <i class="far fa-clock"></i></div></div></div>'

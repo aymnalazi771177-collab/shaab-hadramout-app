@@ -18,6 +18,11 @@ import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -26,6 +31,8 @@ public class MainActivity extends Activity {
     private boolean pendingEnabled;
     private String pendingCallbackId;
     private String pendingNewsId;
+    private String pendingGoogleCallbackId;
+    private static final int GOOGLE_SIGN_IN_REQUEST = 7102;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +56,7 @@ public class MainActivity extends Activity {
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setLoadsImagesAutomatically(true);
         webView.addJavascriptInterface(new NativePushBridge(), "ClubNativePush");
+        webView.addJavascriptInterface(new NativeAuthBridge(), "ClubNativeAuth");
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
             @Override public void onPageFinished(WebView view, String url) {
@@ -96,6 +104,65 @@ public class MainActivity extends Activity {
                 "window.openNewsFromPush && window.openNewsFromPush(" + id + ");", null);
         }, 700);
     }
+    private class NativeAuthBridge {
+        @JavascriptInterface
+        public void signInWithGoogle(String serverClientId, String callbackId) {
+            runOnUiThread(() -> {
+                if (serverClientId == null || !serverClientId.endsWith(".apps.googleusercontent.com")) {
+                    notifyGoogleResult(callbackId, null, "invalid_client_id");
+                    return;
+                }
+                try {
+                    GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestEmail()
+                        .requestIdToken(serverClientId)
+                        .build();
+                    GoogleSignInClient client = GoogleSignIn.getClient(MainActivity.this, options);
+                    pendingGoogleCallbackId = callbackId;
+                    startActivityForResult(client.getSignInIntent(), GOOGLE_SIGN_IN_REQUEST);
+                } catch (Exception error) {
+                    pendingGoogleCallbackId = null;
+                    notifyGoogleResult(callbackId, null, "google_sign_in_start_failed");
+                }
+            });
+        }
+    }
+
+    private void notifyGoogleResult(String callbackId, String credential, String error) {
+        if (webView == null) return;
+        String safeId = org.json.JSONObject.quote(callbackId == null ? "" : callbackId);
+        String safeCredential = credential == null ? "null" : org.json.JSONObject.quote(credential);
+        String safeError = error == null ? "null" : org.json.JSONObject.quote(error);
+        runOnUiThread(() -> webView.evaluateJavascript(
+            "window.__clubNativeGoogleResult && window.__clubNativeGoogleResult(" +
+                safeId + "," + safeCredential + "," + safeError + ");",
+            null
+        ));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != GOOGLE_SIGN_IN_REQUEST) return;
+        String callbackId = pendingGoogleCallbackId;
+        pendingGoogleCallbackId = null;
+        try {
+            GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data)
+                .getResult(ApiException.class);
+            String token = account == null ? null : account.getIdToken();
+            if (token == null || token.isEmpty()) {
+                notifyGoogleResult(callbackId, null, "missing_id_token");
+            } else {
+                notifyGoogleResult(callbackId, token, null);
+            }
+        } catch (ApiException error) {
+            notifyGoogleResult(callbackId, null,
+                error.getStatusCode() == 12501 ? "cancelled" : "google_error_" + error.getStatusCode());
+        } catch (Exception error) {
+            notifyGoogleResult(callbackId, null, "google_sign_in_failed");
+        }
+    }
+
     private class NativePushBridge {
         @JavascriptInterface
         public void setTopicSubscription(String topic, boolean enabled, String callbackId) {

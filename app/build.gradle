@@ -43,3 +43,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.android.gms:play-services-auth:21.3.0'
 }
+
+// Native Android Google sign-in dependency is configured above.

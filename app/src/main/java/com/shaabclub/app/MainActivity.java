@@ -1,12 +1,13 @@
 package com.shaabclub.app;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.Manifest;
 import android.content.pm.PackageManager;
-import com.google.firebase.messaging.FirebaseMessaging;
 import android.os.Build;
 import android.os.Bundle;
 import android.graphics.Color;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -14,9 +15,14 @@ import android.webkit.WebViewClient;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+
 public class MainActivity extends Activity {
     private WebView webView;
     private OnBackInvokedCallback backInvokedCallback;
+    private String pendingTopic;
+    private boolean pendingEnabled;
+    private String pendingCallbackId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +33,6 @@ public class MainActivity extends Activity {
         getWindow().setNavigationBarColor(Color.BLACK);
 
         ClubFirebaseMessagingService.createNotificationChannel(this);
-        subscribeToClubTopics();
-        requestNotificationPermission();
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(181, 18, 27));
@@ -41,13 +45,12 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setLoadsImagesAutomatically(true);
+        webView.addJavascriptInterface(new NativePushBridge(), "ClubNativePush");
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient());
         setContentView(webView);
         webView.loadUrl("file:///android_asset/index.html");
 
-        // Android 13+ uses the platform back dispatcher. Route it through the
-        // same app-wide JavaScript handler used by every section and viewer.
         if (Build.VERSION.SDK_INT >= 33) {
             backInvokedCallback = this::handleAppBack;
             getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
@@ -57,15 +60,72 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void subscribeToClubTopics() {
-        FirebaseMessaging.getInstance().subscribeToTopic("news");
-        FirebaseMessaging.getInstance().subscribeToTopic("matches");
+    private class NativePushBridge {
+        @JavascriptInterface
+        public void setTopicSubscription(String topic, boolean enabled, String callbackId) {
+            runOnUiThread(() -> {
+                if (!"news".equals(topic) && !"matches".equals(topic)) {
+                    notifyPushResult(callbackId, false, "invalid_topic");
+                    return;
+                }
+                if (enabled && Build.VERSION.SDK_INT >= 33 &&
+                    checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    pendingTopic = topic;
+                    pendingEnabled = enabled;
+                    pendingCallbackId = callbackId;
+                    requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+                    return;
+                }
+                if (enabled && Build.VERSION.SDK_INT >= 24) {
+                    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    if (manager != null && !manager.areNotificationsEnabled()) {
+                        notifyPushResult(callbackId, false, "notifications_disabled");
+                        return;
+                    }
+                }
+                applyTopicSubscription(topic, enabled, callbackId);
+            });
+        }
     }
 
-    private void requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= 33 &&
-            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+    private void applyTopicSubscription(String topic, boolean enabled, String callbackId) {
+        com.google.android.gms.tasks.Task<Void> task = enabled
+            ? FirebaseMessaging.getInstance().subscribeToTopic(topic)
+            : FirebaseMessaging.getInstance().unsubscribeFromTopic(topic);
+        task.addOnCompleteListener(completed -> {
+            if (completed.isSuccessful()) {
+                notifyPushResult(callbackId, true, "");
+            } else {
+                notifyPushResult(callbackId, false, "firebase_error");
+            }
+        });
+    }
+
+    private void notifyPushResult(String callbackId, boolean success, String message) {
+        if (webView == null) return;
+        String safeId = org.json.JSONObject.quote(callbackId == null ? "" : callbackId);
+        String safeMessage = org.json.JSONObject.quote(message == null ? "" : message);
+        runOnUiThread(() -> webView.evaluateJavascript(
+            "window.__clubNativePushResult && window.__clubNativePushResult(" +
+                safeId + "," + success + "," + safeMessage + ");",
+            null
+        ));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1001 && pendingCallbackId != null) {
+            String topic = pendingTopic;
+            boolean enabled = pendingEnabled;
+            String callbackId = pendingCallbackId;
+            pendingTopic = null;
+            pendingCallbackId = null;
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                applyTopicSubscription(topic, enabled, callbackId);
+            } else {
+                notifyPushResult(callbackId, false, "permission_denied");
+            }
         }
     }
 
@@ -74,25 +134,18 @@ public class MainActivity extends Activity {
             finish();
             return;
         }
-
         webView.evaluateJavascript(
             "(function(){try{return typeof window.handleNativeBackFromApp === 'function' && window.handleNativeBackFromApp() === true;}catch(e){return false;}})()",
             value -> {
-                if (!"true".equals(value) && !isFinishing()) {
-                    finish();
-                }
+                if (!"true".equals(value) && !isFinishing()) finish();
             }
         );
     }
 
     @Override
     public void onBackPressed() {
-        // Legacy Android versions do not use OnBackInvokedDispatcher.
-        if (Build.VERSION.SDK_INT < 33) {
-            handleAppBack();
-        } else {
-            super.onBackPressed();
-        }
+        if (Build.VERSION.SDK_INT < 33) handleAppBack();
+        else super.onBackPressed();
     }
 
     @Override

@@ -103,13 +103,18 @@ async function getVideoCompressor(){
  if(ffmpegLoading)return ffmpegLoading;
  ffmpegLoading=(async()=>{
   await loadScriptOnce("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js","FFmpegWASM");
-  await loadScriptOnce("https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/umd/index.js","FFmpegUtil");
   const engine=new window.FFmpegWASM.FFmpeg();
   const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
-  const toBlobURL=window.FFmpegUtil.toBlobURL;
+  const wrapper="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd";
+  const blobURL=async(url,type)=>{
+   const response=await fetch(url);
+   if(!response.ok)throw new Error("تعذر تنزيل مكوّن ضغط الفيديو");
+   return URL.createObjectURL(new Blob([await response.arrayBuffer()],{type}));
+  };
   await engine.load({
-   coreURL:await toBlobURL(base+"/ffmpeg-core.js","text/javascript"),
-   wasmURL:await toBlobURL(base+"/ffmpeg-core.wasm","application/wasm")
+   classWorkerURL:await blobURL(wrapper+"/814.ffmpeg.js","text/javascript"),
+   coreURL:await blobURL(base+"/ffmpeg-core.js","text/javascript"),
+   wasmURL:await blobURL(base+"/ffmpeg-core.wasm","application/wasm")
   });
   ffmpegInstance=engine;
   return engine;

@@ -985,8 +985,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const body = document.getElementById('articleModalBody');
         body.innerHTML = `
-            <div style="border-radius:16px; overflow:hidden; margin-bottom:14px; max-height:220px;">
-                <img src="${article.img}" alt="${article.title}" style="width:100%; height:100%; object-fit:cover;">
+            <div style="border-radius:16px; overflow:visible; margin-bottom:14px; width:100%;">
+                <img src="${article.img}" alt="${article.title}" style="display:block; width:100%; height:auto; max-height:none; object-fit:contain; object-position:center;">
             </div>
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                 <span class="slide-category" style="font-size:10px; margin:0;">${article.cat}</span>

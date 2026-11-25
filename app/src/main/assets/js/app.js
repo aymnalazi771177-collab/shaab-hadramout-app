@@ -1926,11 +1926,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // =========================================================
     const CLUB_API_BASE = 'https://shaab-hadramout.pages.dev';
 
-    // Real Web Push preferences: each device controls match and urgent-news alerts separately.
+    // Real Web Push preferences: keep controls clickable even if setup is temporarily unavailable.
     const PUSH_PREFS_KEY = "shaab_push_preferences_v1";
     const pushMatchToggle = document.getElementById("matchNotifToggle");
     const pushNewsToggle = document.getElementById("newsNotifToggle");
     let pushPublicKey = "";
+    let pushRegistration = null;
+    let pushReadyPromise = null;
     let pushBusy = false;
     const pushBase64ToBytes = value => {
         const raw = String(value || "").replace(/-/g,"+").replace(/_/g,"/");
@@ -1942,71 +1944,83 @@ document.addEventListener('DOMContentLoaded', function() {
             ...options, headers: {"Content-Type":"application/json", ...(options.headers || {})}, cache:"no-store"
         });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok || data.success === false) throw new Error(data.message || "تعذر حفظ إعدادات التنبيهات");
+        if (!response.ok || data.success === false) throw new Error(data.message || "تعذر الاتصال بخدمة التنبيهات");
         return data;
     }
     function currentPushPreferences() {
         return {matches:!!pushMatchToggle?.checked,news:!!pushNewsToggle?.checked};
     }
-    async function initializePushSettings() {
-        if (!pushMatchToggle || !pushNewsToggle) return;
-        pushMatchToggle.checked = false;
-        pushNewsToggle.checked = false;
+    async function ensurePushReady() {
         if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
-            pushMatchToggle.disabled = true; pushNewsToggle.disabled = true; return;
+            throw new Error("هذا المتصفح لا يدعم التنبيهات؛ افتح التطبيق من Chrome");
         }
+        if (!pushReadyPromise) {
+            pushReadyPromise = (async () => {
+                const config = await pushRequest("/api/push");
+                pushPublicKey = config.publicKey || "";
+                if (!pushPublicKey) throw new Error("خدمة التنبيهات غير مهيأة حالياً");
+                pushRegistration = await navigator.serviceWorker.ready;
+                return pushRegistration;
+            })().catch(error => { pushReadyPromise = null; throw error; });
+        }
+        return pushReadyPromise;
+    }
+    async function handlePushToggleChange(changed) {
+        if (pushBusy) return;
+        pushBusy = true;
+        const preferences = currentPushPreferences();
         try {
-            const config = await pushRequest("/api/push");
-            pushPublicKey = config.publicKey || "";
-            if (!pushPublicKey) throw new Error("خدمة التنبيهات غير مهيأة بعد");
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.getSubscription();
-            if (subscription) {
-                const saved = await pushRequest("/api/push?endpoint=" + encodeURIComponent(subscription.endpoint));
-                pushMatchToggle.checked = !!saved.preferences?.matches;
-                pushNewsToggle.checked = !!saved.preferences?.news;
+            const registration = await ensurePushReady();
+            if (preferences.matches || preferences.news) {
+                if (Notification.permission !== "granted") {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== "granted") throw new Error("اسمح بالإشعارات من إعدادات المتصفح أولاً");
+                }
+                let subscription = await registration.pushManager.getSubscription();
+                if (!subscription) subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly:true, applicationServerKey:pushBase64ToBytes(pushPublicKey)
+                });
+                await pushRequest("/api/push",{method:"POST",body:JSON.stringify({
+                    subscription:subscription.toJSON(),preferences
+                })});
+                localStorage.setItem(PUSH_PREFS_KEY,JSON.stringify(preferences));
+                window.showToast("تم حفظ إعدادات التنبيهات");
+            } else {
+                const subscription = await registration.pushManager.getSubscription();
+                if (subscription) {
+                    await pushRequest("/api/push",{method:"DELETE",body:JSON.stringify({endpoint:subscription.endpoint})});
+                    await subscription.unsubscribe();
+                }
+                localStorage.removeItem(PUSH_PREFS_KEY);
+                window.showToast("تم إيقاف التنبيهات");
             }
-            const handleChange = async changed => {
-                if (pushBusy) return;
-                pushBusy = true;
-                const preferences = currentPushPreferences();
-                try {
-                    if (preferences.matches || preferences.news) {
-                        if (Notification.permission !== "granted") {
-                            const permission = await Notification.requestPermission();
-                            if (permission !== "granted") throw new Error("يجب السماح بالإشعارات من المتصفح لتفعيل التنبيهات");
-                        }
-                        let activeSubscription = await registration.pushManager.getSubscription();
-                        if (!activeSubscription) activeSubscription = await registration.pushManager.subscribe({
-                            userVisibleOnly:true, applicationServerKey:pushBase64ToBytes(pushPublicKey)
-                        });
-                        await pushRequest("/api/push",{method:"POST",body:JSON.stringify({
-                            subscription:activeSubscription.toJSON(),preferences
-                        })});
-                        localStorage.setItem(PUSH_PREFS_KEY,JSON.stringify(preferences));
-                        if (typeof showToast === "function") showToast("تم حفظ إعدادات التنبيهات");
-                    } else {
-                        const activeSubscription = await registration.pushManager.getSubscription();
-                        if (activeSubscription) {
-                            await pushRequest("/api/push",{method:"DELETE",body:JSON.stringify({endpoint:activeSubscription.endpoint})});
-                            await activeSubscription.unsubscribe();
-                        }
-                        localStorage.removeItem(PUSH_PREFS_KEY);
-                    }
-                } catch(error) {
-                    if (changed === "matches") pushMatchToggle.checked = !preferences.matches;
-                    if (changed === "news") pushNewsToggle.checked = !preferences.news;
-                    if (typeof showToast === "function") showToast(error.message || "تعذر تفعيل التنبيهات");
-                } finally { pushBusy = false; }
-            };
-            pushMatchToggle.addEventListener("change",() => handleChange("matches"));
-            pushNewsToggle.addEventListener("change",() => handleChange("news"));
         } catch(error) {
-            pushMatchToggle.disabled = true; pushNewsToggle.disabled = true;
-            console.warn("Push notifications are not configured",error);
+            if (changed === "matches") pushMatchToggle.checked = !preferences.matches;
+            if (changed === "news") pushNewsToggle.checked = !preferences.news;
+            window.showToast(error.message || "تعذر تفعيل التنبيهات");
+            console.warn("Push preference update failed",error);
+        } finally {
+            pushBusy = false;
         }
     }
-    initializePushSettings();
+    if (pushMatchToggle && pushNewsToggle) {
+        // Register listeners immediately; a failed initial API request must not disable the switches.
+        pushMatchToggle.addEventListener("change",() => handlePushToggleChange("matches"));
+        pushNewsToggle.addEventListener("change",() => handlePushToggleChange("news"));
+        (async () => {
+            try {
+                const registration = await ensurePushReady();
+                const subscription = await registration.pushManager.getSubscription();
+                if (subscription) {
+                    const saved = await pushRequest("/api/push?endpoint=" + encodeURIComponent(subscription.endpoint));
+                    pushMatchToggle.checked = !!saved.preferences?.matches;
+                    pushNewsToggle.checked = !!saved.preferences?.news;
+                }
+            } catch(error) {
+                console.warn("Push settings could not be preloaded; switches remain available",error);
+            }
+        })();
+    }
 
     // =========================================================
     // FAN ACCOUNT AREA: independent public fan accounts.

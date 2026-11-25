@@ -6,6 +6,8 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
 import android.graphics.Color;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -23,6 +25,7 @@ public class MainActivity extends Activity {
     private String pendingTopic;
     private boolean pendingEnabled;
     private String pendingCallbackId;
+    private String pendingNewsId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +50,15 @@ public class MainActivity extends Activity {
         settings.setLoadsImagesAutomatically(true);
         webView.addJavascriptInterface(new NativePushBridge(), "ClubNativePush");
         webView.setWebChromeClient(new WebChromeClient());
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                openPendingNews();
+            }
+        });
         setContentView(webView);
         webView.loadUrl("file:///android_asset/index.html");
+        captureNotificationIntent(getIntent());
 
         if (Build.VERSION.SDK_INT >= 33) {
             backInvokedCallback = this::handleAppBack;
@@ -60,6 +69,33 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        captureNotificationIntent(intent);
+        openPendingNews();
+    }
+    private void captureNotificationIntent(Intent intent) {
+        if (intent == null) return;
+        String id = intent.getStringExtra("newsId");
+        if (id == null || id.trim().isEmpty()) {
+            String target = intent.getStringExtra("url");
+            if (target != null) {
+                try { id = Uri.parse(target).getQueryParameter("newsId"); }
+                catch (Exception ignored) {}
+            }
+        }
+        if (id != null && id.matches("\\d+")) pendingNewsId = id;
+    }
+    private void openPendingNews() {
+        if (webView == null || pendingNewsId == null) return;
+        final String id = pendingNewsId;
+        pendingNewsId = null;
+        webView.postDelayed(() -> {
+            if (webView != null) webView.evaluateJavascript(
+                "window.openNewsFromPush && window.openNewsFromPush(" + id + ");", null);
+        }, 700);
+    }
     private class NativePushBridge {
         @JavascriptInterface
         public void setTopicSubscription(String topic, boolean enabled, String callbackId) {

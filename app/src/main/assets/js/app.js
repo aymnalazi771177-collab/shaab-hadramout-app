@@ -12,8 +12,14 @@ document.addEventListener('DOMContentLoaded', function() {
             welcomeScreen.classList.add('welcome-screen-leaving');
             document.body.classList.remove('welcome-open');
             window.setTimeout(() => { welcomeScreen.hidden = true; }, 380);
-        }, 2200);
+        }, 5000);
     }
+
+    // Let the opening screen paint before running the app's full startup work.
+    // Two frames preserve the existing screen and its 5-second display duration.
+    requestAnimationFrame(() => requestAnimationFrame(initializeApp));
+
+    function initializeApp() {
 
     // Remove hard-coded preview content; official CMS data or its saved snapshot is shown instead.
     document.querySelector('.news-cards-container')?.replaceChildren();
@@ -37,8 +43,31 @@ document.addEventListener('DOMContentLoaded', function() {
         catch(error) { console.warn('Unable to save offline club data:', key, error); }
     }
 
-    // Keep section images lazy-loaded. Preloading hidden pages during startup
-    // competed with the first screen and made entry feel heavy on mobile devices.
+    // Warm images from every already-rendered app section during the logo intro.
+    // Limit concurrency and total count to avoid overwhelming mobile connections.
+    async function preloadAppImages() {
+        const urls = Array.from(document.querySelectorAll('.app-page img[src], #storiesScrollContainer img[src], #sliderWrapper img[src]'))
+            .map(img => {
+                img.loading = 'eager';
+                img.decoding = 'async';
+                return img.currentSrc || img.src;
+            })
+            .filter((url, index, all) => url && !/^(data:|blob:)/i.test(url) && all.indexOf(url) === index)
+            .slice(0, 80);
+        let next = 0;
+        const workers = Array.from({ length: 4 }, async () => {
+            while (next < urls.length) {
+                const url = urls[next++];
+                await new Promise(resolve => {
+                    const image = new Image();
+                    image.onload = image.onerror = () => resolve();
+                    image.src = url;
+                    if (image.complete) resolve();
+                });
+            }
+        });
+        await Promise.allSettled(workers);
+    }
 
     // ============================================
     // 1. DATA STORE (Live Club Content Only)
@@ -3056,8 +3085,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, {passive:true});
     }
     setupPullToRefresh();
-    // Load club data in the background without forcing hidden-page images to download.
-    // The home screen can appear promptly while the remaining sections populate normally.
+    // Fetch all section data first, then warm their images while the logo intro is visible.
     const startupTasks = [
         loadAllClubContent(),
         loadPublicTournaments(),
@@ -3065,6 +3093,10 @@ document.addEventListener('DOMContentLoaded', function() {
         loadClubReels(),
         ...Object.keys(MANAGED_SECTION_PAGES).map(key => loadManagedSection(key))
     ];
-    Promise.allSettled(startupTasks);
+    Promise.allSettled(startupTasks).then(() => {
+        // Do not delay entry to the app; image warming continues in the background.
+        preloadAppImages();
+    });
+    }
 
 });

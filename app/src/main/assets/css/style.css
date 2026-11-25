@@ -2084,16 +2084,20 @@ body.dark-mode .tournament-picker-menu{border-color:rgba(219,30,36,.3)}
 }
 .welcome-screen[hidden]{display:none!important}
 .welcome-logo-stage{
+    will-change:transform,opacity;
+    backface-visibility:hidden;
     position:relative;z-index:5;width:min(62vw,270px);aspect-ratio:1;display:grid;place-items:center;
     border-radius:50%;background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(255,255,255,.88));
     border:1px solid rgba(255,255,255,.9);box-shadow:0 22px 65px rgba(48,0,5,.28),inset 0 2px 12px rgba(255,255,255,.9);
     animation:welcome-stage-in 1s cubic-bezier(.18,.85,.25,1) both;
 }
-.welcome-logo-stage:before,.welcome-logo-stage:after{content:"";position:absolute;inset:-13px;border-radius:50%;border:1px solid rgba(255,255,255,.42);animation:welcome-stage-ring 3s ease-out infinite}
+.welcome-logo-stage:before,.welcome-logo-stage:after{will-change:transform,opacity;backface-visibility:hidden;content:"";position:absolute;inset:-13px;border-radius:50%;border:1px solid rgba(255,255,255,.42);animation:welcome-stage-ring 3s ease-out infinite}
 .welcome-logo-stage:after{inset:-25px;animation-delay:1.5s}
-.welcome-logo-glow{position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,rgba(198,24,38,.1),transparent 70%);animation:welcome-glow 2.4s ease-in-out infinite alternate}
-.welcome-logo{position:relative;z-index:2;display:block;width:72%;height:72%;object-fit:contain;filter:drop-shadow(0 8px 12px rgba(35,0,0,.16));animation:welcome-logo-float 3.2s ease-in-out infinite}
+.welcome-logo-glow{will-change:transform,opacity;backface-visibility:hidden;position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,rgba(198,24,38,.1),transparent 70%);animation:welcome-glow 2.4s ease-in-out infinite alternate}
+.welcome-logo{will-change:transform;backface-visibility:hidden;position:relative;z-index:2;display:block;width:72%;height:72%;object-fit:contain;filter:drop-shadow(0 8px 12px rgba(35,0,0,.16));animation:welcome-logo-float 3.2s ease-in-out infinite}
 .welcome-sport-icon{
+    will-change:transform;
+    backface-visibility:hidden;
     position:absolute;z-index:3;display:grid;place-items:center;width:42px;height:42px;
     color:rgba(255,255,255,.94);font-size:27px;opacity:.9;pointer-events:none;
     filter:drop-shadow(0 3px 8px rgba(70,0,8,.22));

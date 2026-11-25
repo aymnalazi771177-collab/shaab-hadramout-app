@@ -1,5 +1,24 @@
 // Shaab Hadramout Service Worker
-const CACHE_NAME = 'shaab-hadramout-v12';
+self.addEventListener('push', event => {
+  event.waitUntil((async () => {
+    let data = {};
+    try { data = event.data ? event.data.json() : {}; } catch { data = {body:event.data?.text() || ''}; }
+    await self.registration.showNotification(data.title || 'نادي شعب حضرموت', {
+      body: data.body || 'لديك تحديث جديد من النادي', icon: 'images/icon-192.png', badge: 'images/icon-192.png',
+      dir: 'rtl', lang: 'ar', data: {url: data.url || './'}
+    });
+  })());
+});
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || './', self.registration.scope).href;
+  event.waitUntil((async () => {
+    const clientsList = await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    for (const client of clientsList) { if ('focus' in client) { await client.focus(); if ('navigate' in client) await client.navigate(target); return; } }
+    if (self.clients.openWindow) await self.clients.openWindow(target);
+  })());
+});
+const CACHE_NAME = 'shaab-hadramout-v13';
 const MEDIA_CACHE = 'shaab-hadramout-media-v1';
 const ASSETS = [
   'index.html',

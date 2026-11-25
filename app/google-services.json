@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "682204419997",
+    "project_id": "shaab-hadramout",
+    "storage_bucket": "shaab-hadramout.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682204419997:android:6b3a709cb654d21b9f0174",
+        "android_client_info": {
+          "package_name": "com.shaabclub.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVh-USVE4M6LA7u9DExyXqrgIPoyxayjk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

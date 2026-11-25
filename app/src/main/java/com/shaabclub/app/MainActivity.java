@@ -14,6 +14,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.webkit.WebViewAssetLoader;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
@@ -26,6 +27,7 @@ import com.google.android.gms.common.api.ApiException;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private WebViewAssetLoader assetLoader;
     private OnBackInvokedCallback backInvokedCallback;
     private String pendingTopic;
     private boolean pendingEnabled;
@@ -45,6 +47,12 @@ public class MainActivity extends Activity {
         ClubFirebaseMessagingService.createNotificationChannel(this);
 
         webView = new WebView(this);
+        // Serve bundled app files from a stable HTTPS origin so YouTube embeds
+        // receive the HTTP Referer required by its player (error 153).
+        assetLoader = new WebViewAssetLoader.Builder()
+            .setDomain("shaab-hadramout.pages.dev")
+            .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+            .build();
         webView.setBackgroundColor(Color.rgb(181, 18, 27));
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -59,13 +67,21 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new NativeAuthBridge(), "ClubNativeAuth");
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public android.webkit.WebResourceResponse shouldInterceptRequest(
+                WebView view, android.webkit.WebResourceRequest request) {
+                android.webkit.WebResourceResponse response =
+                    assetLoader.shouldInterceptRequest(request.getUrl());
+                return response != null ? response : super.shouldInterceptRequest(view, request);
+            }
+
             @Override public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 openPendingNews();
             }
         });
         setContentView(webView);
-        webView.loadUrl("file:///android_asset/index.html");
+        webView.loadUrl("https://shaab-hadramout.pages.dev/assets/index.html");
         captureNotificationIntent(getIntent());
 
         if (Build.VERSION.SDK_INT >= 33) {

@@ -3,6 +3,12 @@ plugins {
     id 'com.google.gms.google-services'
 }
 
+def stableSigningReady = [
+    System.getenv('SIGNING_KEYSTORE_PASSWORD'),
+    System.getenv('SIGNING_KEY_ALIAS'),
+    System.getenv('SIGNING_KEY_PASSWORD')
+].every { it != null && !it.isEmpty() }
+
 android {
     namespace 'com.shaabclub.app'
     compileSdk 35
@@ -13,6 +19,22 @@ android {
         targetSdk 35
         versionCode 1
         versionName '1.0.0'
+    }
+
+    if (stableSigningReady && file('shaab-club-release.jks').exists()) {
+        signingConfigs {
+            stable {
+                storeFile file('shaab-club-release.jks')
+                storePassword System.getenv('SIGNING_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('SIGNING_KEY_ALIAS')
+                keyPassword System.getenv('SIGNING_KEY_PASSWORD')
+            }
+        }
+        buildTypes {
+            debug {
+                signingConfig signingConfigs.stable
+            }
+        }
     }
 }
 

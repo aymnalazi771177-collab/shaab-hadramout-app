@@ -129,7 +129,28 @@ try{
  $("#formFields").querySelector(".form-grid").appendChild(participantsHolder);
  participantsHolder._getPlayedPlayers=()=>[...playedList.querySelectorAll("[data-played-player]:checked")].map(x=>Number(x.value));
  if(source.id&&source.status==="finished"){try{const poll=await api("/api/man-of-match?match_id="+Number(source.id)+"&admin=1");const report=document.createElement("div");report.style.cssText="margin-top:12px;padding:12px;border:1px solid #f0d4d6;border-radius:10px;background:#fffafa";report.innerHTML="<b style='color:#bd1724'>متابعة تصويت رجل المباراة</b><p style='margin:6px 0;color:#666'>الحالة: "+(poll.status==="closed"?"مغلق":poll.status==="open"?"مفتوح":"غير متاح")+" — إجمالي الأصوات: "+Number(poll.totalVotes||0)+"</p>"+(poll.players||[]).map(p=>"<div style='display:flex;justify-content:space-between;gap:8px;padding:4px 0;font-size:12px'><span>"+esc(p.name)+"</span><b>"+Number(p.votes||0)+" صوت</b></div>").join("");participantsHolder.appendChild(report)}catch(error){}}
- }catch(error){holder.querySelector("small").textContent="تعذر تحميل قائمة اللاعبين: "+error.message;}
+ }catch(error){
+ holder.querySelector("small").textContent="تعذر تحميل التشكيلة: "+error.message;
+ const fallback=document.createElement("div");
+ fallback.className="form-field full";
+ fallback.style.cssText="margin-top:12px;padding:12px;border:1px solid #f0d4d6;border-radius:10px;background:#fffafa";
+ fallback.innerHTML="<label>اللاعبون الذين شاركوا فعلياً في المباراة (بما فيهم البدلاء)</label><div id='playedPlayersList' style='display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px'></div><small id='playedPlayersError' style='color:#b4232b'>تعذر تحميل قائمة اللاعبين: "+esc(error.message)+"</small><button type='button' id='retryPlayedPlayers' style='margin-top:9px;padding:8px 12px;border:0;border-radius:8px;background:#c51e2b;color:#fff'>إعادة تحميل قائمة اللاعبين</button>";
+ const fallbackList=fallback.querySelector("#playedPlayersList");
+ let fallbackPlayed=[];try{fallbackPlayed=Array.isArray(source.played_players)?source.played_players.map(Number):JSON.parse(source.played_players_json||"[]").map(Number)}catch{}
+ fallback._getPlayedPlayers=()=>[...fallbackList.querySelectorAll("[data-played-player]:checked")].map(x=>Number(x.value));
+ fallback.querySelector("#retryPlayedPlayers").onclick=async()=>{
+  const errorBox=fallback.querySelector("#playedPlayersError"),retry=fallback.querySelector("#retryPlayedPlayers");
+  retry.disabled=true;retry.textContent="جارٍ التحميل...";
+  try{
+   const data=await api("/api/players"),available=(data.players||[]).filter(p=>p.position!=="المدرب");
+   if(!available.length)throw new Error("لا توجد لاعبين مسجلون في قسم اللاعبين.");
+   fallbackList.innerHTML=available.map(p=>"<label style='display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e2e5eb;border-radius:9px;background:#fff'><input type='checkbox' data-played-player value='"+Number(p.id)+"' "+(fallbackPlayed.includes(Number(p.id))?"checked":"")+"><span>"+esc(p.number||"—")+" — "+esc(p.name)+"</span></label>").join("");
+   errorBox.textContent="حدد كل لاعب دخل أرض الملعب، بما فيهم البدلاء.";errorBox.style.color="#667085";
+  }catch(retryError){errorBox.textContent="تعذر تحميل اللاعبين: "+retryError.message}
+  finally{retry.disabled=false;retry.textContent="إعادة تحميل قائمة اللاعبين"}
+ };
+ $("formFields").querySelector(".form-grid").appendChild(fallback);
+}
 }
 if(current==="admins"&&create){$("formFields").querySelector('[name="username"]').required=true;$("formFields").querySelector('[name="password"]').required=true}if(current==="admins"&&!create){const u=$("formFields").querySelector('[name="username"]');if(u)u.closest(".form-field").remove();const p=$("formFields").querySelector('[name="password"]');if(p){p.required=false;p.placeholder="اتركها فارغة دون تغيير"}}$("modal").classList.add("open")}
 function valueFromForm(form){const fd=new FormData(form),d={};for(const [k,v] of fd.entries()){if(k==="permission")continue;if(v instanceof File)continue;d[k]=v}for(const el of form.querySelectorAll('input[type="checkbox"][name]:not([name="permission"])'))d[el.name]=el.checked;for(const k of ["home_score","away_score","sort_order","played","wins","draws","losses","goals_for","goals_against","points","age","matches","clean_sheets","saves","goals","assists","tackles","readiness"])if(d[k]!==undefined&&d[k]!=="")d[k]=Number(d[k]);if(current==="admins")d.permissions=[...form.querySelectorAll('[name="permission"]:checked')].map(x=>x.value);return d}

@@ -283,6 +283,8 @@ document.addEventListener('DOMContentLoaded', function() {
         targetPage.classList.add('active');
         targetPage.scrollTop = 0;
         if (pageId === "fansPage") renderFansPage();
+        if (pageId === "livePage") loadLiveStreamPage();
+        else stopLivePlayback();
         if (pageId === "legendsPage") loadClubLegends();
         if (pageId === "legendDetailPage") renderLegendDetail();
         if (pageId === "archivePage") {
@@ -2567,6 +2569,116 @@ document.addEventListener('DOMContentLoaded', function() {
             const cached = readClubSnapshot(cacheKey);
             if (cached) return cached;
             throw error;
+        }
+    }
+
+    // Live stream: read the exact settings saved from the owner dashboard.
+    let liveHlsInstance = null;
+    let liveLoadSequence = 0;
+    function stopLivePlayback() {
+        if (liveHlsInstance) {
+            try { liveHlsInstance.destroy(); } catch (_) {}
+            liveHlsInstance = null;
+        }
+        const player = document.getElementById('liveStreamPlayer');
+        const video = player?.querySelector('video');
+        if (video) {
+            try { video.pause(); } catch (_) {}
+            video.removeAttribute('src');
+            video.load();
+        }
+        const frame = player?.querySelector('iframe');
+        if (frame) frame.src = 'about:blank';
+    }
+    function youtubeEmbedUrl(rawUrl) {
+        try {
+            const url = new URL(rawUrl);
+            let id = '';
+            if (url.hostname === 'youtu.be' || url.hostname.endsWith('.youtu.be')) id = url.pathname.split('/').filter(Boolean)[0] || '';
+            else if (url.hostname.includes('youtube.com')) {
+                id = url.searchParams.get('v') || '';
+                if (!id) {
+                    const parts = url.pathname.split('/').filter(Boolean);
+                    if (['live','embed','shorts'].includes(parts[0])) id = parts[1] || '';
+                }
+            }
+            return id ? 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&playsinline=1&rel=0' : '';
+        } catch (_) { return ''; }
+    }
+    function loadHlsLibrary() {
+        if (window.Hls) return Promise.resolve(window.Hls);
+        if (window.__shaabHlsLoading) return window.__shaabHlsLoading;
+        window.__shaabHlsLoading = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js';
+            script.async = true;
+            script.onload = () => window.Hls ? resolve(window.Hls) : reject(new Error('تعذر تهيئة مشغل البث'));
+            script.onerror = () => reject(new Error('تعذر تحميل مشغل HLS؛ تحقق من اتصال الإنترنت'));
+            document.head.appendChild(script);
+        });
+        return window.__shaabHlsLoading;
+    }
+    async function loadLiveStreamPage() {
+        const sequence = ++liveLoadSequence;
+        stopLivePlayback();
+        const player = document.getElementById('liveStreamPlayer');
+        const title = document.getElementById('liveStreamTitle');
+        const message = document.getElementById('liveStreamMessage');
+        if (!player || !message) return;
+        player.innerHTML = '<div class="live-stream-message">جارٍ تحميل البث...</div>';
+        message.textContent = 'يتم التحقق من حالة البث.';
+        try {
+            const payload = await clubGet('/api/live');
+            if (sequence !== liveLoadSequence) return;
+            const stream = payload.stream || {};
+            title.textContent = stream.title || 'البث المباشر لنادي شعب حضرموت';
+            const enabled = stream.enabled === true || Number(stream.enabled) === 1;
+            const url = String(stream.stream_url || '').trim();
+            const type = String(stream.stream_type || '').toLowerCase();
+            if (!enabled || !url) {
+                player.innerHTML = '<div class="live-stream-message"><i class="fas fa-tower-broadcast"></i><b>لا يوجد بث مباشر حالياً</b><span>تابعنا هنا عند بدء البث.</span></div>';
+                message.textContent = 'سيظهر البث تلقائياً عند تشغيله من إدارة النادي.';
+                return;
+            }
+            if (type === 'youtube') {
+                const embed = youtubeEmbedUrl(url);
+                if (!embed) throw new Error('رابط يوتيوب غير صالح؛ راجع الرابط في لوحة التحكم.');
+                player.innerHTML = '<iframe title="البث المباشر لنادي شعب حضرموت" src="' + clubEscape(embed) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+                message.textContent = 'اضغط تشغيل داخل مشغل يوتيوب لمشاهدة البث.';
+                return;
+            }
+            if (type === 'mp4' || type === 'm3u8') {
+                player.innerHTML = '<video controls playsinline webkit-playsinline preload="metadata"></video>';
+                const video = player.querySelector('video');
+                if (type === 'mp4') {
+                    video.src = url;
+                    video.load();
+                    message.textContent = 'اضغط تشغيل لمشاهدة الفيديو.';
+                    return;
+                }
+                if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = url;
+                    video.load();
+                    message.textContent = 'اضغط تشغيل لمشاهدة البث المباشر.';
+                    return;
+                }
+                const Hls = await loadHlsLibrary();
+                if (sequence !== liveLoadSequence) return;
+                if (!Hls.isSupported()) throw new Error('هذا الجهاز لا يدعم تشغيل رابط M3U8.');
+                liveHlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+                liveHlsInstance.loadSource(url);
+                liveHlsInstance.attachMedia(video);
+                liveHlsInstance.on(Hls.Events.ERROR, (_event, data) => {
+                    if (data.fatal && sequence === liveLoadSequence) message.textContent = 'تعذر تشغيل البث. تحقق من الرابط أو إعدادات CORS لدى مصدر البث.';
+                });
+                message.textContent = 'اضغط تشغيل لمشاهدة البث المباشر.';
+                return;
+            }
+            throw new Error('نوع رابط البث غير معروف. اختر YouTube أو M3U8 أو MP4 من لوحة التحكم.');
+        } catch (error) {
+            if (sequence !== liveLoadSequence) return;
+            player.innerHTML = '<div class="live-stream-message"><i class="fas fa-circle-exclamation"></i><b>تعذر تحميل البث</b></div>';
+            message.textContent = error.message || 'تعذر الاتصال بخدمة البث حالياً.';
         }
     }
     function clubDate(value) {

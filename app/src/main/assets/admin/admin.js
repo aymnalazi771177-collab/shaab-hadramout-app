@@ -85,7 +85,79 @@ async function compressImageForUpload(file){
   if(canvas){canvas.width=0;canvas.height=0}
  }
 }
-async function upload(file,scope){const optimized=await compressImageForUpload(file);const fd=new FormData();fd.append("images",optimized);fd.append("scope",scope);const d=await api("/api/media",{method:"POST",body:fd});if(!d.media||!d.media[0])throw new Error("لم يتم استلام رابط الملف بعد الرفع");return d.media[0]}
+let ffmpegInstance=null,ffmpegLoading=null;
+function loadScriptOnce(src,globalName){
+ if(window[globalName])return Promise.resolve(window[globalName]);
+ if(window.__shaabScriptLoads?.[src])return window.__shaabScriptLoads[src];
+ window.__shaabScriptLoads=window.__shaabScriptLoads||{};
+ window.__shaabScriptLoads[src]=new Promise((resolve,reject)=>{
+  const script=document.createElement("script");script.src=src;script.async=true;
+  script.onload=()=>window[globalName]?resolve(window[globalName]):reject(new Error("تعذر تهيئة مكتبة ضغط الفيديو"));
+  script.onerror=()=>reject(new Error("تعذر تحميل مكتبة ضغط الفيديو؛ سيتم رفع الفيديو الأصلي"));
+  document.head.appendChild(script);
+ });
+ return window.__shaabScriptLoads[src];
+}
+async function getVideoCompressor(){
+ if(ffmpegInstance?.loaded)return ffmpegInstance;
+ if(ffmpegLoading)return ffmpegLoading;
+ ffmpegLoading=(async()=>{
+  await loadScriptOnce("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js","FFmpegWASM");
+  await loadScriptOnce("https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/umd/index.js","FFmpegUtil");
+  const engine=new window.FFmpegWASM.FFmpeg();
+  const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
+  const toBlobURL=window.FFmpegUtil.toBlobURL;
+  await engine.load({
+   coreURL:await toBlobURL(base+"/ffmpeg-core.js","text/javascript"),
+   wasmURL:await toBlobURL(base+"/ffmpeg-core.wasm","application/wasm")
+  });
+  ffmpegInstance=engine;
+  return engine;
+ })().catch(error=>{ffmpegLoading=null;throw error});
+ return ffmpegLoading;
+}
+async function compressVideoForUpload(file){
+ if(!file||!file.type.startsWith("video/"))return file;
+ if(!["video/mp4","video/webm","video/quicktime"].includes(file.type))return file;
+ let engine,inputName,outputName;
+ try{
+  setNotice("جارٍ تجهيز أداة ضغط الفيديو لأول مرة؛ قد يستغرق تحميلها بعض الوقت…");
+  engine=await getVideoCompressor();
+  const id="shaab_"+Date.now()+"_"+Math.random().toString(36).slice(2);
+  const ext=file.type==="video/webm"?"webm":file.type==="video/quicktime"?"mov":"mp4";
+  inputName=id+"_input."+ext;outputName=id+"_compressed.mp4";
+  setNotice("جارٍ ضغط الفيديو مع الحفاظ على أبعاده وصوته…");
+  await engine.writeFile(inputName,new Uint8Array(await file.arrayBuffer()));
+  await engine.exec(["-i",inputName,"-map","0:v:0","-map","0:a?","-c:v","libx264","-preset","veryfast","-crf","27","-pix_fmt","yuv420p","-c:a","aac","-b:a","128k","-movflags","+faststart",outputName]);
+  const data=await engine.readFile(outputName);
+  const bytes=data instanceof Uint8Array?data:new Uint8Array(data);
+  if(!bytes.length)throw new Error("ملف الفيديو المضغوط فارغ");
+  const compressed=new File([bytes],(String(file.name||"video").replace(/\\.[^.]+$/,"")||"video")+".mp4",{type:"video/mp4",lastModified:file.lastModified||Date.now()});
+  if(compressed.size>=file.size){
+   setNotice("لم ينتج الضغط حجماً أصغر؛ سيتم رفع الفيديو الأصلي للحفاظ على جودته.");
+   return file;
+  }
+  setNotice("اكتمل ضغط الفيديو: "+(file.size/1048576).toFixed(1)+" إلى "+(compressed.size/1048576).toFixed(1)+" ميجابايت.");
+  return compressed;
+ }catch(error){
+  console.warn("Video optimization skipped; original file will be uploaded.",error);
+  setNotice("تعذر ضغط الفيديو على هذا الجهاز؛ سيتم رفع الملف الأصلي دون تغييره.","error");
+  return file;
+ }finally{
+  if(engine){
+   for(const name of [inputName,outputName])if(name)try{await engine.deleteFile(name)}catch{}
+  }
+ }
+}
+async function upload(file,scope){
+ let optimized=file;
+ if(file?.type?.startsWith("video/"))optimized=await compressVideoForUpload(file);
+ else optimized=await compressImageForUpload(file);
+ const fd=new FormData();fd.append("images",optimized);fd.append("scope",scope);
+ const d=await api("/api/media",{method:"POST",body:fd});
+ if(!d.media||!d.media[0])throw new Error("لم يتم استلام رابط الملف بعد الرفع");
+ return d.media[0]
+}
 function setNotice(message,type=""){const n=$("sectionNotice");n.className="notice"+(type?" "+type:"");n.innerHTML="<b>"+esc(names[current]||"إدارة القسم")+"</b><p>"+esc(message)+"</p>"}
 function formatValue(key,value){if(value===null||value===undefined||value==="")return "—";if(key==="active")return Number(value)===0?"مخفي":"ظاهر";const map={incoming:"وارد",outgoing:"صادر",permanent:"نهائي",loan:"إعارة",upcoming:"قادمة",live:"مباشرة",finished:"انتهت",postponed:"مؤجلة",cancelled:"ملغاة",image:"صورة",video:"فيديو"};if(map[value])return map[value];if(key==="permissions"&&Array.isArray(value))return value.map(v=>names[v]||v).join("، ");return String(value)}
 function renderReelsTable(){

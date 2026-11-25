@@ -30,12 +30,24 @@ jobs:
           gradle-version: '8.9'
 
       - name: Configure stable APK signing
-        if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' }}
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
         run: |
+          test -n "$SIGNING_KEYSTORE_BASE64" || { echo "Missing SIGNING_KEYSTORE_BASE64"; exit 1; }
           echo "$SIGNING_KEYSTORE_BASE64" | base64 --decode > app/shaab-club-release.jks
+          test -s app/shaab-club-release.jks
           chmod 600 app/shaab-club-release.jks
+
+      - name: Verify signing certificate and print SHA-1
+        env:
+          SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          test -n "$SIGNING_KEYSTORE_PASSWORD" || { echo "Missing SIGNING_KEYSTORE_PASSWORD"; exit 1; }
+          test -n "$SIGNING_KEY_ALIAS" || { echo "Missing SIGNING_KEY_ALIAS"; exit 1; }
+          test -n "$SIGNING_KEY_PASSWORD" || { echo "Missing SIGNING_KEY_PASSWORD"; exit 1; }
+          keytool -list -v -keystore app/shaab-club-release.jks -storepass "$SIGNING_KEYSTORE_PASSWORD" -alias "$SIGNING_KEY_ALIAS" | grep -E 'Alias name:|SHA1:'
 
       - name: Build debug APK
         env:

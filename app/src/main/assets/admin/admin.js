@@ -102,10 +102,10 @@ async function getVideoCompressor(){
  if(ffmpegInstance?.loaded)return ffmpegInstance;
  if(ffmpegLoading)return ffmpegLoading;
  ffmpegLoading=(async()=>{
-  await loadScriptOnce("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js","FFmpegWASM");
+  await loadScriptOnce("https://cdnjs.cloudflare.com/ajax/libs/ffmpeg/0.12.10/umd/ffmpeg.js","FFmpegWASM");
   const engine=new window.FFmpegWASM.FFmpeg();
-  const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
-  const wrapper="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd";
+  const base="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg-core/0.12.6/umd";
+  const wrapper="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg/0.12.10/umd";
   const blobURL=async(url,type)=>{
    const response=await fetch(url);
    if(!response.ok)throw new Error("تعذر تنزيل مكوّن ضغط الفيديو");

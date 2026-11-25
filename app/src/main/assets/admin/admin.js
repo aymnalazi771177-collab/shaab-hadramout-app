@@ -104,7 +104,7 @@ async function getVideoCompressor(){
  ffmpegLoading=(async()=>{
   await loadScriptOnce("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js","FFmpegWASM");
   const engine=new window.FFmpegWASM.FFmpeg();
-  const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
+  const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
   const wrapper="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd";
   const blobURL=async(url,type)=>{
    const response=await fetch(url);

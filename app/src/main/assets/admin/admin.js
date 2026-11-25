@@ -60,7 +60,32 @@ let current="overview",items=[],editing=null,admin=null,showHidden=false,selecte
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2300)}
 async function api(path,options={}){const headers=new Headers(options.headers||{});if(token())headers.set("Authorization","Bearer "+token());if(options.body&&!(options.body instanceof FormData)&&typeof options.body!=="string"){headers.set("Content-Type","application/json");options={...options,body:JSON.stringify(options.body)}}const response=await fetch(API+path,{...options,headers,cache:options.cache||"no-store"});let data={};try{data=await response.json()}catch{}if(!response.ok||data.success===false)throw new Error(data.message||"تعذر تنفيذ الطلب");return data}
-async function upload(file,scope){const fd=new FormData();fd.append("images",file);fd.append("scope",scope);const d=await api("/api/media",{method:"POST",body:fd});if(!d.media||!d.media[0])throw new Error("لم يتم استلام رابط الملف بعد الرفع");return d.media[0]}
+async function compressImageForUpload(file){
+ if(!file||!file.type.startsWith("image/")||file.type==="image/gif")return file;
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type))return file;
+ if(typeof createImageBitmap!=="function")return file;
+ let bitmap,canvas;
+ try{
+  bitmap=await createImageBitmap(file);
+  canvas=document.createElement("canvas");
+  canvas.width=bitmap.width;
+  canvas.height=bitmap.height;
+  const context=canvas.getContext("2d",{alpha:true});
+  if(!context)return file;
+  context.drawImage(bitmap,0,0);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.94));
+  if(!blob||blob.size>=file.size)return file;
+  const base=String(file.name||"image").replace(/\\.[^.]+$/,"")||"image";
+  return new File([blob],base+".webp",{type:"image/webp",lastModified:file.lastModified||Date.now()});
+ }catch(error){
+  console.warn("Image optimization skipped; original file will be uploaded.",error);
+  return file;
+ }finally{
+  if(bitmap)bitmap.close();
+  if(canvas){canvas.width=0;canvas.height=0}
+ }
+}
+async function upload(file,scope){const optimized=await compressImageForUpload(file);const fd=new FormData();fd.append("images",optimized);fd.append("scope",scope);const d=await api("/api/media",{method:"POST",body:fd});if(!d.media||!d.media[0])throw new Error("لم يتم استلام رابط الملف بعد الرفع");return d.media[0]}
 function setNotice(message,type=""){const n=$("sectionNotice");n.className="notice"+(type?" "+type:"");n.innerHTML="<b>"+esc(names[current]||"إدارة القسم")+"</b><p>"+esc(message)+"</p>"}
 function formatValue(key,value){if(value===null||value===undefined||value==="")return "—";if(key==="active")return Number(value)===0?"مخفي":"ظاهر";const map={incoming:"وارد",outgoing:"صادر",permanent:"نهائي",loan:"إعارة",upcoming:"قادمة",live:"مباشرة",finished:"انتهت",postponed:"مؤجلة",cancelled:"ملغاة",image:"صورة",video:"فيديو"};if(map[value])return map[value];if(key==="permissions"&&Array.isArray(value))return value.map(v=>names[v]||v).join("، ");return String(value)}
 function renderReelsTable(){

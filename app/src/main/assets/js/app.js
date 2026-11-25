@@ -1965,11 +1965,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return pushReadyPromise;
     }
+    let nativePushRequestId = 0;
+    const nativePushPending = new Map();
+    window.__clubNativePushResult = (id, success, message) => {
+        const resolve = nativePushPending.get(String(id));
+        if (!resolve) return;
+        nativePushPending.delete(String(id));
+        resolve({success:!!success,message:String(message || "")});
+    };
+    function setNativePushTopic(topic, enabled) {
+        return new Promise((resolve, reject) => {
+            if (!window.ClubNativePush || typeof window.ClubNativePush.setTopicSubscription !== "function") {
+                reject(new Error("تعذر الوصول إلى خدمة إشعارات الهاتف"));
+                return;
+            }
+            const id = "push_" + (++nativePushRequestId);
+            nativePushPending.set(id, resolve);
+            window.ClubNativePush.setTopicSubscription(topic, !!enabled, id);
+        }).then(result => {
+            if (!result.success) {
+                if (result.message === "permission_denied") throw new Error("اسمح للتطبيق بإرسال الإشعارات من نافذة الصلاحيات");
+                if (result.message === "notifications_disabled") throw new Error("الإشعارات معطّلة للتطبيق من إعدادات الهاتف");
+                throw new Error("تعذر تحديث اشتراك الإشعارات. حاول مرة أخرى");
+            }
+            return true;
+        });
+    }
     async function handlePushToggleChange(changed) {
         if (pushBusy) return;
         pushBusy = true;
         const preferences = currentPushPreferences();
         try {
+            // Android APK uses native Firebase topics; browsers continue using Web Push below.
+            if (window.ClubNativePush) {
+                const topic = changed === "matches" ? "matches" : "news";
+                await setNativePushTopic(topic, preferences[topic]);
+                localStorage.setItem(PUSH_PREFS_KEY, JSON.stringify(preferences));
+                window.showToast(preferences[topic] ? "تم تفعيل التنبيهات على الهاتف" : "تم إيقاف التنبيهات");
+                return;
+            }
             const registration = await ensurePushReady();
             if (preferences.matches || preferences.news) {
                 if (Notification.permission !== "granted") {
@@ -2009,6 +2043,16 @@ document.addEventListener('DOMContentLoaded', function() {
         pushNewsToggle.addEventListener("change",() => handlePushToggleChange("news"));
         (async () => {
             try {
+                if (window.ClubNativePush) {
+                    const saved = JSON.parse(localStorage.getItem(PUSH_PREFS_KEY) || "{}");
+                    pushMatchToggle.checked = !!saved.matches;
+                    pushNewsToggle.checked = !!saved.news;
+                    await Promise.all([
+                        setNativePushTopic("matches", !!saved.matches),
+                        setNativePushTopic("news", !!saved.news)
+                    ]);
+                    return;
+                }
                 const registration = await ensurePushReady();
                 const subscription = await registration.pushManager.getSubscription();
                 if (subscription) {

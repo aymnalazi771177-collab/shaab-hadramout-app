@@ -1,6 +1,9 @@
 package com.shaabclub.app;
 
-import android.app.Activity;\nimport android.Manifest;\nimport android.content.pm.PackageManager;\nimport com.google.firebase.messaging.FirebaseMessaging;
+import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import com.google.firebase.messaging.FirebaseMessaging;
 import android.os.Build;
 import android.os.Bundle;
 import android.graphics.Color;
@@ -23,7 +26,11 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(Color.rgb(181, 18, 27));
         getWindow().setNavigationBarColor(Color.BLACK);
 
-        ClubFirebaseMessagingService.createNotificationChannel(this);\n        subscribeToClubTopics();\n        requestNotificationPermission();\n\n        webView = new WebView(this);
+        ClubFirebaseMessagingService.createNotificationChannel(this);
+        subscribeToClubTopics();
+        requestNotificationPermission();
+
+        webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(181, 18, 27));
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -50,7 +57,19 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void subscribeToClubTopics() {\n        FirebaseMessaging.getInstance().subscribeToTopic("news");\n        FirebaseMessaging.getInstance().subscribeToTopic("matches");\n    }\n\n    private void requestNotificationPermission() {\n        if (Build.VERSION.SDK_INT >= 33 &&\n            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {\n            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);\n        }\n    }\n\n    private void handleAppBack() {
+    private void subscribeToClubTopics() {
+        FirebaseMessaging.getInstance().subscribeToTopic("news");
+        FirebaseMessaging.getInstance().subscribeToTopic("matches");
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+        }
+    }
+
+    private void handleAppBack() {
         if (webView == null) {
             finish();
             return;

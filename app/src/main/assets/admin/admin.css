@@ -37,3 +37,23 @@
 .reel-story-row label{font-size:10px;font-weight:800;margin-top:3px}.reel-story-row textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;font:11px Tajawal,Arial;resize:vertical}.reel-story-row input[type=file]{font-size:10px}
 .reel-story-row small,.reels-editor>small{font-size:10px;color:var(--muted);line-height:1.7}
 @media(max-width:600px){.reel-group-card{align-items:flex-start;flex-direction:column}.reel-group-card .record-actions{width:100%}.reel-group-card .record-actions button{flex:1}}
+
+/* Storage usage dashboard */
+.storage-overview{display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(150px,1fr));gap:13px;margin:16px 0}
+.storage-main-card,.storage-stat-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:19px;box-shadow:0 3px 12px #17203308}
+.storage-card-label,.storage-stat-card>span{display:block;color:var(--muted);font-size:11px;font-weight:800}
+.storage-total{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:10px 0 13px}
+.storage-total strong{font-size:30px;font-weight:900;color:var(--ink);direction:ltr}
+.storage-total span{font-size:11px;color:var(--muted)}
+.storage-meter{height:12px;background:#edf0f4;border-radius:20px;overflow:hidden}
+.storage-meter span{display:block;width:0;height:100%;border-radius:20px;background:#20a574;transition:width .25s}
+.storage-meter span.over-limit{background:#d92d3a}
+.storage-meter-labels{display:flex;justify-content:space-between;gap:8px;margin-top:8px;color:var(--muted);font-size:10px}
+.storage-status{display:block;margin-top:13px;color:#64748b;font-size:10px;line-height:1.7}
+.storage-stat-card{display:flex;flex-direction:column;justify-content:center;gap:8px}
+.storage-stat-card strong{font-size:25px;font-weight:900;color:var(--ink);overflow-wrap:anywhere}
+.storage-stat-card small{font-size:10px;color:var(--muted)}
+.storage-note{margin-top:14px}
+#refreshStorage:disabled{opacity:.55;cursor:wait}
+@media(max-width:850px){.storage-overview{grid-template-columns:1fr 1fr}.storage-main-card{grid-column:1/-1}}
+@media(max-width:520px){.storage-overview{grid-template-columns:1fr}.storage-main-card{grid-column:auto}.storage-total strong{font-size:25px}}

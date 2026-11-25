@@ -30,7 +30,8 @@ public class ClubFirebaseMessagingService extends FirebaseMessagingService {
         if (title == null || title.trim().isEmpty()) title = "نادي شعب حضرموت";
         if (body == null || body.trim().isEmpty()) body = "لديك إشعار جديد";
 
-        showNotification(title, body);
+        String newsId = message.getData().get("newsId");
+        showNotification(title, body, newsId);
     }
 
     @Override
@@ -53,10 +54,11 @@ public class ClubFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void showNotification(String title, String body) {
+    private void showNotification(String title, String body, String newsId) {
         createNotificationChannel(this);
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (newsId != null && newsId.matches("\\d+")) intent.putExtra("newsId", newsId);
         PendingIntent pendingIntent = PendingIntent.getActivity(
             this,
             (int) System.currentTimeMillis(),

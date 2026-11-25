@@ -1,6 +1,9 @@
 package com.shaabclub.app;
 
 import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import com.google.firebase.messaging.FirebaseMessaging;
 import android.os.Build;
 import android.os.Bundle;
 import android.graphics.Color;
@@ -22,6 +25,10 @@ public class MainActivity extends Activity {
         getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.rgb(181, 18, 27)));
         getWindow().setStatusBarColor(Color.rgb(181, 18, 27));
         getWindow().setNavigationBarColor(Color.BLACK);
+
+        ClubFirebaseMessagingService.createNotificationChannel(this);
+        subscribeToClubTopics();
+        requestNotificationPermission();
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(181, 18, 27));
@@ -47,6 +54,18 @@ public class MainActivity extends Activity {
                 OnBackInvokedDispatcher.PRIORITY_DEFAULT,
                 backInvokedCallback
             );
+        }
+    }
+
+    private void subscribeToClubTopics() {
+        FirebaseMessaging.getInstance().subscribeToTopic("news");
+        FirebaseMessaging.getInstance().subscribeToTopic("matches");
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
         }
     }
 

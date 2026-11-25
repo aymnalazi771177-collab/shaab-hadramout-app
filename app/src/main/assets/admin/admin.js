@@ -5,14 +5,14 @@ const TOKEN_KEY="shaab-admin-token";
 const $=id=>document.getElementById(id);
 const token=()=>sessionStorage.getItem(TOKEN_KEY)||"";
 const names={
-overview:"الرئيسية",legends:"أساطير النادي",news:"الأخبار والتقارير",matches:"إدارة المباريات وحالتها",players:"اللاعبون والجهاز الفني",team:"اللاعبون والجهاز الفني",anthems:"الأناشيد",
+overview:"الرئيسية",storage:"إدارة مساحة التخزين",legends:"أساطير النادي",news:"الأخبار والتقارير",matches:"إدارة المباريات وحالتها",players:"اللاعبون والجهاز الفني",team:"اللاعبون والجهاز الفني",anthems:"الأناشيد",
 transfers:"الانتقالات",media:"الصور والفيديو",archive:"ذاكرة النوارس",reels:"يوميات النوارس REELS",standings:"البطولات",
 basketball:"كرة السلة",volleyball:"كرة الطائرة",handball:"كرة اليد",tennis:"التنس",taekwondo:"التايكواندو",
 athletics:"ألعاب القوى",otherSports:"ألعاب أخرى",board:"مجلس الإدارة",presidents:"رؤساء النادي",
 history:"تاريخ النادي",membership:"عضوية النادي",foundation:"المؤسسة المجتمعية",anthem:"الأناشيد",
 store:"متجر النادي الرسمي",contact:"تواصل معنا",carousel:"السلايدر الرئيسي",notifications:"الإشعارات",admins:"المشرفون والصلاحيات"
 };
-const permissionMap={players:"team",anthem:"anthems"};
+const permissionMap={players:"team",anthem:"anthems",storage:"admins"};
 const permissions=[
 ["carousel","السلايدر الرئيسي"],["legends","أساطير النادي"],["news","الأخبار والتقارير"],["matches","المباريات والنتائج"],["team","اللاعبون والجهاز الفني"],
 ["transfers","الانتقالات"],["media","الصور والفيديو"],["archive","ذاكرة النوارس"],["reels","يوميات النوارس REELS"],["standings","الترتيب والبطولات"],
@@ -210,7 +210,7 @@ const cfg=configs[current];const heads=cfg.cols.map((k,i)=>"<th>"+esc(cfg.labels
 async function loadSection(key){current=key;const cfg=configs[key];$("search").value="";$("tableName").textContent="قائمة "+(names[key]||"المحتوى");$("add").style.display=key==="history"?"none":"inline-flex";$("filter").style.display=["reels","carousel"].includes(key)||cfg?.generic?"inline-flex":"none";$("filter").textContent=showHidden?"عرض الظاهر":"عرض الكل";if(!cfg){setNotice("هذا القسم غير مهيأ للربط بعد.");$("recordsWrap").innerHTML='<div class="empty">سيتم ربط هذا القسم في المرحلة التالية.</div>';return}
 setNotice(key==="matches"?"من هنا تدير المباريات وتحدد حالة كل مباراة: قادمة أو انتهى اللقاء. ومن قسم البطولات تنشئ البطولات وتدير جداول ترتيبها.":"المحتوى المعروض هنا متصل بقاعدة بيانات النادي. يمكنك الإضافة والتعديل والحذف حسب صلاحيتك.");$("recordsWrap").innerHTML='<div class="empty">جارٍ تحميل البيانات...</div>';
 try{let endpoint=cfg.endpoint;if(key==="standings"){const td=await api("/api/tournaments");const tournaments=td.tournaments||[];$("tournamentTools").hidden=false;$("tournamentSelect").innerHTML=tournaments.map(t=>"<option value='"+t.id+"'>"+esc(t.name)+(t.season_year?" — "+esc(t.season_year):"")+" ("+Number(t.teams_count||0)+" فريق)</option>").join("")||"<option value=''>لا توجد بطولات بعد</option>";if(!tournaments.length){selectedTournamentId="";$("add").style.display="none";$("recordsWrap").innerHTML='<div class="empty">أنشئ بطولة أولاً، ثم أضف فرقها وجدول ترتيبها.</div>';$("recordCount").textContent="0 فريق";return}if(!tournaments.some(t=>String(t.id)===String(selectedTournamentId)))selectedTournamentId=String(tournaments[0].id);$("tournamentSelect").value=selectedTournamentId;$("add").style.display="inline-flex";endpoint="/api/standings?tournament_id="+encodeURIComponent(selectedTournamentId)}else $("tournamentTools").hidden=true;const d=await api(endpoint);if(key==="history"){items=d.history?[{...d.history,id:1}]:[]}else items=d[cfg.key]||[];renderTable();if(key==="history"&&!items.length){$("recordsWrap").innerHTML='<div class="empty">لا توجد بيانات تاريخ محفوظة بعد.</div>'}}catch(e){$("recordsWrap").innerHTML='<div class="empty">'+esc(e.message)+"</div>";setNotice(e.message,"error")}}
-function showView(key){if(key!=="overview"&&!configs[key])return;current=key;document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===key));$("overview").classList.toggle("active",key==="overview");$("generic").classList.toggle("active",key!=="overview");$("pageTitle").textContent=names[key]||"لوحة الإدارة";$("sidebar").classList.remove("open");if(key!=="overview")loadSection(key);else loadStats();window.scrollTo({top:0,behavior:"smooth"})}
+function showView(key){if(key!=="overview"&&key!=="storage"&&!configs[key])return;current=key;document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===key));$("overview").classList.toggle("active",key==="overview");$("generic").classList.toggle("active",key!=="overview"&&key!=="storage");$("storage").classList.toggle("active",key==="storage");$("pageTitle").textContent=names[key]||"لوحة الإدارة";$("sidebar").classList.remove("open");if(key==="storage")loadStorageUsage();else if(key!=="overview")loadSection(key);else loadStats();window.scrollTo({top:0,behavior:"smooth"})}
 function fieldHtml(f,data,create){if(f.createOnly&&!create)return "";const value=data[f.name]??(f.name==="active"?1:f.name==="sort_order"?0:f.name==="is_home"?"1":f.name==="readiness"?90:f.name==="nationality"?"يمني":"");const required=f.required&&!(f.optionalEdit&&!create);let control="";if(f.type==="textarea")control="<textarea name='"+f.name+"' "+(required?"required":"")+">"+esc(value)+"</textarea>";else if(f.type==="select")control="<select name='"+f.name+"'>"+f.options.map(o=>"<option value='"+esc(o[0])+"' "+(String(value)===String(o[0])?"selected":"")+">"+esc(o[1])+"</option>").join("")+"</select>";else if(f.type==="checkbox")control="<label class='check-field'><input type='checkbox' name='"+f.name+"' "+(value===true||Number(value)===1||value==="1"?"checked":"")+"><span>"+esc(f.label)+"</span></label>";else if(f.type==="permissions")control="<div class='permission-grid'>"+permissions.map(p=>"<label><input type='checkbox' name='permission' value='"+p[0]+"' "+((data.permissions||[]).includes(p[0])?"checked":"")+">"+esc(p[1])+"</label>").join("")+"</div>";else if(f.type==="file")control="<input type='file' name='"+f.name+"' accept='"+esc(f.accept||"*/*")+"' "+(f.multiple?"multiple":"")+"><small>"+esc(f.hint||"يمكنك اختيار ملف من جهازك أو تركه فارغاً للاحتفاظ بالرابط الحالي.")+"</small>";else if(f.type==="time"){const parts=String(value||"").match(/^(\\d{1,2}):(\\d{2})$/);let hour="",minute="00",period="AM";if(parts){const h=Number(parts[1]);hour=String(h%12||12);period=h>=12?"PM":"AM";minute=parts[2]}control="<div class='match-time-picker' style='display:flex;gap:8px;align-items:center;flex-wrap:wrap'><select data-time-hour aria-label='الساعة'><option value=''>الساعة</option>"+Array.from({length:12},(_,i)=>"<option value='"+(i+1)+"' "+(hour===String(i+1)?"selected":"")+">"+(i+1)+"</option>").join("")+"</select><span>:</span><select data-time-minute aria-label='الدقائق'>"+Array.from({length:12},(_,i)=>String(i*5).padStart(2,"0")).map(m=>"<option value='"+m+"' "+(minute===m?"selected":"")+">"+m+"</option>").join("")+"</select><select data-time-period aria-label='الفترة'><option value='AM' "+(period==="AM"?"selected":"")+">صباحاً</option><option value='PM' "+(period==="PM"?"selected":"")+">مساءً</option></select></div><input type='hidden' name='"+f.name+"' value='"+esc(value)+"'>";}else control="<input name='"+f.name+"' type='"+(f.type||"text")+"' value='"+esc(value)+"' "+(required?"required":"")+(f.type==="number"?" min='0'":"")+">";const isCheck=f.type==="checkbox";return "<div class='form-field "+(f.full?"full":"")+(isCheck?" full":"")+"'>"+(isCheck?"":("<label>"+esc(f.label)+(required?" *":"")+"</label>"))+control+"</div>"}
 async function openEditor(item=null){if(current==="reels"){openReelsEditor(item);return}if(current==="history"&& !item)return;editing=item?item.id:null;const create=!item;let list=fields[current]||(configs[current]?.generic?fields.section:null);if(!list)return;const source=item||{};$("modalTitle").textContent=(create?"إضافة ":"تعديل ")+(names[current]||"محتوى");$("formFields").innerHTML="<div class='form-grid'>"+list.map(f=>fieldHtml(f,source,create)).join("")+"</div>";if(current==="matches"){const timePicker=$("formFields").querySelector(".match-time-picker");if(timePicker){const hidden=timePicker.parentElement.querySelector("input[name=match_time]");const syncTime=()=>{const h=Number(timePicker.querySelector("[data-time-hour]").value),m=timePicker.querySelector("[data-time-minute]").value,p=timePicker.querySelector("[data-time-period]").value;if(!h){hidden.value="";return}let hour=h%12;if(p==="PM")hour+=12;hidden.value=String(hour).padStart(2,"0")+":"+m};timePicker.addEventListener("change",syncTime);syncTime();}
 const holder=document.createElement("div");holder.className="form-field full";holder.innerHTML="<label>تحديد التشكيلة ومراكز اللاعبين (11 لاعباً كحد أقصى)</label><div id='lineupPlayerRows' style='display:grid;gap:10px'></div><small>اختر اللاعبين ثم حدد لكل لاعب مركزه الدقيق يميناً أو يساراً أو في الوسط. الصور وأرقام القمصان تظهر تلقائياً.</small>";$("formFields").querySelector(".form-grid").appendChild(holder);
@@ -290,11 +290,46 @@ closeEditor();toast("تم حفظ البيانات بنجاح");await loadSection
 function closeEditor(){$("modal").classList.remove("open");$("editorForm").reset()}
 async function deleteItem(id){if(!confirm("هل تريد حذف هذا العنصر نهائياً؟"))return;const cfg=configs[current];try{const url=cfg.endpoint+(cfg.endpoint.includes("?")?"&":"?")+"id="+encodeURIComponent(id);await api(url,{method:"DELETE"});toast("تم الحذف بنجاح");await loadSection(current);loadStats()}catch(e){toast(e.message)}}
 async function loadStats(){const targets=[["statNews","/api/news","news"],["statMatches","/api/matches","matches"],["statPlayers","/api/players","players"],["statMedia","/api/gallery","media"]];await Promise.all(targets.map(async([id,path,key])=>{try{const d=await api(path);const el=$(id);if(el)el.textContent=(d[key]||[]).length}catch{const el=$(id);if(el)el.textContent="—"}}))}
+function formatStorageGB(bytes){const gb=bytes/1000000000;return gb.toLocaleString("en-US",{maximumFractionDigits:2})+" GB"}
+async function loadStorageUsage(){
+ const usedEl=$("storageUsed"),objectsEl=$("storageObjects"),remainingEl=$("storageRemaining"),percentEl=$("storagePercent"),meterEl=$("storageMeter"),statusEl=$("storageStatus"),updatedEl=$("storageUpdated");
+ if(!usedEl)return;
+ $("refreshStorage").disabled=true;
+ statusEl.textContent="يتم قراءة الملفات من R2... قد يستغرق ذلك وقتاً إذا كان عدد الملفات كبيراً.";
+ usedEl.textContent="جارٍ الحساب";
+ objectsEl.textContent="—";remainingEl.textContent="—";percentEl.textContent="جارٍ القياس";meterEl.style.width="0%";
+ let cursor="",totalBytes=0,totalObjects=0,pages=0;
+ try{
+  do{
+   const path="/api/storage-usage"+(cursor?"?cursor="+encodeURIComponent(cursor):"");
+   const data=await api(path);
+   totalBytes+=Number(data.bytes||0);
+   totalObjects+=Number(data.objects||0);
+   cursor=data.nextCursor||"";
+   pages++;
+   const currentGB=totalBytes/1000000000;
+   usedEl.textContent=formatStorageGB(totalBytes);
+   objectsEl.textContent=totalObjects.toLocaleString("en-US");
+   percentEl.textContent=Math.min(100,currentGB/10*100).toFixed(1)+"% من الحد المجاني";
+   meterEl.style.width=Math.min(100,currentGB/10*100)+"%";
+   remainingEl.textContent="المتبقي تقريباً "+formatStorageGB(Math.max(0,10*1000000000-totalBytes));
+   statusEl.textContent=cursor?"تم حساب دفعة "+pages+"؛ جارٍ استكمال بقية الملفات...":"اكتمل فحص جميع الملفات المخزنة.";
+  }while(cursor);
+  const currentGB=totalBytes/1000000000;
+  meterEl.classList.toggle("over-limit",currentGB>10);
+  statusEl.textContent=currentGB>10?"الاستخدام الحالي يتجاوز مقدار التخزين المجاني؛ راجع متوسط التخزين والفاتورة في Cloudflare.":"تم حساب جميع الملفات بنجاح. هذا قياس لحظي وليس متوسط الفوترة الشهري.";
+  updatedEl.textContent=new Intl.DateTimeFormat("ar-YE",{dateStyle:"short",timeStyle:"short"}).format(new Date());
+ }catch(error){
+  statusEl.textContent="تعذر جلب بيانات التخزين: "+error.message;
+  usedEl.textContent="غير متاح";
+ }finally{$("refreshStorage").disabled=false}
+}
 async function authenticate(){const t=token();if(!t)return false;try{const d=await api("/api/auth");admin=d.admin||{};return true}catch{sessionStorage.removeItem(TOKEN_KEY);admin=null;return false}}
 function applyPermissions(){const p=admin?.permissions||[];const owner=admin?.owner||p.includes("*");document.querySelectorAll(".nav[data-view]").forEach(b=>{const key=b.dataset.view;if(key==="overview")return;const perm=permissionMap[key]||key;b.hidden=!owner&&!p.includes(perm)});$("userLabel").textContent=admin?.display_name||"مدير النظام";$("profileInitial").textContent=(admin?.display_name||"م").trim().charAt(0)||"م";$("loginAction").textContent="تسجيل الخروج";const first=document.querySelector('.nav[data-view]:not([hidden])');if(!document.querySelector('.nav[data-view="'+current+'"]:not([hidden])'))showView(first?.dataset.view||"overview")}
 async function start(){if(await authenticate()){applyPermissions();$("loginOverlay").classList.remove("open");loadStats()}else{$("loginOverlay").classList.add("open");$("loginAction").textContent="تسجيل الدخول"}}
 document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
 $("menu").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
+$("refreshStorage").addEventListener("click",loadStorageUsage);
 $("add").addEventListener("click",()=>openEditor());
 $("close").addEventListener("click",closeEditor);$("cancelEditor").addEventListener("click",closeEditor);
 $("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeEditor()});

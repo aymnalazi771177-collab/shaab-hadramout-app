@@ -2446,6 +2446,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    let pendingFanPrediction = null;
+    function closeFanPredictionGate() {
+        document.getElementById('fanPredictionGate')?.remove();
+    }
+    function showFanPredictionGate(matchId, choice) {
+        pendingFanPrediction = { matchId, choice };
+        closeFanPredictionGate();
+        const labels = { win:'فوز شعب حضرموت', draw:'تعادل', loss:'فوز الفريق المنافس' };
+        const overlay = document.createElement('div');
+        overlay.id = 'fanPredictionGate';
+        overlay.className = 'fan-prediction-gate';
+        overlay.innerHTML = `
+            <section class="fan-prediction-gate-card" role="dialog" aria-modal="true" aria-labelledby="fanPredictionGateTitle">
+                <button type="button" class="fan-prediction-gate-close" data-fan-gate-close aria-label="إغلاق"><i class="fas fa-times"></i></button>
+                <div class="fan-prediction-gate-crest"><img src="images/logo.png" alt="شعار نادي شعب حضرموت"></div>
+                <span class="fan-prediction-gate-kicker">كن جزءاً من مدرج النوارس</span>
+                <h3 id="fanPredictionGateTitle">توقعك يهمنا!</h3>
+                <p>للمشاركة في توقعات المباريات ومنافسة الجمهور، أنشئ حساباً مجانياً أو سجّل الدخول أولاً.</p>
+                <div class="fan-prediction-gate-choice"><i class="fas fa-bullseye"></i><span>اختيارك: <strong>${labels[choice] || 'توقع المباراة'}</strong></span></div>
+                <button type="button" class="fan-prediction-gate-primary" data-fan-gate-register><i class="fas fa-user-plus"></i> إنشاء حساب / تسجيل الدخول</button>
+                <button type="button" class="fan-prediction-gate-secondary" data-fan-gate-close>لاحقاً</button>
+                <small><i class="fas fa-shield-alt"></i> التسجيل مجاني وبياناتك محفوظة بأمان</small>
+            </section>`;
+        overlay.addEventListener('click', event => {
+            if (event.target === overlay || event.target.closest('[data-fan-gate-close]')) {
+                closeFanPredictionGate();
+                return;
+            }
+            if (event.target.closest('[data-fan-gate-register]')) {
+                closeFanPredictionGate();
+                fanAuthMode = 'register';
+                renderFanAuth();
+                navigateToPage('fansPage');
+            }
+        });
+        document.body.appendChild(overlay);
+    }
+
     document.addEventListener('click', async event => {
         const button = event.target.closest('[data-fan-predict]');
         if (!button) return;
@@ -2456,8 +2494,8 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const session = await fanApi('/api/fans');
             if (!session.user?.phone) {
-                fanCurrentUser = session.user;
-                navigateToPage('fansPage');
+                fanCurrentUser = session.user || null;
+                showFanPredictionGate(matchId, choice);
                 return;
             }
             button.disabled = true;
@@ -2470,8 +2508,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             await refreshPredictionsUI();
         } catch (error) {
-            alert(error.message || 'سجل الدخول أولاً للمشاركة في التوقعات');
-            if (error.status === 401) navigateToPage('fansPage');
+            if (error.status === 401) {
+                fanCurrentUser = null;
+                showFanPredictionGate(matchId, choice);
+            } else {
+                alert(error.message || 'تعذر التحقق من حسابك حالياً');
+            }
         } finally { button.disabled = false; }
     });
 

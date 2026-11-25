@@ -2602,7 +2602,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (['live','embed','shorts'].includes(parts[0])) id = parts[1] || '';
                 }
             }
-            return id ? 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&playsinline=1&rel=0' : '';
+            return id ? 'https://www.youtube.com/embed/' + encodeURIComponent(id) + '?autoplay=1&playsinline=1&rel=0' : '';
         } catch (_) { return ''; }
     }
     function loadHlsLibrary() {

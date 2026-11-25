@@ -1857,12 +1857,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (markAllReadBtn) {
         markAllReadBtn.addEventListener('click', function() {
-            document.querySelectorAll('.notif-item.unread').forEach(item => {
-                item.classList.remove('unread');
-                const dot = item.querySelector('.unread-dot');
-                if (dot) dot.remove();
-            });
-            if (notifBadge) notifBadge.style.display = 'none';
+            markAllClubNotificationsRead();
             playTone(600, 'sine', 0.15);
             showToast('تم تحديد جميع الإشعارات كمقروءة');
         });
@@ -2832,18 +2827,82 @@ document.addEventListener('DOMContentLoaded', function() {
             target.innerHTML = '<p class="about-text">تعذر تحميل منتجات المتجر حالياً.</p>';
         }
     }
+    const CLUB_NOTIF_READ_KEY = 'shaab_club_notifications_read_v1';
+    function getReadClubNotificationIds() {
+        try { const value = JSON.parse(localStorage.getItem(CLUB_NOTIF_READ_KEY) || '[]'); return new Set(Array.isArray(value) ? value.map(String) : []); }
+        catch (error) { return new Set(); }
+    }
+    function saveReadClubNotificationIds(ids) {
+        try { localStorage.setItem(CLUB_NOTIF_READ_KEY, JSON.stringify(Array.from(ids).slice(-500))); } catch (error) {}
+    }
+    function updateClubNotificationBadge() {
+        const badge = document.getElementById('notifBadge');
+        const list = document.getElementById('notifList');
+        if (!badge || !list) return;
+        const unread = list.querySelectorAll('.notif-item.unread').length;
+        badge.textContent = String(unread);
+        badge.style.display = unread ? 'flex' : 'none';
+    }
+    function markAllClubNotificationsRead() {
+        const list = document.getElementById('notifList');
+        if (!list) return;
+        const ids = getReadClubNotificationIds();
+        list.querySelectorAll('.notif-item[data-notif-id]').forEach(item => ids.add(String(item.dataset.notifId)));
+        saveReadClubNotificationIds(ids);
+        list.querySelectorAll('.notif-item.unread').forEach(item => {
+            item.classList.remove('unread');
+            item.querySelector('.unread-dot')?.remove();
+        });
+        updateClubNotificationBadge();
+    }
     async function loadClubNotifications(data = null) {
         try {
             data = data || await clubGet('/api/notifications');
-            const rows = data.notifications || [];
+            const rows = Array.isArray(data.notifications) ? data.notifications : [];
             const list = document.getElementById('notifList');
-            const badge = document.getElementById('notifBadge');
             if (!list) return;
-            if (!rows.length) { list.innerHTML = '<div class="empty-state">لا توجد إشعارات محفوظة.</div>'; if (badge) badge.style.display = 'none'; return; }
-            list.innerHTML = rows.map(item => '<div class="notif-item unread"><div class="notif-icon news-notif"><i class="fas fa-bullhorn"></i></div>' +
-                '<div class="notif-body"><p class="notif-text"><strong>' + clubEscape(item.title || 'تنبيه النادي') + '</strong> ' + clubEscape(item.body || '') + '</p>' +
-                '<span class="notif-time"><i class="far fa-clock"></i> ' + clubEscape(clubDate(item.created_at)) + '</span></div><span class="unread-dot"></span></div>').join('');
-            if (badge) { badge.textContent = String(rows.length); badge.style.display = rows.length ? 'flex' : 'none'; }
+            const readIds = getReadClubNotificationIds();
+            if (!rows.length) {
+                list.innerHTML = '<div class="empty-state">لا توجد إشعارات جديدة من النادي حتى الآن.</div>';
+                updateClubNotificationBadge();
+                return;
+            }
+            const iconFor = type => type === 'news' ? 'fa-newspaper' : type === 'match' ? 'fa-futbol' : type === 'result' ? 'fa-trophy' : 'fa-bell';
+            list.innerHTML = rows.map(item => {
+                const id = String(item.id);
+                const unread = !readIds.has(id);
+                const type = String(item.type || 'general');
+                const ref = Number(item.reference_id) || 0;
+                return '<div class="notif-item' + (unread ? ' unread' : '') + '" data-notif-id="' + clubEscape(id) + '" data-notif-type="' + clubEscape(type) + '" data-notif-ref="' + ref + '" role="button" tabindex="0">' +
+                    '<div class="notif-icon news-notif"><i class="fas ' + iconFor(type) + '"></i></div>' +
+                    '<div class="notif-body"><p class="notif-text"><strong>' + clubEscape(item.title || 'تنبيه النادي') + '</strong> ' + clubEscape(item.body || '') + '</p>' +
+                    '<span class="notif-time"><i class="far fa-clock"></i> ' + clubEscape(clubDate(item.created_at)) + '</span></div>' +
+                    (unread ? '<span class="unread-dot"></span>' : '') + '</div>';
+            }).join('');
+            if (!list.dataset.notifBound) {
+                list.dataset.notifBound = '1';
+                const openNotification = event => {
+                    const item = event.target.closest('.notif-item[data-notif-id]');
+                    if (!item) return;
+                    const ids = getReadClubNotificationIds();
+                    ids.add(String(item.dataset.notifId));
+                    saveReadClubNotificationIds(ids);
+                    item.classList.remove('unread');
+                    item.querySelector('.unread-dot')?.remove();
+                    updateClubNotificationBadge();
+                    const ref = Number(item.dataset.notifRef);
+                    if (!ref) return;
+                    if (item.dataset.notifType === 'news' && typeof window.openArticleModal === 'function') window.openArticleModal(ref);
+                    else if ((item.dataset.notifType === 'match' || item.dataset.notifType === 'result') && typeof window.openMatchModal === 'function') window.openMatchModal(ref);
+                };
+                list.addEventListener('click', openNotification);
+                list.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        if (event.target.closest('.notif-item[data-notif-id]')) { event.preventDefault(); openNotification(event); }
+                    }
+                });
+            }
+            updateClubNotificationBadge();
         } catch (error) { console.warn('Club notifications unavailable', error); }
     }
     document.addEventListener('click', event => {

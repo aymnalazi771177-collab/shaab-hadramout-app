@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=2.18-live-stream-connect">
+    <link rel="stylesheet" href="css/style.css?v=2.20-language-switcher">
 </head>
 <body>
     <div class="app-container">
@@ -51,6 +51,10 @@
                 <button class="menu-btn" id="menuBtn" aria-label="القائمة">
                     <i class="fas fa-bars"></i>
                 </button>
+                <div class="language-switcher" id="languageSwitcher" role="group" aria-label="اختيار اللغة">
+                    <button type="button" class="language-option active" data-language="ar" aria-pressed="true" aria-label="العربية">ع</button>
+                    <button type="button" class="language-option" data-language="en" aria-pressed="false" aria-label="English">EN</button>
+                </div>
                 <div class="club-title">
                     <h1 id="headerMainTitle">نادي شعب حضرموت</h1>
                     <p id="headerSubTitle">Shaab Hadramout Club</p>
@@ -1096,6 +1100,6 @@
         </nav>
     </div>
 
-    <script src="js/app.js?v=2.19-exclusive-alerts"></script>
+    <script src="js/app.js?v=2.20-language-switcher"></script>
 </body>
 </html>

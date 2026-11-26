@@ -1844,32 +1844,102 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (menuBtn) menuBtn.addEventListener('click', openMenu);
 
-    // Compact language preference selector (preference is persisted on this device).
+    // Arabic / English interface localization. User-generated club content is left untouched.
     const languageSwitcher = document.getElementById('languageSwitcher');
-    if (languageSwitcher) {
-        const languageButtons = Array.from(languageSwitcher.querySelectorAll('[data-language]'));
-        let savedLanguage = 'ar';
-        try {
-            savedLanguage = localStorage.getItem('shaab-app-language') || 'ar';
-        } catch (_) {}
-        if (!['ar', 'en'].includes(savedLanguage)) savedLanguage = 'ar';
-
-        const setSelectedLanguage = language => {
-            languageButtons.forEach(button => {
-                const selected = button.dataset.language === language;
-                button.classList.toggle('active', selected);
-                button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-            });
-            try {
-                localStorage.setItem('shaab-app-language', language);
-            } catch (_) {}
-        };
-
-        setSelectedLanguage(savedLanguage);
-        languageButtons.forEach(button => {
-            button.addEventListener('click', () => setSelectedLanguage(button.dataset.language));
-        });
+    const languageButtons = Array.from(languageSwitcher?.querySelectorAll('[data-language]') || []);
+    const translations = {
+      'نادي شعب حضرموت':'Shaab Hadramout Club','يوميات النوارس (Reels)':'Al-Nawras Reels','مباشر':'LIVE',
+      'المباراة القادمة':'Next Match','دوري الدرجة الأولى':'First Division League','التلال':'Al-Tilal',
+      'الجمعة 28 نوفمبر 2025':'Friday, 28 November 2025','3:30 مساءً':'3:30 PM','شعب حضرموت':'Shaab Hadramout',
+      'اللاعبون والجهاز الفني':'Players & Technical Staff','المباريات والنتائج':'Matches & Results','الانتقالات':'Transfers',
+      'الصور والفيديو':'Photos & Videos','الأناشيد':'Anthems','عن النادي':'About the Club','الأخبار':'News',
+      'البطولات':'Competitions','آخر الأخبار':'Latest News','عرض الكل':'View All','متجر النادي':'Club Store',
+      'البث المباشر':'Live Stream','ذاكرة النوارس':'Al-Nawras Memories','أساطير النادي':'Club Legends',
+      'البث المباشر لنادي شعب حضرموت':'Shaab Hadramout Live Stream','جارٍ تحميل البث...':'Loading stream...',
+      'يتم التحقق من حالة البث.':'Checking stream status...','الكل':'All','حراسة المرمى':'Goalkeepers',
+      'الدفاع':'Defenders','الوسط':'Midfielders','الهجوم':'Forwards','الجهاز الفني':'Coaching Staff',
+      'المباريات القادمة':'Upcoming Matches','النتائج':'Results','اختر البطولة':'Select Competition',
+      'جارٍ تحميل البطولات...':'Loading competitions...','لا توجد بطولات منشورة حالياً.':'No competitions published yet.',
+      'الفريق':'Team','سوق الانتقالات':'Transfer Market','الوافدون الجدد 🟢':'New Arrivals 🟢',
+      'المغادرون 🔴':'Departures 🔴','تجديد العقود ✍️':'Contract Renewals ✍️','ألبوم الصور':'Photo Gallery',
+      'ملخصات الفيديو':'Video Highlights','أناشيد وهتافات النوارس':'Al-Nawras Chants & Songs',
+      'النشيد الرسمي لنادي شعب حضرموت':'Shaab Hadramout Official Anthem','جماهير النوارس الحمراء':'The Red Al-Nawras Fans',
+      'عن نادي شعب حضرموت':'About Shaab Hadramout Club','نادي شعب حضرموت الرياضي الثقافي':'Shaab Hadramout Sports & Cultural Club',
+      'لقب النادي: "النوارس الحضرمية"':'Club Nickname: "Hadrami Seagulls"','تأسس عام 1964 م (المكلا)':'Founded in 1964 (Mukalla)',
+      'سجل الألقاب والبطولات':'Honours & Championships','دوري الدرجة الأولى اليمني:':'Yemeni First Division League:',
+      'بطل موسم 2020/2021':'Champions, 2020/2021 Season','كأس الجمهورية (الوحدة):':'Republic Cup (Al-Wehda):',
+      'بطل مرتين (2000، 2006)':'Two-time champions (2000, 2006)','كأس السوبر اليمني:':'Yemeni Super Cup:',
+      'بطل عام 2014':'Champions in 2014','كأس حضرموت الكبرى:':'Hadramout Grand Cup:',
+      'بطل متعدد الألقاب':'Multiple-time champions','المقر والمنشآت':'Headquarters & Facilities','الهوية والألوان':'Identity & Colours',
+      'الأحمر القرمزي (الأساسي)':'Crimson Red (Primary)','الأبيض النقي (الاحتياطي)':'Pure White (Secondary)',
+      'الصور والذكريات':'Photos & Memories','الفيديوهات':'Videos','جارٍ تحميل ذاكرة النوارس...':'Loading Al-Nawras memories...',
+      'أساطير نادي شعب حضرموت':'Shaab Hadramout Legends','وفاءً لمن صنعوا تاريخ النادي وتركوا بصمتهم في مسيرة النوارس.':'Honouring those who made the club’s history and left their mark.',
+      'جارٍ تحميل أساطير النادي...':'Loading club legends...','ملف الأسطورة':'Legend Profile','معلومات الأسطورة':'Legend Information',
+      'صور الأسطورة':'Legend Photos','فيديوهات الأسطورة':'Legend Videos','أخبار النادي':'Club News',
+      'جمهور نادي الشعب':'Shaab Club Fans','جارٍ تجهيز صفحة الجمهور...':'Preparing fans page...',
+      'مسابقة عشّاق النوارس':'Al-Nawras Fans Challenge','تحدّي جماهير النوارس':'Al-Nawras Supporters Challenge',
+      'توقّع نتائج المباريات واجمع النقاط ونافس على الجوائز':'Predict match results, earn points and compete for prizes',
+      'جوائز المسابقة':'Challenge Prizes','المركز الأول':'First Place','طقم النادي الرسمي':'Official Club Kit',
+      'موقّع من اللاعبين':'Signed by the players','المركز الثاني':'Second Place','تذكرة موسمية للمنصة':'Season Ticket for the Stand',
+      'مقدمة من النادي':'Provided by the Club','المركز الثالث':'Third Place','باقة مستلزمات حصرية':'Exclusive Merchandise Pack',
+      'من النادي':'From the Club','ترتيب المشاركين حسب النقاط':'Participants Ranked by Points','لوحة صدارة المشجعين':'Fans Leaderboard',
+      'أفضل 30':'Top 30','جارٍ تحميل ترتيب المشجعين...':'Loading fans leaderboard...','الإعدادات':'Settings',
+      'سجل دخولك أو أنشئ حسابك الآن':'Sign in or create your account now','إعدادات التطبيق العامة':'General App Settings',
+      'الوضع الليلي':'Dark Mode','تنبيهات المباريات المباشرة':'Live Match Alerts','إشعارات الأخبار العاجلة':'Breaking News Notifications',
+      'معلومات التطبيق':'App Information','مشاركة التطبيق مع الأصدقاء':'Share the App with Friends','تقييم التطبيق 5 نجوم':'Rate the App 5 Stars',
+      'إصدار التطبيق':'App Version','كرة السلة':'Basketball','كرة الطائرة':'Volleyball','كرة اليد':'Handball',
+      'التنس':'Tennis','التايكواندو':'Taekwondo','ألعاب القوى':'Athletics','ألعاب أخرى':'Other Sports',
+      'مجلس الإدارة':'Board of Directors','رؤساء النادي':'Club Presidents','عضوية النادي':'Club Membership',
+      'مؤسسة النادي المجتمعية':'Club Community Foundation','تواصل معنا':'Contact Us','الإشعارات والتنبيهات':'Notifications & Alerts',
+      'تحديد الكل كمقروء':'Mark All as Read','الرئيسية':'Home','تطبيق نادي شعب حضرموت الرسمي © 2026':'Official Shaab Hadramout Club App © 2026',
+      'بطاقة اللاعب':'Player Card','مركز المباراة والتذاكر':'Match Centre & Tickets','تفاصيل الخبر':'News Details',
+      'طلب القميص الرسمي':'Order Official Jersey','إعجاب':'Like','المباريات':'Matches','الإشعارات':'Notifications'
+    };
+    const reverseTranslations = Object.fromEntries(Object.entries(translations).map(([ar,en]) => [en,ar]));
+    const translatedAttributes = ['placeholder','title','aria-label','alt'];
+    function translateNode(node, language) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const raw=node.nodeValue, trimmed=raw.trim();
+        if (!trimmed) return;
+        const table=language==='en'?translations:reverseTranslations;
+        const translated=table[trimmed];
+        if (translated) node.nodeValue=raw.replace(trimmed,translated);
+        return;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+      translatedAttributes.forEach(attr => {
+        if (!node.hasAttribute(attr)) return;
+        const value=node.getAttribute(attr), table=language==='en'?translations:reverseTranslations;
+        if (table[value]) node.setAttribute(attr,table[value]);
+      });
+      Array.from(node.childNodes).forEach(child=>translateNode(child,language));
     }
+    let currentLanguage='ar';
+    function setSelectedLanguage(language) {
+      currentLanguage = ['ar','en'].includes(language) ? language : 'ar';
+      document.documentElement.lang=currentLanguage;
+      document.documentElement.dir=currentLanguage==='en'?'ltr':'rtl';
+      document.body.classList.toggle('english-interface',currentLanguage==='en');
+      languageButtons.forEach(button => {
+        const selected=button.dataset.language===currentLanguage;
+        button.classList.toggle('active',selected);
+        button.setAttribute('aria-pressed',selected?'true':'false');
+      });
+      try { localStorage.setItem('shaab-app-language',currentLanguage); } catch (_) {}
+      translateNode(document.body,currentLanguage);
+    }
+    let savedLanguage='ar';
+    try { savedLanguage=localStorage.getItem('shaab-app-language')||'ar'; } catch (_) {}
+    setSelectedLanguage(savedLanguage);
+    languageButtons.forEach(button=>button.addEventListener('click',()=>setSelectedLanguage(button.dataset.language)));
+    const languageObserver=new MutationObserver(records=>{
+      if(currentLanguage!=='en') return;
+      records.forEach(record=>{
+        if(record.type==='childList') record.addedNodes.forEach(node=>translateNode(node,'en'));
+        else if(record.type==='characterData') translateNode(record.target,'en');
+      });
+    });
+    languageObserver.observe(document.body,{subtree:true,childList:true,characterData:true});
     if (sideMenuOverlay) sideMenuOverlay.addEventListener('click', closeMenu);
 
     // Notifications Panel

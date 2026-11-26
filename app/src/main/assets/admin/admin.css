@@ -57,3 +57,8 @@
 #refreshStorage:disabled{opacity:.55;cursor:wait}
 @media(max-width:850px){.storage-overview{grid-template-columns:1fr 1fr}.storage-main-card{grid-column:1/-1}}
 @media(max-width:520px){.storage-overview{grid-template-columns:1fr}.storage-main-card{grid-column:auto}.storage-total strong{font-size:25px}}
+
+/* D1 and combined storage figures */
+.storage-database-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+.storage-database-overview .storage-stat-card{min-height:112px}
+@media(max-width:520px){.storage-database-overview{grid-template-columns:1fr}}

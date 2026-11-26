@@ -1004,37 +1004,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const body = document.getElementById('articleModalBody');
         body.innerHTML = `
-            <div style="border-radius:16px; overflow:visible; margin-bottom:14px; width:100%;">
-                <img src="${article.img}" alt="${article.title}" style="display:block; width:100%; height:auto; max-height:none; object-fit:contain; object-position:center;">
-            </div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                <span class="slide-category" style="font-size:10px; margin:0;">${article.cat}</span>
-                <span style="font-size:11px; color:var(--text-light);"><i class="far fa-clock"></i> ${article.date}</span>
-                <span style="font-size:11px; color:var(--text-light);"><i class="fas fa-book-open"></i> ${article.readTime}</span>
-            </div>
-            <h3 style="font-size:16px; font-weight:800; color:var(--text-dark); line-height:1.5; margin-bottom:12px;">
-                ${article.title}
-            </h3>
-            <div style="font-size:12px; color:var(--primary-red); font-weight:700; margin-bottom:12px;">
-                بقلم: ${article.author}
-            </div>
-            <div style="font-size:12.5px; line-height:1.8; color:var(--text-gray); white-space:pre-line;">
-                ${article.content}
-            </div>
-            ${article.images && article.images.length ? `
-                <section class="news-attached-gallery" aria-label="معرض الصور المصاحبة">
-                    <h4><i class="fas fa-images"></i> معرض الصور المصاحبة</h4>
-                    <div class="news-attached-gallery-grid">
-                        ${article.images.map((url, index) => `<button type="button" class="news-attached-gallery-item" data-gallery-image="${index}" aria-label="عرض الصورة ${index + 1}"><img src="${url}" alt="صورة مصاحبة للخبر ${index + 1}" loading="lazy"></button>`).join('')}
-                    </div>
-                </section>
-            ` : ''}
-            <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-                <button onclick="navigator.clipboard.writeText(window.location.href); showToast('تم نسخ رابط المقال للمشاركة');" style="background:var(--card-bg); border:1px solid var(--border-color); padding:8px 16px; border-radius:20px; font-size:12px; font-family:'Cairo'; font-weight:700; cursor:pointer;">
-                    <i class="fas fa-share-nodes text-red"></i> مشاركة الخبر
-                </button>
-                <span style="font-size:11px; color:var(--text-light);">المركز الإعلامي الرسمي</span>
-            </div>
+            <article class="article-detail">
+                <div class="article-hero">
+                    <img src="${article.img}" alt="${article.title}" loading="eager">
+                </div>
+                <div class="article-meta">
+                    <span class="article-meta-item article-meta-category">${article.cat}</span>
+                    <span class="article-meta-item"><i class="far fa-clock"></i>${article.date}</span>
+                    <span class="article-meta-item"><i class="fas fa-book-open"></i>${article.readTime}</span>
+                </div>
+                <h3 class="article-title">${article.title}</h3>
+                <div class="article-byline">
+                    <i class="fas fa-pen-nib"></i>
+                    <span>بقلم: <strong>${article.author}</strong></span>
+                </div>
+                <div class="article-body">${article.content}</div>
+                ${article.images && article.images.length ? `
+                    <section class="news-attached-gallery" aria-label="معرض الصور المصاحبة">
+                        <h4><i class="fas fa-images"></i> معرض الصور المصاحبة</h4>
+                        <div class="news-attached-gallery-grid">
+                            ${article.images.map((url, index) => `<button type="button" class="news-attached-gallery-item" data-gallery-image="${index}" aria-label="عرض الصورة ${index + 1}"><img src="${url}" alt="صورة مصاحبة للخبر ${index + 1}" loading="lazy"></button>`).join('')}
+                        </div>
+                    </section>
+                ` : ''}
+                <div class="article-footer">
+                    <button class="article-share-btn" onclick="navigator.clipboard.writeText(window.location.href); showToast('تم نسخ رابط المقال للمشاركة');">
+                        <i class="fas fa-share-nodes"></i> مشاركة الخبر
+                    </button>
+                    <span class="article-source">المركز الإعلامي الرسمي</span>
+                </div>
+            </article>
         `;
 
         // Every article opening starts at the beginning, even when the same article was read before.

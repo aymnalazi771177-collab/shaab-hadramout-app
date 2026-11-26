@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('welcome-open');
 
         // Play the club's welcome voice automatically with the opening logo screen.
+        // Audio is bundled locally so it works without a network request.
         const welcomeAudio = new Audio('welcome-voice.mp3');
         welcomeAudio.preload = 'auto';
         welcomeAudio.volume = 1;

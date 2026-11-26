@@ -1843,6 +1843,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (menuBtn) menuBtn.addEventListener('click', openMenu);
+
+    // Compact language preference selector (preference is persisted on this device).
+    const languageSwitcher = document.getElementById('languageSwitcher');
+    if (languageSwitcher) {
+        const languageButtons = Array.from(languageSwitcher.querySelectorAll('[data-language]'));
+        let savedLanguage = 'ar';
+        try {
+            savedLanguage = localStorage.getItem('shaab-app-language') || 'ar';
+        } catch (_) {}
+        if (!['ar', 'en'].includes(savedLanguage)) savedLanguage = 'ar';
+
+        const setSelectedLanguage = language => {
+            languageButtons.forEach(button => {
+                const selected = button.dataset.language === language;
+                button.classList.toggle('active', selected);
+                button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+            });
+            try {
+                localStorage.setItem('shaab-app-language', language);
+            } catch (_) {}
+        };
+
+        setSelectedLanguage(savedLanguage);
+        languageButtons.forEach(button => {
+            button.addEventListener('click', () => setSelectedLanguage(button.dataset.language));
+        });
+    }
     if (sideMenuOverlay) sideMenuOverlay.addEventListener('click', closeMenu);
 
     // Notifications Panel

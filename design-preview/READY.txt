@@ -1,0 +1,1 @@
+Preview deployment trigger after isolated Pages project path configuration.

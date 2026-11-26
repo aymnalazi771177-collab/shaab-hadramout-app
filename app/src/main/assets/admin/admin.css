@@ -63,3 +63,6 @@
 .storage-database-overview .storage-stat-card{min-height:112px}
 .storage-remaining-card{grid-column:1/-1}
 @media(max-width:520px){.storage-database-overview{grid-template-columns:1fr}}
+
+/* Album administration helper text */
+#formFields input[type=file][name=photo_files],#formFields input[type=file][name=cover_file]{width:100%}

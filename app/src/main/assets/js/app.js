@@ -3049,7 +3049,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     async function loadClubNotifications(data = null) {
         try {
-            data = data || await clubGet('/api/notifications');
+            if (!data) {
+                const fanToken = localStorage.getItem(FAN_TOKEN_KEY);
+                const response = await fetch(CLUB_API_BASE + '/api/notifications?refresh=' + Date.now(), { cache: 'no-store', headers: fanToken ? { Authorization: 'Bearer ' + fanToken } : {} });
+                data = await response.json();
+                if (!response.ok || data.success === false) throw new Error(data.message || 'تعذر تحميل الإشعارات');
+            }
             const rows = Array.isArray(data.notifications) ? data.notifications : [];
             const list = document.getElementById('notifList');
             if (!list) return;
@@ -3059,7 +3064,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateClubNotificationBadge();
                 return;
             }
-            const iconFor = type => type === 'news' ? 'fa-newspaper' : type === 'match' ? 'fa-futbol' : type === 'result' ? 'fa-trophy' : 'fa-bell';
+            const iconFor = type => type === 'news' ? 'fa-newspaper' : type === 'match' ? 'fa-futbol' : type === 'result' ? 'fa-trophy' : type === 'app_update' ? 'fa-download' : 'fa-bell';
             list.innerHTML = rows.map(item => {
                 const id = String(item.id);
                 const unread = !readIds.has(id);
@@ -3067,7 +3072,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const ref = Number(item.reference_id) || 0;
                 return '<div class="notif-item' + (unread ? ' unread' : '') + '" data-notif-id="' + clubEscape(id) + '" data-notif-type="' + clubEscape(type) + '" data-notif-ref="' + ref + '" role="button" tabindex="0">' +
                     '<div class="notif-icon news-notif"><i class="fas ' + iconFor(type) + '"></i></div>' +
-                    '<div class="notif-body"><p class="notif-text"><strong>' + clubEscape(item.title || 'تنبيه النادي') + '</strong> ' + clubEscape(item.body || '') + '</p>' +
+                    '<div class="notif-body"><p class="notif-text"><strong>' + clubEscape(item.title || 'تنبيه النادي') + '</strong> ' + clubEscape(item.body || '') + (item.app_version ? '<small class="notif-version">الإصدار الجديد: ' + clubEscape(item.app_version) + '</small>' : '') + '</p>' +
                     '<span class="notif-time"><i class="far fa-clock"></i> ' + clubEscape(clubDate(item.created_at)) + '</span></div>' +
                     (unread ? '<span class="unread-dot"></span>' : '') + '</div>';
             }).join('');
@@ -3135,8 +3140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ['/api/archive', d => applyClubArchive(d.media)],
             ['/api/anthems', d => applyClubAnthems(d.anthems)],
             ['/api/carousel', d => applyClubCarousel(d.slides)],
-            ['/api/history', d => loadClubHistory(d)],
-            ['/api/notifications', d => loadClubNotifications(d)]
+            ['/api/history', d => loadClubHistory(d)]
         ];
         // Display the last saved real CMS content first, then refresh it online.
         await Promise.allSettled(jobs.map(async job => {
@@ -3154,6 +3158,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
         // Prepare every shared CMS feed together during the opening screen.
         await refreshGroup(jobs);
+        await loadClubNotifications();
     }
     // Native-style pull down refresh: reload current CMS data without leaving the screen.
     function setupPullToRefresh() {

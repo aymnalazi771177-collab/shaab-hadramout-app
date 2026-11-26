@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
 
     function bindStoryEvents() {
-        document.querySelectorAll('.story-circle-item').forEach(el => {
+        document.querySelectorAll('.story-reel-card').forEach(el => {
             el.onclick = function() {
                 const idx = parseInt(this.getAttribute('data-story-idx'), 10);
                 this.classList.add('viewed');
@@ -438,23 +438,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('storiesScrollContainer');
         if (!container) return;
 
-        // Show exactly five Reels on the home screen; keep the full data for the viewer.
-        if (!container.children || container.children.length === 0) {
-            container.innerHTML = STORIES_DATA.slice(0, 5).map((s, idx) => `
-                <div class="story-circle-item" data-story-idx="${idx}">
-                    <div class="story-avatar-ring">
-                        <div class="story-avatar-img-wrap">
-                            <img src="${s.thumb}" alt="${s.title}" class="story-avatar-img" loading="lazy">
-                        </div>
-                        <span class="story-badge-pill">${s.badge}</span>
-                    </div>
-                    <span class="story-circle-label">${s.title}</span>
-                </div>
-            `).join('');
-        }
-
-        // Also trim any pre-rendered sixth item without deleting it from CMS or STORIES_DATA.
-        Array.from(container.children).slice(5).forEach(item => item.remove());
+        // Render all active Reel groups; four cards fit on screen and the rest remain swipeable.
+        container.innerHTML = STORIES_DATA.map((s, idx) => `
+            <button type="button" class="story-reel-card" data-story-idx="${idx}" aria-label="مشاهدة ${s.title}">
+                <span class="story-reel-cover">
+                    <img src="${s.thumb}" alt="${s.title}" class="story-reel-image" loading="lazy">
+                    <span class="story-reel-shade"></span>
+                    <span class="story-reel-play"><i class="fas fa-play" aria-hidden="true"></i></span>
+                    <span class="story-reel-count">${s.badge}</span>
+                    <span class="story-reel-title">${s.title}</span>
+                </span>
+            </button>
+        `).join('');
         bindStoryEvents();
     }
     renderStories();

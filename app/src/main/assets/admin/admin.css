@@ -61,4 +61,5 @@
 /* D1 and combined storage figures */
 .storage-database-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
 .storage-database-overview .storage-stat-card{min-height:112px}
+.storage-remaining-card{grid-column:1/-1}
 @media(max-width:520px){.storage-database-overview{grid-template-columns:1fr}}

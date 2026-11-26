@@ -297,20 +297,22 @@ function closeEditor(){$("modal").classList.remove("open");$("editorForm").reset
 async function deleteItem(id){if(!confirm("هل تريد حذف هذا العنصر نهائياً؟"))return;const cfg=configs[current];try{const url=cfg.endpoint+(cfg.endpoint.includes("?")?"&":"?")+"id="+encodeURIComponent(id);const result=await api(url,{method:"DELETE"});if(current==="news"&&result?.mediaCleanup){const cleanup=result.mediaCleanup;const held=cleanup.results?.find(item=>item.status==="kept");toast(cleanup.error?"حُذف الخبر، لكن تعذر حذف الصورة من التخزين: "+cleanup.error:held?"حُذف الخبر؛ الصورة محفوظة لأنها مستخدمة في "+held.reference.table+"."+held.reference.column:"تم حذف الخبر والصور من التخزين: "+cleanup.deleted+" ملف");}else{toast("تم الحذف بنجاح")}await loadSection(current);loadStats()}catch(e){toast(e.message)}}
 async function loadStats(){const targets=[["statNews","/api/news","news"],["statMatches","/api/matches","matches"],["statPlayers","/api/players","players"],["statMedia","/api/gallery","media"]];await Promise.all(targets.map(async([id,path,key])=>{try{const d=await api(path);const el=$(id);if(el)el.textContent=(d[key]||[]).length}catch{const el=$(id);if(el)el.textContent="—"}}))}
 function formatStorageGB(bytes){const gb=bytes/1000000000;return gb.toLocaleString("en-US",{maximumFractionDigits:2})+" GB"}
+function formatStorageDetail(bytes){const value=Number(bytes)||0;return value>=1000000000?(value/1000000000).toLocaleString("en-US",{maximumFractionDigits:2})+" GB":(value/1000000).toLocaleString("en-US",{maximumFractionDigits:2})+" MB"}
 async function loadStorageUsage(){
- const usedEl=$("storageUsed"),objectsEl=$("storageObjects"),remainingEl=$("storageRemaining"),percentEl=$("storagePercent"),meterEl=$("storageMeter"),statusEl=$("storageStatus"),updatedEl=$("storageUpdated");
+ const usedEl=$("storageUsed"),objectsEl=$("storageObjects"),remainingEl=$("storageRemaining"),percentEl=$("storagePercent"),meterEl=$("storageMeter"),statusEl=$("storageStatus"),updatedEl=$("storageUpdated"),d1El=$("storageD1Used"),combinedEl=$("storageCombinedUsed");
  if(!usedEl)return;
  $("refreshStorage").disabled=true;
  statusEl.textContent="يتم قراءة الملفات من R2... قد يستغرق ذلك وقتاً إذا كان عدد الملفات كبيراً.";
  usedEl.textContent="جارٍ الحساب";
  objectsEl.textContent="—";remainingEl.textContent="—";percentEl.textContent="جارٍ القياس";meterEl.style.width="0%";
- let cursor="",totalBytes=0,totalObjects=0,pages=0;
+ let cursor="",totalBytes=0,totalObjects=0,pages=0,d1Bytes=null;
  try{
   do{
    const path="/api/storage-usage"+(cursor?"?cursor="+encodeURIComponent(cursor):"");
    const data=await api(path);
    totalBytes+=Number(data.bytes||0);
    totalObjects+=Number(data.objects||0);
+   if(data.d1Bytes!==undefined&&data.d1Bytes!==null)d1Bytes=Number(data.d1Bytes);
    cursor=data.nextCursor||"";
    pages++;
    const currentGB=totalBytes/1000000000;
@@ -322,6 +324,13 @@ async function loadStorageUsage(){
    statusEl.textContent=cursor?"تم حساب دفعة "+pages+"؛ جارٍ استكمال بقية الملفات...":"اكتمل فحص جميع الملفات المخزنة.";
   }while(cursor);
   const currentGB=totalBytes/1000000000;
+  if(d1Bytes!==null&&Number.isFinite(d1Bytes)){
+   if(d1El)d1El.textContent=formatStorageDetail(d1Bytes);
+   if(combinedEl)combinedEl.textContent=formatStorageDetail(totalBytes+d1Bytes);
+  }else{
+   if(d1El)d1El.textContent="غير متاح";
+   if(combinedEl)combinedEl.textContent="غير مكتمل";
+  }
   meterEl.classList.toggle("over-limit",currentGB>10);
   statusEl.textContent=currentGB>10?"الاستخدام الحالي يتجاوز مقدار التخزين المجاني؛ راجع متوسط التخزين والفاتورة في Cloudflare.":"تم حساب جميع الملفات بنجاح. هذا قياس لحظي وليس متوسط الفوترة الشهري.";
   updatedEl.textContent=new Intl.DateTimeFormat("ar-YE",{dateStyle:"short",timeStyle:"short"}).format(new Date());

@@ -3047,6 +3047,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         updateClubNotificationBadge();
     }
+    window.openExclusiveAlert = function(item) {
+        if (!item) return;
+        let details = {};
+        try { details = typeof item.details_json === 'string' ? JSON.parse(item.details_json || '{}') : (item.details_json || {}); } catch (error) {}
+        const title = clubEscape(item.title || 'تنبيه حصري من النادي');
+        const content = clubEscape(details.content || item.body || '');
+        const cover = String(details.cover_image || '');
+        const gallery = Array.isArray(details.images) ? details.images.filter(Boolean).map(String) : [];
+        const images = [cover, ...gallery].filter(Boolean);
+        const body = document.getElementById('articleModalBody');
+        const overlay = document.getElementById('articleModalOverlay');
+        const sheet = document.getElementById('articleModalSheet');
+        if (!body || !overlay || !sheet) return;
+        const imageMarkup = cover ? '<div style="width:100%;margin:0 0 14px;border-radius:16px;overflow:hidden;background:var(--card-bg)"><img src="' + clubEscape(cover) + '" alt="' + title + '" style="display:block;width:100%;height:auto;max-height:360px;object-fit:contain"></div>' : '';
+        const galleryMarkup = gallery.length ? '<section class="news-attached-gallery" aria-label="صور التنبيه"><h4><i class="fas fa-images"></i> الصور المرفقة</h4><div class="news-attached-gallery-grid">' + gallery.map((url,index) => '<button type="button" class="news-attached-gallery-item" data-gallery-image="' + (cover ? index + 1 : index) + '" aria-label="عرض الصورة ' + (index + 1) + '"><img src="' + clubEscape(url) + '" alt="صورة التنبيه ' + (index + 1) + '" loading="lazy"></button>').join('') + '</div></section>' : '';
+        body.innerHTML = imageMarkup +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px"><span class="slide-category" style="font-size:10px;margin:0">تنبيه حصري</span><span style="font-size:11px;color:var(--text-light)"><i class="far fa-clock"></i> ' + clubEscape(clubDate(item.created_at)) + '</span></div>' +
+            '<h3 style="font-size:17px;font-weight:900;line-height:1.6;margin-bottom:12px;color:var(--text-dark)">' + title + '</h3>' +
+            '<div style="font-size:13px;line-height:2;color:var(--text-dark);white-space:pre-line">' + content + '</div>' + galleryMarkup +
+            '<div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-light)">إدارة نادي شعب حضرموت الرياضي</div>';
+        window.__activeNewsArticle = { title: item.title || '', content: details.content || item.body || '', images };
+        body.scrollTop = 0; sheet.scrollTop = 0;
+        if (!overlay.classList.contains('active')) history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, '', location.href);
+        overlay.classList.add('active'); sheet.classList.add('open');
+        requestAnimationFrame(() => { body.scrollTop = 0; sheet.scrollTop = 0; });
+    };
     async function loadClubNotifications(data = null) {
         try {
             if (!data) {
@@ -3064,7 +3090,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateClubNotificationBadge();
                 return;
             }
-            const iconFor = type => type === 'news' ? 'fa-newspaper' : type === 'match' ? 'fa-futbol' : type === 'result' ? 'fa-trophy' : type === 'app_update' ? 'fa-download' : 'fa-bell';
+            const iconFor = type => type === 'news' ? 'fa-newspaper' : type === 'match' ? 'fa-futbol' : type === 'result' ? 'fa-trophy' : type === 'app_update' ? 'fa-download' : type === 'exclusive' ? 'fa-bullhorn' : 'fa-bell';
             list.innerHTML = rows.map(item => {
                 const id = String(item.id);
                 const unread = !readIds.has(id);
@@ -3088,10 +3114,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     item.querySelector('.unread-dot')?.remove();
                     updateClubNotificationBadge();
                     closeNotifications();
+                    const type = item.dataset.notifType || '';
+                    if (type === 'exclusive') {
+                        const row = rows.find(entry => String(entry.id) === String(item.dataset.notifId));
+                        if (row && typeof window.openExclusiveAlert === 'function') window.openExclusiveAlert(row);
+                        return;
+                    }
                     const ref = Number(item.dataset.notifRef);
                     if (!ref) return;
-                    if (item.dataset.notifType === 'news' && typeof window.openArticleModal === 'function') window.openArticleModal(ref);
-                    else if ((item.dataset.notifType === 'match' || item.dataset.notifType === 'result') && typeof window.openMatchModal === 'function') window.openMatchModal(ref);
+                    if (type === 'news' && typeof window.openArticleModal === 'function') window.openArticleModal(ref);
+                    else if ((type === 'match' || type === 'result') && typeof window.openMatchModal === 'function') window.openMatchModal(ref);
                 };
                 list.addEventListener('click', openNotification);
                 list.addEventListener('keydown', event => {

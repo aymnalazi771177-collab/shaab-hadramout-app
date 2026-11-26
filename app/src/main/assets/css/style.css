@@ -2470,3 +2470,10 @@ body.dark-mode .fan-prediction-gate-choice{background:rgba(219,30,36,.1);border-
     #articleModalBody .article-hero img { max-height:235px; min-height:150px; }
     #articleModalBody .article-title { font-size:17px; }
 }
+
+
+/* Bilingual interface direction and typography */
+html[lang="en"], html[lang="en"] body { direction:ltr; }
+html[lang="en"] body, html[lang="en"] button, html[lang="en"] input, html[lang="en"] textarea, html[lang="en"] select { font-family: Arial, Helvetica, sans-serif; }
+html[lang="en"] .app-header .header-content, html[lang="en"] .sub-page-header { direction:ltr; }
+html[lang="en"] .menu-item, html[lang="en"] .nav-item, html[lang="en"] .club-shortcut-card { direction:ltr; }

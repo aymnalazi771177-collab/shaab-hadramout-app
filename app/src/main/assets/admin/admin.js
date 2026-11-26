@@ -299,7 +299,7 @@ async function loadStats(){const targets=[["statNews","/api/news","news"],["stat
 function formatStorageGB(bytes){const gb=bytes/1000000000;return gb.toLocaleString("en-US",{maximumFractionDigits:2})+" GB"}
 function formatStorageDetail(bytes){const value=Number(bytes)||0;return value>=1000000000?(value/1000000000).toLocaleString("en-US",{maximumFractionDigits:2})+" GB":(value/1000000).toLocaleString("en-US",{maximumFractionDigits:2})+" MB"}
 async function loadStorageUsage(){
- const usedEl=$("storageUsed"),objectsEl=$("storageObjects"),remainingEl=$("storageRemaining"),percentEl=$("storagePercent"),meterEl=$("storageMeter"),statusEl=$("storageStatus"),updatedEl=$("storageUpdated"),d1El=$("storageD1Used"),combinedEl=$("storageCombinedUsed");
+ const usedEl=$("storageUsed"),objectsEl=$("storageObjects"),remainingEl=$("storageRemaining"),percentEl=$("storagePercent"),meterEl=$("storageMeter"),statusEl=$("storageStatus"),updatedEl=$("storageUpdated"),d1El=$("storageD1Used"),combinedEl=$("storageCombinedUsed"),combinedRemainingEl=$("storageCombinedRemaining");
  if(!usedEl)return;
  $("refreshStorage").disabled=true;
  statusEl.textContent="يتم قراءة الملفات من R2... قد يستغرق ذلك وقتاً إذا كان عدد الملفات كبيراً.";
@@ -326,10 +326,10 @@ async function loadStorageUsage(){
   const currentGB=totalBytes/1000000000;
   if(d1Bytes!==null&&Number.isFinite(d1Bytes)){
    if(d1El)d1El.textContent=formatStorageDetail(d1Bytes);
-   if(combinedEl)combinedEl.textContent=formatStorageDetail(totalBytes+d1Bytes);
+   if(combinedEl)combinedEl.textContent=formatStorageDetail(totalBytes+d1Bytes);\n   if(combinedRemainingEl)combinedRemainingEl.textContent=formatStorageDetail(Math.max(0,10*1000000000-totalBytes-d1Bytes));
   }else{
    if(d1El)d1El.textContent="غير متاح";
-   if(combinedEl)combinedEl.textContent="غير مكتمل";
+   if(combinedEl)combinedEl.textContent="غير مكتمل";\n   if(combinedRemainingEl)combinedRemainingEl.textContent="غير متاح";
   }
   meterEl.classList.toggle("over-limit",currentGB>10);
   statusEl.textContent=currentGB>10?"الاستخدام الحالي يتجاوز مقدار التخزين المجاني؛ راجع متوسط التخزين والفاتورة في Cloudflare.":"تم حساب جميع الملفات بنجاح. هذا قياس لحظي وليس متوسط الفوترة الشهري.";

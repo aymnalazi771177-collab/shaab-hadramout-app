@@ -155,41 +155,6 @@ body {
 }
 .menu-btn:active { transform: scale(0.92); }
 
-.language-switcher {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 4px;
-    margin: 12px auto 0;
-    border: 1px solid rgba(255,255,255,.5);
-    border-radius: 12px;
-    background: rgba(255,255,255,.14);
-    direction: ltr;
-    flex-shrink: 0;
-}
-.language-option {
-    min-width: 27px;
-    height: 27px;
-    padding: 0 5px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: #fff;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1;
-    cursor: pointer;
-    transition: background .18s ease, color .18s ease, transform .18s ease;
-}
-.language-option.active {
-    background: #fff;
-    color: #DB1E24;
-    box-shadow: 0 1px 5px rgba(0,0,0,.16);
-}
-.language-option:active { transform: scale(.94); }
-
 
 .club-title { text-align: center; color: #fff; flex: 1; }
 .club-title h1 {
@@ -2472,8 +2437,3 @@ body.dark-mode .fan-prediction-gate-choice{background:rgba(219,30,36,.1);border-
 }
 
 
-/* Bilingual interface direction and typography */
-html[lang="en"], html[lang="en"] body { direction:ltr; }
-html[lang="en"] body, html[lang="en"] button, html[lang="en"] input, html[lang="en"] textarea, html[lang="en"] select { font-family: Arial, Helvetica, sans-serif; }
-html[lang="en"] .app-header .header-content, html[lang="en"] .sub-page-header { direction:ltr; }
-html[lang="en"] .menu-item, html[lang="en"] .nav-item, html[lang="en"] .club-shortcut-card { direction:ltr; }

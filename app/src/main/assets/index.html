@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=2.20-language-switcher">
+    <link rel="stylesheet" href="css/style.css?v=2.21-language-in-drawer">
 </head>
 <body>
     <div class="app-container">
@@ -51,10 +51,6 @@
                 <button class="menu-btn" id="menuBtn" aria-label="القائمة">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="language-switcher" id="languageSwitcher" role="group" aria-label="اختيار اللغة">
-                    <button type="button" class="language-option active" data-language="ar" aria-pressed="true" aria-label="العربية">ع</button>
-                    <button type="button" class="language-option" data-language="en" aria-pressed="false" aria-label="English">EN</button>
-                </div>
                 <div class="club-title">
                     <h1 id="headerMainTitle">نادي شعب حضرموت</h1>
                     <p id="headerSubTitle">Shaab Hadramout Club</p>
@@ -883,6 +879,10 @@
                 </div>
                 <h3>نادي شعب حضرموت</h3>
                 <p>Shaab Hadramout Club</p>
+                <div class="language-switcher" id="languageSwitcher" role="group" aria-label="اختيار اللغة">
+                    <button type="button" class="language-option active" data-language="ar" aria-pressed="true" aria-label="العربية">ع</button>
+                    <button type="button" class="language-option" data-language="en" aria-pressed="false" aria-label="English">EN</button>
+                </div>
             </div>
             <ul class="side-menu-list">
                 <li class="active" data-navigate="homePage"><i class="fas fa-home"></i><span>الرئيسية</span></li>

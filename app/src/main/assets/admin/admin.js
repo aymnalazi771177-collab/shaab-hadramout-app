@@ -12,7 +12,7 @@ athletics:"ألعاب القوى",otherSports:"ألعاب أخرى",board:"مج�
 history:"تاريخ النادي",membership:"عضوية النادي",foundation:"المؤسسة المجتمعية",anthem:"الأناشيد",
 store:"متجر النادي الرسمي",contact:"تواصل معنا",carousel:"السلايدر الرئيسي",notifications:"الإشعارات",appUpdates:"تحديثات التطبيق",exclusiveAlerts:"التنبيهات الحصرية",admins:"المشرفون والصلاحيات"
 };
-const permissionMap={players:"team",anthem:"anthems",storage:"admins"};
+const permissionMap={players:"team",anthem:"anthems",storage:"admins",exclusiveAlerts:"customAlerts"};
 const permissions=[
 ["live","البث المباشر"],["carousel","السلايدر الرئيسي"],["legends","أساطير النادي"],["news","الأخبار والتقارير"],["matches","المباريات والنتائج"],["team","اللاعبون والجهاز الفني"],
 ["transfers","الانتقالات"],["media","الصور والفيديو"],["archive","ذاكرة النوارس"],["reels","يوميات النوارس REELS"],["standings","الترتيب والبطولات"],

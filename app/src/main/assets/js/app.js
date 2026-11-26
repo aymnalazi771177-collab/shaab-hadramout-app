@@ -1485,7 +1485,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             const photos = Array.isArray(activeAlbum.photos) ? activeAlbum.photos : [];
-            const back = '<button type="button" class="media-album-back"><i class="fas fa-arrow-right"></i><span>العودة إلى الألبومات</span></button>';
             const heading = '<div class="media-album-detail-heading"><strong>' + String(activeAlbum.title || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])) + '</strong><small>' + photos.length + ' صورة</small></div>';
             const cards = photos.map((photo, index) => {
                 const title = String(photo.title || activeAlbum.title || '');
@@ -1493,7 +1492,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const url = String(photo.media_url || '').replace(/[\\"']/g, '');
                 return '<div class="media-item-box"><div class="media-item-thumb"><img class="media-photo-open" data-photo-index="' + index + '" src="' + url + '" alt="' + safeTitle + '" loading="lazy" role="button" tabindex="0"><span class="media-like-count" data-media-id="' + Number(photo.id || 0) + '"><i class="fas fa-heart"></i><span class="media-like-count-value">0</span></span></div></div>';
             }).join('');
-            container.innerHTML = back + heading + (cards || '<div class="empty-state">لا توجد صور داخل هذا الألبوم.</div>');
+            container.innerHTML = heading + (cards || '<div class="empty-state">لا توجد صور داخل هذا الألبوم.</div>');
             loadGalleryLikeCounts();
             return;
         }

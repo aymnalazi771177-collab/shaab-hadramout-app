@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - feature/welcome-voice-startup-2026-11-26
     paths:
       - 'app/**'
       - '*.gradle'

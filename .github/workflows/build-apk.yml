@@ -63,3 +63,5 @@ jobs:
           name: Shaab-Hadramout-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+# Trigger a fresh APK build for the restored news-detail version.

@@ -326,10 +326,12 @@ async function loadStorageUsage(){
   const currentGB=totalBytes/1000000000;
   if(d1Bytes!==null&&Number.isFinite(d1Bytes)){
    if(d1El)d1El.textContent=formatStorageDetail(d1Bytes);
-   if(combinedEl)combinedEl.textContent=formatStorageDetail(totalBytes+d1Bytes);\n   if(combinedRemainingEl)combinedRemainingEl.textContent=formatStorageDetail(Math.max(0,10*1000000000-totalBytes-d1Bytes));
+   if(combinedEl)combinedEl.textContent=formatStorageDetail(totalBytes+d1Bytes);
+   if(combinedRemainingEl)combinedRemainingEl.textContent=formatStorageDetail(Math.max(0,10*1000000000-totalBytes-d1Bytes));
   }else{
    if(d1El)d1El.textContent="غير متاح";
-   if(combinedEl)combinedEl.textContent="غير مكتمل";\n   if(combinedRemainingEl)combinedRemainingEl.textContent="غير متاح";
+   if(combinedEl)combinedEl.textContent="غير مكتمل";
+   if(combinedRemainingEl)combinedRemainingEl.textContent="غير متاح";
   }
   meterEl.classList.toggle("over-limit",currentGB>10);
   statusEl.textContent=currentGB>10?"الاستخدام الحالي يتجاوز مقدار التخزين المجاني؛ راجع متوسط التخزين والفاتورة في Cloudflare.":"تم حساب جميع الملفات بنجاح. هذا قياس لحظي وليس متوسط الفوترة الشهري.";

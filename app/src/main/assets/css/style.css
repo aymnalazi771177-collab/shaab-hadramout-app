@@ -1302,6 +1302,7 @@ input:checked + .slider.round:before { transform: translateX(20px); }
 .notif-body { flex: 1; }
 .notif-text { font-size: 12px; line-height: 1.5; color: var(--text-dark); font-weight: 500; }
 .notif-time { font-size: 10px; color: var(--text-light); display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+.notif-version { display: block; margin-top: 5px; color: var(--primary-red); font-size: 10px; font-weight: 800; }
 .unread-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary-red); flex-shrink: 0; margin-top: 6px; }
 
 /* Side Menu */

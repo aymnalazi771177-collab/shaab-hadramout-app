@@ -1470,6 +1470,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
         container.classList.toggle('media-videos-list', type === 'videos');
         container.classList.toggle('media-albums-grid', type === 'photos' && MEDIA_ACTIVE_ALBUM_ID === null);
+        container.classList.toggle('media-album-detail', type === 'photos' && MEDIA_ACTIVE_ALBUM_ID !== null);
         if (type === 'photos') {
             const activeAlbum = MEDIA_ALBUMS.find(album => Number(album.id) === Number(MEDIA_ACTIVE_ALBUM_ID));
             if (!activeAlbum) {

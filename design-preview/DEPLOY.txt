@@ -1,0 +1,1 @@
+Isolated visual preview deployment for Shaab Hadramout redesign. This folder is not connected to the production app runtime.

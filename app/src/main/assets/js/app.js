@@ -8,6 +8,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const welcomeScreen = document.getElementById('welcomeScreen');
     if (welcomeScreen) {
         document.body.classList.add('welcome-open');
+
+        // Play the club's welcome voice automatically with the opening logo screen.
+        const welcomeAudio = new Audio('welcome-voice.mp3');
+        welcomeAudio.preload = 'auto';
+        welcomeAudio.volume = 1;
+        const welcomeAudioPlayback = welcomeAudio.play();
+        if (welcomeAudioPlayback && typeof welcomeAudioPlayback.catch === 'function') {
+            welcomeAudioPlayback.catch(() => {});
+        }
+
         window.setTimeout(() => {
             welcomeScreen.classList.add('welcome-screen-leaving');
             document.body.classList.remove('welcome-open');

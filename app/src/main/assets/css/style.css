@@ -158,12 +158,13 @@ body {
 .language-switcher {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    padding: 3px;
-    margin-inline-start: 7px;
-    border: 1px solid rgba(255,255,255,.42);
-    border-radius: 11px;
-    background: rgba(255,255,255,.13);
+    justify-content: center;
+    gap: 3px;
+    padding: 4px;
+    margin: 12px auto 0;
+    border: 1px solid rgba(255,255,255,.5);
+    border-radius: 12px;
+    background: rgba(255,255,255,.14);
     direction: ltr;
     flex-shrink: 0;
 }

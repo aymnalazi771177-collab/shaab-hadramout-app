@@ -2368,3 +2368,46 @@ body.dark-mode .fan-prediction-gate-choice{background:rgba(219,30,36,.1);border-
 .live-stream-message b { font-size:15px; }
 .live-stream-message span { color:#c9c9cf; }
 .live-stream-message-text { margin:0; color:var(--text-muted,#777); text-align:center; font-size:12px; line-height:1.8; }
+
+
+/* Professional news thumbnails — visual-only refinement */
+.news-card {
+    align-items: center;
+    border-radius: 18px;
+}
+.news-card-image {
+    width: 136px;
+    height: 104px;
+    min-height: 104px;
+    flex: 0 0 136px;
+    margin: 8px;
+    border-radius: 13px;
+    overflow: hidden;
+    background: #f3f3f3;
+}
+.news-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: inherit;
+}
+.news-card-content {
+    min-width: 0;
+    padding: 12px 10px;
+}
+.news-card-content h4 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+@media (max-width: 380px) {
+    .news-card-image {
+        width: 116px;
+        height: 92px;
+        min-height: 92px;
+        flex-basis: 116px;
+    }
+}

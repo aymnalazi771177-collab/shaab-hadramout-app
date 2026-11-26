@@ -97,6 +97,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let TRANSFERS_DATA = {in:[],out:[],renew:[]};
 
     let MEDIA_DATA = {photos:[],videos:[]};
+    let MEDIA_ALBUMS = [];
+    let MEDIA_ACTIVE_ALBUM_ID = null;
     let ARCHIVE_DATA = {photos:[],videos:[]};
 
     let ANTHEMS_DATA = [];
@@ -1462,24 +1464,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Render Media
+    // Render photo albums and the vertical video highlights list.
     function renderMedia(type = 'photos') {
         const container = document.getElementById('mediaGalleryContainer');
         if (!container) return;
-        const list = MEDIA_DATA[type] || [];
+        container.classList.toggle('media-videos-list', type === 'videos');
+        container.classList.toggle('media-albums-grid', type === 'photos' && MEDIA_ACTIVE_ALBUM_ID === null);
+        if (type === 'photos') {
+            const activeAlbum = MEDIA_ALBUMS.find(album => Number(album.id) === Number(MEDIA_ACTIVE_ALBUM_ID));
+            if (!activeAlbum) {
+                MEDIA_ACTIVE_ALBUM_ID = null;
+                container.innerHTML = MEDIA_ALBUMS.map(album => {
+                    const title = String(album.title || 'ألبوم صور');
+                    const safeTitle = title.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+                    const cover = String(album.cover_url || 'images/logo.png').replace(/[\\"']/g, '');
+                    const count = Number(album.photos_count || (album.photos || []).length);
+                    return '<button type="button" class="media-album-card" data-album-id="' + Number(album.id) + '" aria-label="فتح ألبوم ' + safeTitle + '"><span class="media-album-cover"><img src="' + cover + '" alt="' + safeTitle + '" loading="lazy"></span><span class="media-album-info"><strong>' + safeTitle + '</strong><small><i class="fas fa-images"></i> ' + count + ' صورة</small></span></button>';
+                }).join('') || '<div class="empty-state">لا توجد ألبومات صور منشورة حالياً.</div>';
+                return;
+            }
+            const photos = Array.isArray(activeAlbum.photos) ? activeAlbum.photos : [];
+            const back = '<button type="button" class="media-album-back"><i class="fas fa-arrow-right"></i><span>العودة إلى الألبومات</span></button>';
+            const heading = '<div class="media-album-detail-heading"><strong>' + String(activeAlbum.title || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])) + '</strong><small>' + photos.length + ' صورة</small></div>';
+            const cards = photos.map((photo, index) => {
+                const title = String(photo.title || activeAlbum.title || '');
+                const safeTitle = title.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+                const url = String(photo.media_url || '').replace(/[\\"']/g, '');
+                return '<div class="media-item-box"><div class="media-item-thumb"><img class="media-photo-open" data-photo-index="' + index + '" src="' + url + '" alt="' + safeTitle + '" loading="lazy" role="button" tabindex="0"><span class="media-like-count" data-media-id="' + Number(photo.id || 0) + '"><i class="fas fa-heart"></i><span class="media-like-count-value">0</span></span></div></div>';
+            }).join('');
+            container.innerHTML = back + heading + (cards || '<div class="empty-state">لا توجد صور داخل هذا الألبوم.</div>');
+            loadGalleryLikeCounts();
+            return;
+        }
+        const list = MEDIA_DATA.videos || [];
         container.innerHTML = list.map((item, index) => {
             const title = String(item.title || '');
-            const url = String(item.media_url || item.img || '');
             const safeTitle = title.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-            const safeUrl = url.replace(/[\\"']/g, '');
             const poster = String(item.thumbnail_url || item.img || 'images/logo.png').replace(/[\\"']/g, '');
-            const media = type === 'videos'
-                ? '<button type="button" class="media-video-open" data-video-index="' + index + '" aria-label="مشاهدة الفيديو: ' + safeTitle + '"><img src="' + poster + '" alt="' + safeTitle + '" loading="lazy"><span class="video-play-overlay"><span class="play-pulse-circle"><i class="fas fa-play"></i></span></span></button>'
-                : '<img class="media-photo-open" data-photo-index="' + index + '" src="' + safeUrl + '" alt="' + safeTitle + '" loading="lazy" role="button" tabindex="0" aria-label="فتح الصورة: ' + safeTitle + '">';
-            const likeBadge = type === 'photos' ? '<span class="media-like-count" data-media-id="' + Number(item.id || 0) + '" aria-label="عدد القلوب"><i class="fas fa-heart"></i><span class="media-like-count-value">0</span></span>' : '';
-            return '<div class="media-item-box"><div class="media-item-thumb">' + media + likeBadge + '</div><div class="media-item-title">' + safeTitle + '</div></div>';
-        }).join('');
-        if (type === 'photos') loadGalleryLikeCounts();
+            return '<div class="media-item-box"><div class="media-item-thumb"><button type="button" class="media-video-open" data-video-index="' + index + '" aria-label="مشاهدة الفيديو: ' + safeTitle + '"><img src="' + poster + '" alt="' + safeTitle + '" loading="lazy"><span class="video-play-overlay"><span class="play-pulse-circle"><i class="fas fa-play"></i></span></span></button></div><div class="media-item-title">' + safeTitle + '</div></div>';
+        }).join('') || '<div class="empty-state">لا توجد ملخصات فيديو منشورة حالياً.</div>';
     }
     renderMedia('photos');
 
@@ -1500,16 +1523,29 @@ document.addEventListener('DOMContentLoaded', function() {
             if (item) openMediaVideo(item);
             return;
         }
+        const albumCard = event.target.closest('.media-album-card');
+        if (albumCard) {
+            MEDIA_ACTIVE_ALBUM_ID = Number(albumCard.dataset.albumId);
+            renderMedia('photos');
+            return;
+        }
+        if (event.target.closest('.media-album-back')) {
+            MEDIA_ACTIVE_ALBUM_ID = null;
+            renderMedia('photos');
+            return;
+        }
         const photo = event.target.closest('.media-photo-open');
         if (!photo) return;
-        const item = (MEDIA_DATA.photos || [])[Number(photo.dataset.photoIndex)];
-        if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
+        const activeAlbum = MEDIA_ALBUMS.find(album => Number(album.id) === Number(MEDIA_ACTIVE_ALBUM_ID));
+        const item = activeAlbum?.photos?.[Number(photo.dataset.photoIndex)];
+        if (item) openLightbox(item.media_url || '', item.title || activeAlbum.title || '', item.id);
     });
     mediaGallery?.addEventListener('keydown', function(event) {
         if ((event.key !== 'Enter' && event.key !== ' ') || !event.target.matches('.media-photo-open')) return;
         event.preventDefault();
-        const item = (MEDIA_DATA.photos || [])[Number(event.target.dataset.photoIndex)];
-        if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
+        const activeAlbum = MEDIA_ALBUMS.find(album => Number(album.id) === Number(MEDIA_ACTIVE_ALBUM_ID));
+        const item = activeAlbum?.photos?.[Number(event.target.dataset.photoIndex)];
+        if (item) openLightbox(item.media_url || '', item.title || activeAlbum.title || '', item.id);
     });
 
     // Open each video in its own focused player page.
@@ -2950,6 +2986,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const tab = document.querySelector('[data-media-tab].active');
         renderMedia(tab ? tab.getAttribute('data-media-tab') : 'photos');
     }
+    function applyClubAlbums(albums) {
+        MEDIA_ALBUMS = Array.isArray(albums) ? albums.map(album => ({
+            ...album,
+            id: Number(album.id),
+            photos_count: Number(album.photos_count || (album.photos || []).length),
+            photos: Array.isArray(album.photos) ? album.photos : []
+        })) : [];
+        if (MEDIA_ACTIVE_ALBUM_ID !== null && !MEDIA_ALBUMS.some(album => album.id === Number(MEDIA_ACTIVE_ALBUM_ID))) MEDIA_ACTIVE_ALBUM_ID = null;
+        const tab = document.querySelector('[data-media-tab].active');
+        if (!tab || tab.getAttribute('data-media-tab') === 'photos') renderMedia('photos');
+    }
     function applyClubArchive(rows) {
         if (!Array.isArray(rows)) rows = [];
         const photos = [], videos = [];
@@ -3212,6 +3259,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ['/api/matches', d => applyClubMatches(d.matches)],
             ['/api/transfers', d => applyClubTransfers(d.transfers)],
             ['/api/gallery', d => applyClubGallery(d.media)],
+            ['/api/gallery-albums', d => applyClubAlbums(d.albums)],
             ['/api/archive', d => applyClubArchive(d.media)],
             ['/api/anthems', d => applyClubAnthems(d.anthems)],
             ['/api/carousel', d => applyClubCarousel(d.slides)],

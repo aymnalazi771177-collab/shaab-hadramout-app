@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#b5121b">
+<title>معاينة التصميم الجديد | نادي شعب حضرموت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--red:#c91420;--deep:#8f1019;--ink:#17191e;--muted:#858b95;--bg:#f3f4f6;--line:#eceef1;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:#e7e8eb;color:var(--ink);font-family:Cairo,Arial,sans-serif}
+.phone{width:min(100%,440px);min-height:100vh;margin:auto;background:var(--bg);position:relative;overflow:hidden;padding-bottom:92px;box-shadow:0 0 55px #17191e18}
+.top{background:linear-gradient(140deg,#8c0c16,#c91420 65%,#df2630);color:#fff;padding:20px 20px 28px;border-radius:0 0 28px 28px;position:relative;overflow:hidden}
+.top:before{content:"";position:absolute;width:270px;height:270px;border:1px solid #ffffff18;border-radius:50%;left:-115px;top:-140px;box-shadow:0 0 0 22px #ffffff08,0 0 0 48px #ffffff06}
+.topbar{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.iconbtn{width:42px;height:42px;border:1px solid #ffffff35;background:#ffffff18;color:#fff;border-radius:14px;font-size:17px;display:grid;place-items:center;cursor:pointer}
+.brand{display:flex;align-items:center;gap:10px}.brand img{width:48px;height:48px;object-fit:contain;background:#fff;border-radius:50%;padding:4px}.brand small{display:block;font-size:10px;opacity:.78;letter-spacing:.5px}.brand strong{font-size:15px;font-weight:900}
+.greeting{position:relative;z-index:1;margin-top:25px}.eyebrow{font-size:11px;opacity:.78}.greeting h1{font-size:24px;line-height:1.45;margin:2px 0 0;font-weight:900}.greeting p{font-size:12px;margin:3px 0 0;opacity:.78}
+main{padding:0 17px}.section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 12px}.section-head h2{font-size:15px;margin:0;font-weight:900}.section-head a{font-size:11px;color:var(--red);font-weight:800;text-decoration:none}
+.feature{margin-top:-12px;position:relative;z-index:2;border-radius:22px;overflow:hidden;background:linear-gradient(120deg,#1b1d23,#3c2024);height:205px;color:#fff;box-shadow:0 12px 28px #17191e22}
+.feature-bg{position:absolute;inset:0;background:radial-gradient(circle at 80% 15%,#c9142055,transparent 40%),linear-gradient(100deg,#17191e 0%,#262329 55%,#78131d 100%)}
+.feature:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#101116e8,transparent 75%)}
+.feature-content{position:absolute;z-index:1;bottom:18px;right:19px;left:18px}.tag{display:inline-flex;background:var(--red);padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800}.feature h3{font-size:18px;line-height:1.55;margin:9px 0 5px;font-weight:900;max-width:290px}.feature p{font-size:10px;color:#ffffffb8;margin:0}.slide-controls{position:absolute;z-index:2;top:16px;left:16px;display:flex;gap:6px}.slide-controls button{border:0;color:white;background:#ffffff25;width:28px;height:28px;border-radius:50%;cursor:pointer}
+.dots{display:flex;justify-content:center;gap:5px;margin-top:11px}.dots i{height:5px;width:5px;background:#c8cbd0;border-radius:9px}.dots i:first-child{width:19px;background:var(--red)}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.quick button{border:0;background:transparent;padding:0;color:var(--ink);font:inherit;cursor:pointer}.quick .bubble{width:55px;height:55px;border-radius:19px;background:#fff;box-shadow:0 5px 15px #17191e0b;display:grid;place-items:center;color:var(--red);font-size:20px;margin:0 auto 7px}.quick span{font-size:10px;font-weight:800}
+.match{background:#fff;border-radius:20px;padding:15px 14px;box-shadow:0 5px 18px #17191e08}.matchtop{display:flex;justify-content:space-between;color:var(--muted);font-size:10px}.matchtop b{color:var(--red)}.teams{display:flex;align-items:center;justify-content:space-around;margin:17px 0 12px}.team{text-align:center;width:31%}.crest{width:52px;height:52px;background:#f6f6f7;border-radius:17px;margin:auto auto 6px;display:grid;place-items:center;color:var(--red);font-size:24px}.team strong{font-size:11px}.vs{text-align:center;color:var(--red);font-size:14px;font-weight:900}.vs small{display:block;color:var(--muted);font-size:9px;font-weight:600}
+.news{display:flex;gap:12px;background:#fff;border-radius:17px;padding:10px;margin-bottom:10px;align-items:center}.news-thumb{width:88px;height:76px;flex-shrink:0;border-radius:12px;background:linear-gradient(135deg,#a30f1a,#24242b);display:grid;place-items:center;color:#ffffffbb;font-size:24px}.news h3{font-size:12px;line-height:1.6;margin:0 0 5px;font-weight:800}.news p{font-size:9px;color:var(--muted);margin:0}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,440px);height:76px;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:8px 10px 12px;z-index:10}.bottom button{border:0;background:transparent;color:#969ba4;font:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:54px;cursor:pointer}.bottom i{font-size:18px}.bottom span{font-size:9px;font-weight:700}.bottom button.active{color:var(--red)}.bottom button.active i{background:#fff0f1;padding:7px 15px;border-radius:14px}
+.drawer{position:fixed;inset:0;background:#0007;z-index:20;display:none}.drawer.open{display:block}.drawerpanel{height:100%;width:min(82%,340px);background:#fff;padding:24px 20px;box-shadow:10px 0 30px #0002}.drawerhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.drawerhead strong{font-size:16px}.drawerhead button{border:0;background:#f3f4f6;border-radius:10px;width:36px;height:36px}.draweritem{display:flex;align-items:center;gap:13px;padding:12px 8px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:700}.draweritem i{color:var(--red);width:20px;text-align:center}
+.toast{position:fixed;bottom:90px;left:50%;transform:translate(-50%,20px);background:#202127;color:#fff;padding:9px 16px;border-radius:20px;font-size:11px;opacity:0;transition:.25s;z-index:30;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:600px){body{padding:22px 0}.phone{min-height:calc(100vh - 44px);border-radius:30px}.bottom{bottom:22px;border-radius:0 0 30px 30px}.drawer{position:fixed}.feature{height:220px}}
+</style>
+</head>
+<body>
+<div class="phone">
+<header class="top">
+ <div class="topbar">
+  <button class="iconbtn" id="menu" aria-label="القائمة"><i class="fa-solid fa-bars"></i></button>
+  <div class="brand"><img src="https://raw.githubusercontent.com/aymnalazi771177-collab/shaab-hadramout-app/main/app/src/main/assets/images/logo.png" alt="شعار النادي"><div><strong>نادي شعب حضرموت</strong><small>SHAAB HADRAMOUT CLUB</small></div></div>
+  <button class="iconbtn" id="bell" aria-label="الإشعارات"><i class="fa-regular fa-bell"></i></button>
+ </div>
+ <div class="greeting"><div class="eyebrow">مرحباً بك في التطبيق الرسمي</div><h1>كل أخبار النوارس<br>في مكان واحد</h1><p>تابع النادي، المباريات، والفعاليات أولاً بأول</p></div>
+</header>
+<main>
+ <div class="feature" id="feature"><div class="feature-bg"></div><div class="slide-controls"><button id="prev"><i class="fa-solid fa-chevron-right"></i></button><button id="next"><i class="fa-solid fa-chevron-left"></i></button></div><div class="feature-content"><span class="tag">أخبار النادي</span><h3 id="featureTitle">النوارس.. طموح يتجدد وحكاية انتماء</h3><p>آخر أخبار نادي شعب حضرموت ومستجداته</p></div></div><div class="dots"><i></i><i></i><i></i></div>
+ <div class="section-head"><h2>اكتشف النادي</h2><a href="#" data-action="عرض جميع الأقسام">جميع الأقسام <i class="fa-solid fa-angle-left"></i></a></div>
+ <div class="quick">
+  <button data-action="الأخبار"><div class="bubble"><i class="fa-regular fa-newspaper"></i></div><span>الأخبار</span></button>
+  <button data-action="المباريات"><div class="bubble"><i class="fa-solid fa-futbol"></i></div><span>المباريات</span></button>
+  <button data-action="اللاعبون"><div class="bubble"><i class="fa-solid fa-people-group"></i></div><span>الفريق</span></button>
+  <button data-action="متجر النادي"><div class="bubble"><i class="fa-solid fa-bag-shopping"></i></div><span>المتجر</span></button>
+  <button data-action="البث المباشر"><div class="bubble"><i class="fa-solid fa-tower-broadcast"></i></div><span>البث المباشر</span></button>
+  <button data-action="العضوية"><div class="bubble"><i class="fa-regular fa-id-card"></i></div><span>العضوية</span></button>
+  <button data-action="تاريخ النادي"><div class="bubble"><i class="fa-solid fa-landmark"></i></div><span>تاريخ النادي</span></button>
+  <button data-action="المزيد"><div class="bubble"><i class="fa-solid fa-ellipsis"></i></div><span>المزيد</span></button>
+ </div>
+ <div class="section-head"><h2>المباراة القادمة</h2><a href="#" data-action="جدول المباريات">جدول المباريات</a></div>
+ <div class="match"><div class="matchtop"><span>دوري الدرجة الأولى</span><b>قريباً</b></div><div class="teams"><div class="team"><div class="crest"><i class="fa-solid fa-shield-halved"></i></div><strong>شعب حضرموت</strong></div><div class="vs">VS<small>موعد المباراة يحدد لاحقاً</small></div><div class="team"><div class="crest"><i class="fa-solid fa-shield"></i></div><strong>الفريق المنافس</strong></div></div></div>
+ <div class="section-head"><h2>آخر الأخبار</h2><a href="#" data-action="كل الأخبار">عرض الكل</a></div>
+ <div class="news"><div class="news-thumb"><i class="fa-solid fa-newspaper"></i></div><div><h3>تابع أحدث أخبار النادي ونتائج الفرق الرياضية</h3><p><i class="fa-regular fa-clock"></i> آخر المستجدات من نادي شعب حضرموت</p></div></div>
+ <div class="news"><div class="news-thumb" style="background:linear-gradient(135deg,#343840,#8c101a)"><i class="fa-solid fa-trophy"></i></div><div><h3>النوارس تواصل الاستعداد للاستحقاقات القادمة</h3><p><i class="fa-regular fa-clock"></i> أخبار الفريق الأول</p></div></div>
+</main>
+<nav class="bottom">
+ <button class="active" data-tab="الرئيسية"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+ <button data-tab="الأخبار"><i class="fa-regular fa-newspaper"></i><span>الأخبار</span></button>
+ <button data-tab="المباريات"><i class="fa-regular fa-calendar"></i><span>المباريات</span></button>
+ <button data-tab="المتجر"><i class="fa-solid fa-bag-shopping"></i><span>المتجر</span></button>
+ <button data-tab="حسابي"><i class="fa-regular fa-user"></i><span>حسابي</span></button>
+</nav>
+</div>
+<div class="drawer" id="drawer"><div class="drawerpanel"><div class="drawerhead"><strong>أقسام النادي</strong><button id="close"><i class="fa-solid fa-xmark"></i></button></div>
+<div class="draweritem"><i class="fa-solid fa-basketball"></i> كرة السلة</div><div class="draweritem"><i class="fa-solid fa-volleyball"></i> كرة الطائرة</div><div class="draweritem"><i class="fa-solid fa-hand"></i> كرة اليد</div><div class="draweritem"><i class="fa-solid fa-table-tennis-paddle-ball"></i> التنس</div><div class="draweritem"><i class="fa-solid fa-medal"></i> ألعاب القوى</div><div class="draweritem"><i class="fa-solid fa-users"></i> مجلس الإدارة</div><div class="draweritem"><i class="fa-solid fa-book-open"></i> تاريخ النادي</div><div class="draweritem"><i class="fa-regular fa-id-card"></i> عضوية النادي</div><div class="draweritem"><i class="fa-regular fa-envelope"></i> تواصل معنا</div>
+</div></div><div class="toast" id="toast">معاينة شكلية — سيتم ربط الأقسام بوظائف التطبيق عند اعتماد التصميم</div>
+<script>
+const drawer=document.getElementById('drawer'),toast=document.getElementById('toast');let timer;
+document.getElementById('menu').onclick=()=>drawer.classList.add('open');document.getElementById('close').onclick=()=>drawer.classList.remove('open');drawer.onclick=e=>{if(e.target===drawer)drawer.classList.remove('open')};
+function notice(msg){toast.textContent=msg||'هذه معاينة للتصميم فقط';toast.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove('show'),2300)}
+document.querySelectorAll('[data-action]').forEach(x=>x.onclick=e=>{e.preventDefault();notice('معاينة شكلية لقسم '+x.dataset.action)});
+document.querySelectorAll('[data-tab]').forEach(x=>x.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(b=>b.classList.remove('active'));x.classList.add('active');if(x.dataset.tab!=='الرئيسية')notice('معاينة شكلية — '+x.dataset.tab)});
+document.getElementById('bell').onclick=()=>notice('تصميم شاشة الإشعارات سيبقى ضمن الوظائف الحالية');
+const slides=['النوارس.. طموح يتجدد وحكاية انتماء','شعب حضرموت.. تاريخ عريق ومستقبل واعد','معاً خلف النوارس في كل الاستحقاقات'];let n=0;function slide(d){n=(n+d+slides.length)%slides.length;document.getElementById('featureTitle').textContent=slides[n];document.querySelectorAll('.dots i').forEach((x,i)=>x.style.background=i===n?'#c91420':'#c8cbd0');document.querySelectorAll('.dots i').forEach((x,i)=>x.style.width=i===n?'19px':'5px')}document.getElementById('next').onclick=()=>slide(1);document.getElementById('prev').onclick=()=>slide(-1);
+</script>
+</body></html>

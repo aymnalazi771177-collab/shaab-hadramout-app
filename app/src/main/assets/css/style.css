@@ -2445,3 +2445,17 @@ body.dark-mode .fan-prediction-gate-choice{background:rgba(219,30,36,.1);border-
 }
 
 
+
+
+/* Video highlights: two cover cards, opening a dedicated player page */
+.media-video-open{display:block;position:relative;width:100%;height:100%;padding:0;border:0;background:#111;cursor:pointer}
+.media-video-open img{display:block;width:100%;height:100%;object-fit:cover}
+.media-video-viewer{position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.92)}
+.media-video-viewer.active{display:flex}
+.media-video-panel{width:min(100%,760px);max-height:100%;overflow:auto;border-radius:18px;background:#101116;color:#fff;box-shadow:0 20px 70px rgba(0,0,0,.45)}
+.media-video-header{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.media-video-header button{flex:0 0 40px;width:40px;height:40px;border:0;border-radius:12px;background:var(--primary-red);color:#fff;font-size:17px}
+.media-video-header h3{font-size:15px;font-weight:800}
+.media-video-header p{margin-top:3px;color:#c5c5c5;font-size:11px}
+.media-video-panel video{display:block;width:100%;max-height:calc(100vh - 150px);background:#000}
+@media(max-width:520px){.media-video-viewer{padding:0}.media-video-panel{width:100%;border-radius:0}}

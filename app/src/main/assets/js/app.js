@@ -1472,9 +1472,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const url = String(item.media_url || item.img || '');
             const safeTitle = title.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
             const safeUrl = url.replace(/[\\"']/g, '');
-            const safePoster = String(item.img || '').replace(/[\\"']/g, '');
+            const poster = String(item.thumbnail_url || item.img || 'images/logo.png').replace(/[\\"']/g, '');
             const media = type === 'videos'
-                ? '<video controls playsinline preload="metadata" poster="' + safePoster + '" src="' + safeUrl + '" style="width:100%;height:100%;object-fit:cover"></video>'
+                ? '<button type="button" class="media-video-open" data-video-index="' + index + '" aria-label="مشاهدة الفيديو: ' + safeTitle + '"><img src="' + poster + '" alt="' + safeTitle + '" loading="lazy"><span class="video-play-overlay"><span class="play-pulse-circle"><i class="fas fa-play"></i></span></span></button>'
                 : '<img class="media-photo-open" data-photo-index="' + index + '" src="' + safeUrl + '" alt="' + safeTitle + '" loading="lazy" role="button" tabindex="0" aria-label="فتح الصورة: ' + safeTitle + '">';
             const likeBadge = type === 'photos' ? '<span class="media-like-count" data-media-id="' + Number(item.id || 0) + '" aria-label="عدد القلوب"><i class="fas fa-heart"></i><span class="media-like-count-value">0</span></span>' : '';
             return '<div class="media-item-box"><div class="media-item-thumb">' + media + likeBadge + '</div><div class="media-item-title">' + safeTitle + '</div></div>';
@@ -1494,6 +1494,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Open a photo in the full-screen viewer when its thumbnail is tapped.
     const mediaGallery = document.getElementById('mediaGalleryContainer');
     mediaGallery?.addEventListener('click', function(event) {
+        const videoCard = event.target.closest('.media-video-open');
+        if (videoCard) {
+            const item = (MEDIA_DATA.videos || [])[Number(videoCard.dataset.videoIndex)];
+            if (item) openMediaVideo(item);
+            return;
+        }
         const photo = event.target.closest('.media-photo-open');
         if (!photo) return;
         const item = (MEDIA_DATA.photos || [])[Number(photo.dataset.photoIndex)];
@@ -1504,6 +1510,36 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const item = (MEDIA_DATA.photos || [])[Number(event.target.dataset.photoIndex)];
         if (item) openLightbox(item.media_url || item.img || '', item.title || '', item.id);
+    });
+
+    // Open each video in its own focused player page.
+    function openMediaVideo(item) {
+        const viewer = document.getElementById('mediaVideoViewer');
+        const player = document.getElementById('mediaVideoPlayer');
+        if (!viewer || !player || !item?.media_url) return;
+        document.getElementById('mediaVideoTitle').textContent = item.title || 'ملخص الفيديو';
+        document.getElementById('mediaVideoDescription').textContent = item.description || '';
+        player.pause();
+        player.src = item.media_url;
+        if (item.thumbnail_url) player.poster = item.thumbnail_url;
+        else player.removeAttribute('poster');
+        viewer.classList.add('active');
+        player.load();
+        const playback = player.play();
+        if (playback && typeof playback.catch === 'function') playback.catch(() => {});
+    }
+    function closeMediaVideo() {
+        const viewer = document.getElementById('mediaVideoViewer');
+        const player = document.getElementById('mediaVideoPlayer');
+        if (player) { player.pause(); player.removeAttribute('src'); player.removeAttribute('poster'); player.load(); }
+        viewer?.classList.remove('active');
+    }
+    document.getElementById('closeMediaVideoBtn')?.addEventListener('click', closeMediaVideo);
+    document.getElementById('mediaVideoViewer')?.addEventListener('click', function(event) {
+        if (event.target === this) closeMediaVideo();
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && document.getElementById('mediaVideoViewer')?.classList.contains('active')) closeMediaVideo();
     });
 
     // ذاكرة النوارس مستقلة عن معرض الصور والفيديوهات الحالي.
@@ -2905,7 +2941,8 @@ document.addEventListener('DOMContentLoaded', function() {
         rows.forEach(item => {
             const record = {
                 id:Number(item.id), title:item.title || '', img:item.media_type === 'image' ? item.media_url : '',
-                media_url:item.media_url || '', description:item.description || ''
+                media_url:item.media_url || '', description:item.description || '',
+                thumbnail_url:item.thumbnail_url || '', thumbnail_key:item.thumbnail_key || ''
             };
             (item.media_type === 'video' ? videos : photos).push(record);
         });

@@ -1008,6 +1008,16 @@
             </div>
         </div>
 
+        <div class="media-video-viewer" id="mediaVideoViewer" role="dialog" aria-modal="true" aria-label="مشغل ملخص الفيديو">
+            <div class="media-video-panel">
+                <div class="media-video-header">
+                    <button type="button" id="closeMediaVideoBtn" aria-label="إغلاق الفيديو"><i class="fas fa-arrow-right"></i></button>
+                    <div><h3 id="mediaVideoTitle">ملخص الفيديو</h3><p id="mediaVideoDescription"></p></div>
+                </div>
+                <video id="mediaVideoPlayer" controls playsinline preload="metadata"></video>
+            </div>
+        </div>
+
         <!-- 6. Fullscreen Instagram/Reels Stories Viewer Modal -->
         <div class="story-viewer-modal" id="storyViewerModal">
             <!-- Top Progress Bars -->

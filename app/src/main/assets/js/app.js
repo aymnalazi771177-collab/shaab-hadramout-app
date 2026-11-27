@@ -247,13 +247,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const title = escapeManagedText(item.title);
             const body = escapeManagedText(item.content);
             const image = item.image_url ? '<img src="' + escapeManagedText(item.image_url) + '" alt="' + title + '" loading="eager" decoding="async">' : '';
+            let gallery = [];
+            try { gallery = Array.isArray(item.images) ? item.images : JSON.parse(item.images_json || '[]'); } catch (error) { gallery = []; }
+            gallery = gallery.map(value => typeof value === 'string' ? value : value?.url).filter(Boolean);
+            const galleryMarkup = gallery.length ? '<div class="managed-content-gallery" aria-label="صور إضافية">' + gallery.map((url,index) => '<img src="' + escapeManagedText(url) + '" alt="' + title + ' - صورة ' + (index + 1) + '" loading="lazy" decoding="async">').join('') + '</div>' : '';
             let media = '';
             if (item.media_url) {
                 if (/\\.(mp4|webm|mov)(\\?|$)/i.test(item.media_url)) media = '<video controls playsinline preload="metadata" src="' + escapeManagedText(item.media_url) + '"></video>';
                 else media = '<a class="managed-content-link" href="' + escapeManagedText(item.media_url) + '" target="_blank" rel="noopener">عرض الملف المرفق</a>';
             }
             const price = item.price ? '<span class="managed-content-price">' + escapeManagedText(item.price) + '</span>' : '';
-            return '<article class="managed-content-card">' + image + media + '<div class="managed-content-body"><h3>' + title + '</h3>' + (body ? '<p>' + body + '</p>' : '') + price + '</div></article>';
+            return '<article class="managed-content-card">' + image + galleryMarkup + media + '<div class="managed-content-body"><h3>' + title + '</h3>' + (body ? '<p>' + body + '</p>' : '') + price + '</div></article>';
         }).join('');
     }
     async function loadManagedSection(key) {

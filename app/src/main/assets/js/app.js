@@ -1167,6 +1167,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 3. News Article Modal ---
     window.openArticleModal = function(newsId) {
         const article = NEWS_ALL.find(n => n.id === newsId) || NEWS_ALL[0];
+        if (!article) return;
+        if (article.managedKey) {
+            window.openManagedSportArticle(article.managedKey, article.managedId);
+            return;
+        }
         playTone(450, 'sine', 0.1);
 
         const body = document.getElementById('articleModalBody');
@@ -3037,13 +3042,62 @@ document.addEventListener('DOMContentLoaded', function() {
         const date = new Date(raw.length === 10 ? raw + 'T12:00:00' : raw);
         return Number.isNaN(date.getTime()) ? raw : date.toLocaleDateString('ar', { year:'numeric', month:'long', day:'numeric' });
     }
+    const SPORTS_NEWS_SECTION_KEYS = ['basketball', 'volleyball', 'handball', 'tennis', 'taekwondo', 'athletics', 'otherSports'];
+    let SPORTS_NEWS = [];
+    function refreshCombinedNews() {
+        NEWS_ALL = [...NEWS_ALL.filter(item => !item.managedKey), ...SPORTS_NEWS]
+            .sort((a, b) => (b.sortTime || 0) - (a.sortTime || 0));
+        renderAllNews(document.getElementById('newsSearchInput')?.value || '');
+        refreshHomeNews();
+    }
+    function refreshSportsNewsFromSnapshots() {
+        const merged = [];
+        SPORTS_NEWS_SECTION_KEYS.forEach((key, sectionIndex) => {
+            const payload = readClubSnapshot('/api/sections?section=' + encodeURIComponent(key));
+            if (!payload || !Array.isArray(payload.items)) return;
+            payload.items.forEach(item => {
+                const rawDate = item.created_at || item.updated_at || item.date || '';
+                const parsedDate = rawDate ? new Date(rawDate).getTime() : 0;
+                let gallery = [];
+                try { gallery = Array.isArray(item.images) ? item.images : JSON.parse(item.images_json || '[]'); } catch (_) {}
+                gallery = gallery.map(value => typeof value === 'string' ? value : value?.url).filter(Boolean);
+                merged.push({
+                    id: -((sectionIndex + 1) * 1000000000 + Number(item.id || 0)),
+                    managedKey: key, managedId: Number(item.id),
+                    title: item.title || '', date: clubDate(rawDate),
+                    cat: MANAGED_SECTION_TITLES[key] || 'رياضة',
+                    readTime: 'خبر من القسم الرياضي',
+                    author: 'المركز الإعلامي لنادي شعب حضرموت',
+                    img: item.image_url || '', content: item.content || '', images: gallery,
+                    sortTime: Number.isFinite(parsedDate) ? parsedDate : 0
+                });
+            });
+        });
+        SPORTS_NEWS = merged;
+        refreshCombinedNews();
+    }
+    async function refreshAllSportsNews() {
+        await Promise.allSettled(SPORTS_NEWS_SECTION_KEYS.map(async key => {
+            const path = '/api/sections?section=' + encodeURIComponent(key);
+            try {
+                const payload = await clubGet(path);
+                if (payload.success && Array.isArray(payload.items)) {
+                    renderManagedSection(key, payload);
+                    managedSectionReady.add(key);
+                }
+            } catch (error) {
+                console.warn('Sports news feed unavailable: ' + key, error);
+            }
+        }));
+        refreshSportsNewsFromSnapshots();
+    }
     function refreshHomeNews() {
         const wrap = document.querySelector('.news-cards-container');
         if (!wrap) return;
         wrap.innerHTML = NEWS_ALL.length ? NEWS_ALL.slice(0, 3).map(n =>
             '<div class="news-card" data-news-id="' + n.id + '" onclick="openArticleModal(' + n.id + ')">' +
             '<div class="news-card-image"><img src="' + clubEscape(n.img) + '" alt="' + clubEscape(n.title) + '" loading="eager" fetchpriority="high" decoding="sync"></div>' +
-            '<div class="news-card-content"><h4>' + clubEscape(n.title) + '</h4><div class="news-date"><span>' + clubEscape(n.date) + '</span> <i class="far fa-clock"></i></div></div></div>'
+            '<div class="news-card-content"><span class="slide-category" style="margin-bottom:4px;font-size:9.5px;padding:2px 8px;">' + clubEscape(n.cat) + '</span><h4>' + clubEscape(n.title) + '</h4><div class="news-date"><span>' + clubEscape(n.date) + '</span> <i class="far fa-clock"></i></div></div></div>'
         ).join('') : '<div class="empty-state">لا توجد أخبار محفوظة على هذا الجهاز حتى الآن.</div>';
     }
     function applyClubNews(rows) {
@@ -3053,10 +3107,10 @@ document.addEventListener('DOMContentLoaded', function() {
             cat: 'أخبار النادي', readTime: 'خبر من المركز الإعلامي',
             author: 'المركز الإعلامي لنادي شعب حضرموت',
             img: item.image_url || '',
-            content: item.content || '', images: Array.isArray(item.images) ? item.images.map(image => typeof image === 'string' ? image : image?.url).filter(Boolean) : []
+            content: item.content || '', images: Array.isArray(item.images) ? item.images.map(image => typeof image === 'string' ? image : image?.url).filter(Boolean) : [],
+            sortTime: item.created_at ? new Date(item.created_at).getTime() || 0 : 0
         }));
-        renderAllNews();
-        refreshHomeNews();
+        refreshCombinedNews();
     }
     function applyClubPlayers(rows) {
         if (!Array.isArray(rows)) rows = [];
@@ -3610,7 +3664,7 @@ document.addEventListener('DOMContentLoaded', function() {
             indicator.style.transform = 'translate(-50%, 10px)';
             setState('refreshing', 'جارٍ تحديث بيانات النادي...', 'fa-spinner fa-spin');
             try {
-                await Promise.allSettled([loadAllClubContent(), loadClubReels()]);
+                await Promise.allSettled([loadAllClubContent(), loadClubReels(), refreshAllSportsNews()]);
                 setState('done', 'تم تحديث البيانات', 'fa-check');
             } finally {
                 refreshing = false;
@@ -3637,6 +3691,8 @@ document.addEventListener('DOMContentLoaded', function() {
         ...Object.keys(MANAGED_SECTION_PAGES).map(key => loadManagedSection(key))
     ];
     Promise.allSettled(startupTasks).then(() => {
+        // Merge the seven sports feeds into the main news list after their first load.
+        refreshSportsNewsFromSnapshots();
         // Do not delay entry to the app; image warming continues in the background.
         preloadAppImages();
     });

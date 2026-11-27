@@ -18,7 +18,7 @@ self.addEventListener('notificationclick', event => {
     if (self.clients.openWindow) await self.clients.openWindow(target);
   })());
 });
-const CACHE_NAME = 'shaab-hadramout-v17';
+const CACHE_NAME = 'shaab-hadramout-v18';
 const MEDIA_CACHE = 'shaab-hadramout-media-v1';
 const ASSETS = [
   'index.html',

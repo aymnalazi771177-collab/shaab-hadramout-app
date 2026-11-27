@@ -1850,21 +1850,87 @@ document.addEventListener('DOMContentLoaded', function() {
 
         list.innerHTML = ANTHEMS_DATA.map((a, i) => `
             <div class="chant-row ${i === 0 ? 'active' : ''}" data-anthem-index="${i}">
-                <div class="chant-title"><i class="fas fa-music text-red" style="margin-left:6px;"></i> ${a.title}</div>
-                <div class="chant-duration">${a.duration}</div>
+                <div class="chant-info">
+                    <div class="chant-title"><i class="fas fa-music text-red" style="margin-left:6px;"></i> ${a.title}</div>
+                    <div class="chant-duration">${a.duration}</div>
+                </div>
+                <button type="button" class="chant-download-btn" data-download-anthem-index="${i}" aria-label="تحميل الأنشودة" title="تحميل للاستماع دون إنترنت">
+                    <i class="fas fa-download"></i>
+                </button>
             </div>
         `).join('');
 
-        document.querySelectorAll('.chant-row').forEach(row => {
-            row.addEventListener('click', function() {
-                document.querySelectorAll('.chant-row').forEach(r => r.classList.remove('active'));
-                this.classList.add('active');
-                const idx = parseInt(this.getAttribute('data-anthem-index'), 10);
-                loadAnthem(idx);
-            });
-        });
+        refreshAnthemDownloadButtons();
+        list.onclick = async event => {
+            const downloadButton = event.target.closest('[data-download-anthem-index]');
+            if (downloadButton) {
+                event.stopPropagation();
+                await downloadAnthem(Number(downloadButton.dataset.downloadAnthemIndex), downloadButton);
+                return;
+            }
+            const row = event.target.closest('[data-anthem-index]');
+            if (!row) return;
+            document.querySelectorAll('.chant-row').forEach(r => r.classList.remove('active'));
+            row.classList.add('active');
+            loadAnthem(Number(row.dataset.anthemIndex));
+        };
     }
     renderAnthems();
+
+    // Save downloaded anthems in the same persistent media cache used for offline playback.
+    const ANTHEM_CACHE_NAME = 'shaab-hadramout-media-v1';
+    async function isAnthemDownloaded(song) {
+        if (!song?.audio_url || !('caches' in window)) return false;
+        const cache = await caches.open(ANTHEM_CACHE_NAME);
+        return !!(await cache.match(song.audio_url));
+    }
+    async function refreshAnthemDownloadButtons() {
+        const list = document.getElementById('anthemsList');
+        if (!list || !('caches' in window)) return;
+        for (const button of list.querySelectorAll('[data-download-anthem-index]')) {
+            const song = ANTHEMS_DATA[Number(button.dataset.downloadAnthemIndex)];
+            const downloaded = await isAnthemDownloaded(song);
+            button.classList.toggle('downloaded', downloaded);
+            button.innerHTML = downloaded ? '<i class="fas fa-check"></i>' : '<i class="fas fa-download"></i>';
+            button.title = downloaded ? 'تم التحميل — متاحة دون إنترنت' : 'تحميل للاستماع دون إنترنت';
+            button.setAttribute('aria-label', button.title);
+        }
+    }
+    async function downloadAnthem(index, button) {
+        const song = ANTHEMS_DATA[index];
+        if (!song?.audio_url) {
+            showToast('ملف هذه الأنشودة غير متاح للتحميل حالياً.');
+            return;
+        }
+        if (!('caches' in window)) {
+            showToast('ميزة حفظ الأناشيد غير مدعومة على هذا الجهاز.');
+            return;
+        }
+        const originalIcon = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        try {
+            const cache = await caches.open(ANTHEM_CACHE_NAME);
+            if (!(await cache.match(song.audio_url))) {
+                const response = await fetch(song.audio_url, { mode: 'cors', credentials: 'omit' });
+                if (!response.ok || response.type === 'opaque') throw new Error('Audio download failed');
+                const contentLength = Number(response.headers.get('content-length') || 0);
+                if (contentLength > 0 && contentLength < 256) throw new Error('Invalid audio file');
+                await cache.put(song.audio_url, response.clone());
+            }
+            try { await navigator.storage?.persist?.(); } catch (_) {}
+            button.classList.add('downloaded');
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.title = 'تم التحميل — متاحة دون إنترنت';
+            button.setAttribute('aria-label', button.title);
+            showToast('تم تحميل الأنشودة، ويمكنك تشغيلها دون إنترنت.');
+        } catch (error) {
+            button.innerHTML = originalIcon;
+            showToast('تعذر تحميل الأنشودة. تحقق من الاتصال بالإنترنت وحاول مجدداً.');
+        } finally {
+            button.disabled = false;
+        }
+    }
 
     // Audio Player State
     let currentAnthemIdx = 0;

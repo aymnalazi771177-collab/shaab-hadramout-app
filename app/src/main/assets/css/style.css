@@ -1151,12 +1151,21 @@ body {
 .chants-list { display: flex; flex-direction: column; gap: 8px; }
 .chant-row {
     background: var(--card-bg); border-radius: 12px; padding: 12px 14px;
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
     box-shadow: var(--shadow-soft); border: 1px solid var(--border-color); cursor: pointer;
 }
 .chant-row.active { border-color: var(--primary-red); background: rgba(237, 28, 36, 0.04); }
+.chant-info { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .chant-title { font-size: 12px; font-weight: 700; color: var(--text-dark); }
-.chant-duration { font-size: 10.5px; color: var(--text-muted); }
+.chant-duration { flex-shrink: 0; font-size: 10.5px; color: var(--text-muted); }
+.chant-download-btn {
+    flex: 0 0 36px; width: 36px; height: 36px; border: 1px solid var(--border-color);
+    border-radius: 50%; background: transparent; color: var(--primary-red);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 14px;
+    cursor: pointer; transition: background .2s, color .2s, border-color .2s;
+}
+.chant-download-btn:disabled { opacity: .65; cursor: wait; }
+.chant-download-btn.downloaded { background: var(--primary-red); color: #fff; border-color: var(--primary-red); }
 
 /* About Page */
 .club-profile-banner {

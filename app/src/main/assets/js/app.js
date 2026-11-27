@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!body || !overlay || !sheet) return;
         const title = escapeManagedText(item.title);
         const cover = item.cover ? '<div class="article-hero"><img src="' + escapeManagedText(item.cover) + '" alt="' + title + '" loading="eager"></div>' : '';
-        const content = escapeManagedText(item.content).replace(/\\n/g, '<br>');
+        const content = escapeManagedText(item.content).replace(/\n/g, '<br>');
         const gallery = Array.isArray(item.images) ? item.images : [];
         const galleryMarkup = gallery.length ? '<section class="news-attached-gallery" aria-label="صور الخبر"><h4><i class="fas fa-images"></i> صور الخبر</h4><div class="news-attached-gallery-grid">' + gallery.map((url,index) => '<button type="button" class="news-attached-gallery-item" data-gallery-image="' + index + '" aria-label="عرض الصورة ' + (index + 1) + '"><img src="' + escapeManagedText(url) + '" alt="' + title + ' - صورة ' + (index + 1) + '" loading="lazy"></button>').join('') + '</div></section>' : '';
         const sportTitle = MANAGED_SECTION_TITLES[key] || 'أخبار النادي';

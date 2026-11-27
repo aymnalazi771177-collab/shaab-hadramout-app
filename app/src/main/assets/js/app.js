@@ -416,8 +416,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.querySelectorAll('[data-back]').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(event) {
+            event.preventDefault();
             playTone(400, 'sine', 0.08);
+
+            // From an opened photo album, the top arrow returns to the album grid first.
+            // A second press from the album grid returns to the home page as usual.
+            const mediaPage = document.getElementById('mediaPage');
+            const photosTab = document.querySelector('[data-media-tab="photos"]');
+            if (mediaPage?.classList.contains('active') &&
+                photosTab?.classList.contains('active') &&
+                MEDIA_ACTIVE_ALBUM_ID !== null) {
+                MEDIA_ACTIVE_ALBUM_ID = null;
+                renderMedia('photos');
+                const scrollContent = mediaPage.querySelector('.page-scroll-content');
+                if (scrollContent) scrollContent.scrollTop = 0;
+                return;
+            }
+
             navigateToPage('homePage');
         });
     });

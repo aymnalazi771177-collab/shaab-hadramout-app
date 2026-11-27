@@ -1169,7 +1169,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const article = NEWS_ALL.find(n => n.id === newsId) || NEWS_ALL[0];
         if (!article) return;
         if (article.managedKey) {
-            window.openManagedSportArticle(article.managedKey, article.managedId);
+            const openers = {
+                basketball: window.openManagedBasketballArticle,
+                volleyball: window.openManagedVolleyballArticle,
+                handball: window.openManagedHandballArticle,
+                tennis: window.openManagedTennisArticle,
+                taekwondo: (id) => window.openManagedSportArticle('taekwondo', id),
+                athletics: (id) => window.openManagedSportArticle('athletics', id),
+                otherSports: (id) => window.openManagedSportArticle('otherSports', id)
+            };
+            const openManaged = openers[article.managedKey];
+            if (openManaged) openManaged(article.managedId);
             return;
         }
         playTone(450, 'sine', 0.1);

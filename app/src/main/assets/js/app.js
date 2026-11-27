@@ -1939,25 +1939,61 @@ document.addEventListener('DOMContentLoaded', function() {
     let audioSecs = 72; // 1:12
 
     let clubAudioPlayer = null;
-    function loadAnthem(index) {
+    let clubAudioObjectUrl = null;
+    let anthemLoadToken = 0;
+    async function loadAnthem(index) {
         if (!ANTHEMS_DATA.length) return;
         currentAnthemIdx = (index + ANTHEMS_DATA.length) % ANTHEMS_DATA.length;
         const song = ANTHEMS_DATA[currentAnthemIdx];
+        const loadToken = ++anthemLoadToken;
         document.getElementById('currentAnthemTitle').textContent = song.title || 'نشيد النادي';
         document.getElementById('currentAnthemArtist').textContent = song.artist || song.description || 'أناشيد نادي شعب حضرموت';
         document.getElementById('totalTimeDisplay').textContent = song.duration || '—:—';
         if (clubAudioPlayer) { clubAudioPlayer.pause(); clubAudioPlayer.onended = null; }
-        clubAudioPlayer = song.audio_url ? new Audio(song.audio_url) : null;
-        if (clubAudioPlayer) {
-            clubAudioPlayer.preload = 'metadata';
-            clubAudioPlayer.addEventListener('loadedmetadata', () => {
-                const d = clubAudioPlayer.duration;
-                if (Number.isFinite(d)) document.getElementById('totalTimeDisplay').textContent = Math.floor(d/60)+':' + String(Math.floor(d%60)).padStart(2,'0');
-            });
-            clubAudioPlayer.onended = () => loadAnthem((currentAnthemIdx + 1) % ANTHEMS_DATA.length);
-        }
+        clubAudioPlayer = null;
+        if (clubAudioObjectUrl) { URL.revokeObjectURL(clubAudioObjectUrl); clubAudioObjectUrl = null; }
         audioSecs = 0;
         updateAudioTimeUI();
+
+        if (!song.audio_url) {
+            playAnthem();
+            return;
+        }
+
+        // Read the exact downloaded response from Cache Storage and play its local Blob.
+        // This avoids relying on WebView/service-worker interception for audio requests.
+        let playbackUrl = song.audio_url;
+        try {
+            if ('caches' in window) {
+                const cache = await caches.open(ANTHEM_CACHE_NAME);
+                const cachedResponse = await cache.match(song.audio_url);
+                if (cachedResponse) {
+                    const audioBlob = await cachedResponse.blob();
+                    if (audioBlob.size > 0) {
+                        clubAudioObjectUrl = URL.createObjectURL(audioBlob);
+                        playbackUrl = clubAudioObjectUrl;
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('Unable to read downloaded anthem:', error);
+        }
+
+        if (loadToken !== anthemLoadToken) {
+            if (playbackUrl === clubAudioObjectUrl && clubAudioObjectUrl) {
+                URL.revokeObjectURL(clubAudioObjectUrl);
+                clubAudioObjectUrl = null;
+            }
+            return;
+        }
+
+        clubAudioPlayer = new Audio(playbackUrl);
+        clubAudioPlayer.preload = 'auto';
+        clubAudioPlayer.addEventListener('loadedmetadata', () => {
+            const d = clubAudioPlayer?.duration;
+            if (Number.isFinite(d)) document.getElementById('totalTimeDisplay').textContent = Math.floor(d/60)+':' + String(Math.floor(d%60)).padStart(2,'0');
+        });
+        clubAudioPlayer.onended = () => loadAnthem((currentAnthemIdx + 1) % ANTHEMS_DATA.length);
         playAnthem();
     }
     function playAnthem() {

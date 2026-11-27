@@ -258,6 +258,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const coverMarkup = image ? '<button type="button" class="basketball-news-cover" onclick="window.openManagedVolleyballArticle(' + Number(item.id) + ')" aria-label="فتح خبر ' + title + '">' + image + '</button>' : '';
                 return '<article class="basketball-news-card" onclick="window.openManagedVolleyballArticle(' + Number(item.id) + ')">' + coverMarkup + '<div class="basketball-news-card-title">' + title + '</div></article>';
             }
+            if (key === 'handball') {
+                window.__managedHandballItems = window.__managedHandballItems || {};
+                window.__managedHandballItems[String(item.id)] = { id:item.id, title:item.title || '', content:item.content || '', cover:item.image_url || '', images:gallery };
+                const coverMarkup = image ? '<button type="button" class="basketball-news-cover" onclick="window.openManagedHandballArticle(' + Number(item.id) + ')" aria-label="فتح خبر ' + title + '">' + image + '</button>' : '';
+                return '<article class="basketball-news-card" onclick="window.openManagedHandballArticle(' + Number(item.id) + ')">' + coverMarkup + '<div class="basketball-news-card-title">' + title + '</div></article>';
+            }
             if (key === 'basketball') {
                 window.__managedBasketballItems = window.__managedBasketballItems || {};
                 window.__managedBasketballItems[String(item.id)] = { id:item.id, title:item.title || '', content:item.content || '', cover:item.image_url || '', images:gallery };
@@ -298,6 +304,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.openManagedVolleyballArticle = function(id) {
         const item = window.__managedVolleyballItems?.[String(id)];
+        if (!item) return;
+        const body = document.getElementById('articleModalBody');
+        const overlay = document.getElementById('articleModalOverlay');
+        const sheet = document.getElementById('articleModalSheet');
+        if (!body || !overlay || !sheet) return;
+        const title = escapeManagedText(item.title);
+        const cover = item.cover ? '<div class="article-hero"><img src="' + escapeManagedText(item.cover) + '" alt="' + title + '" loading="eager"></div>' : '';
+        const content = escapeManagedText(item.content).replace(/\n/g, '<br>');
+        const gallery = Array.isArray(item.images) ? item.images : [];
+        const galleryMarkup = gallery.length ? '<section class="news-attached-gallery" aria-label="صور الخبر"><h4><i class="fas fa-images"></i> صور الخبر</h4><div class="news-attached-gallery-grid">' + gallery.map((url,index) => '<button type="button" class="news-attached-gallery-item" data-gallery-image="' + index + '" aria-label="عرض الصورة ' + (index + 1) + '"><img src="' + escapeManagedText(url) + '" alt="' + title + ' - صورة ' + (index + 1) + '" loading="lazy"></button>').join('') + '</div></section>' : '';
+        body.innerHTML = '<article class="article-detail">' + cover + '<h3 class="article-title">' + title + '</h3><div class="article-body">' + content + '</div>' + galleryMarkup + '<div class="article-footer"><span class="article-source">المركز الإعلامي لنادي شعب حضرموت</span></div></article>';
+        body.scrollTop = 0;
+        sheet.scrollTop = 0;
+        if (!overlay.classList.contains('active')) history.pushState({ ...(history.state || {}), appPage: currentAppPage, newsArticle: true }, '', location.href);
+        window.__activeNewsArticle = { id:item.id, title:item.title, images:gallery };
+        overlay.classList.add('active');
+        sheet.classList.add('open');
+        requestAnimationFrame(() => { body.scrollTop = 0; sheet.scrollTop = 0; });
+    };
+
+    window.openManagedHandballArticle = function(id) {
+        const item = window.__managedHandballItems?.[String(id)];
         if (!item) return;
         const body = document.getElementById('articleModalBody');
         const overlay = document.getElementById('articleModalOverlay');

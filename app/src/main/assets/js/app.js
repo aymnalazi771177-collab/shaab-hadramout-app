@@ -2653,7 +2653,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const custom = String(new FormData(form).get('customCountryCode') || '').replace(/[^+0-9]/g, '');
         const code = selected === 'other' ? (custom.startsWith('+') ? custom : '+' + custom) : selected;
         if (!/^\+[1-9][0-9]{0,3}$/.test(code)) return { error: 'اختر مفتاح الدولة الصحيح.' };
-        const national = raw.replace(/^0+/, '');
+        let entered = raw;
+        if (entered.startsWith(code)) entered = entered.slice(code.length);
+        else if (entered.startsWith(code.slice(1))) entered = entered.slice(code.length - 1);
+        const national = entered.replace(/^0+/, '');
         if (!/^[0-9]{6,12}$/.test(national)) return { error: 'أدخل رقم الجوال بدون مفتاح الدولة.' };
         if (/^(.)\1+$/.test(national) || /^(0123456789|1234567890|9876543210|0987654321)$/.test(national)) return { error: 'هذا الرقم يبدو وهمياً، أدخل رقم جوال صحيحاً.' };
         if (code === '+967' && !/^7[0-9]{8}$/.test(national)) return { error: 'رقم اليمن يجب أن يبدأ بـ 7 ويتكون من 9 أرقام.' };
@@ -2691,7 +2694,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <label>الاسم الثلاثي</label><div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="الاسم الأول والثاني والثالث" maxlength="80" value="${fanEscape(user.name || '')}" required></div>
                             <label>رقم الهاتف</label><div class="fan-phone-country-row">
                                 <select name="countryCode" aria-label="مفتاح الدولة" class="fan-country-code">
-                                    <option value="+967" selected>اليمن +967</option><option value="+966">السعودية +966</option><option value="+971">الإمارات +971</option><option value="+968">عُمان +968</option><option value="+974">قطر +974</option><option value="+965">الكويت +965</option><option value="+973">البحرين +973</option><option value="+962">الأردن +962</option><option value="+964">العراق +964</option><option value="+20">مصر +20</option><option value="+249">السودان +249</option><option value="+252">الصومال +252</option><option value="+966">السعودية +966</option><option value="+212">المغرب +212</option><option value="+216">تونس +216</option><option value="+213">الجزائر +213</option><option value="+218">ليبيا +218</option><option value="+90">تركيا +90</option><option value="+91">الهند +91</option><option value="+92">باكستان +92</option><option value="+44">بريطانيا +44</option><option value="+1">أمريكا/كندا +1</option><option value="other">دولة أخرى…</option>
+                                    <option value="+967" selected>اليمن +967</option><option value="+971">الإمارات +971</option><option value="+968">عُمان +968</option><option value="+974">قطر +974</option><option value="+965">الكويت +965</option><option value="+973">البحرين +973</option><option value="+962">الأردن +962</option><option value="+964">العراق +964</option><option value="+20">مصر +20</option><option value="+249">السودان +249</option><option value="+252">الصومال +252</option><option value="+966">السعودية +966</option><option value="+212">المغرب +212</option><option value="+216">تونس +216</option><option value="+213">الجزائر +213</option><option value="+218">ليبيا +218</option><option value="+90">تركيا +90</option><option value="+91">الهند +91</option><option value="+92">باكستان +92</option><option value="+44">بريطانيا +44</option><option value="+1">أمريكا/كندا +1</option><option value="other">دولة أخرى…</option>
                                 </select>
                                 <input name="customCountryCode" type="tel" inputmode="tel" placeholder="مفتاح الدولة" aria-label="مفتاح دولة آخر" hidden>
                                 <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="أدخل رقم الجوال" required>

@@ -2920,7 +2920,9 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             const data = new FormData(form);
             const action = form.getAttribute('data-fan-form');
-            const phoneResult = buildFanPhone(form);\n            if (phoneResult.error) return fanShowMessage(phoneResult.error);\n            const phone = phoneResult.phone;
+            const phoneResult = buildFanPhone(form);
+            if (phoneResult.error) return fanShowMessage(phoneResult.error);
+            const phone = phoneResult.phone;
             const password = String(data.get('password') || '');
             if (action === 'register') {
                 const name = String(data.get('name') || '').trim();

@@ -2685,100 +2685,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fanCurrentUser) {
             const user = fanCurrentUser;
             if (!user.phone) {
-                fanAuthRoot.innerHTML = `
-                    <div class="fan-welcome-banner"><div class="fan-banner-pattern"></div><div class="fan-crest"><img src="images/logo.png" alt="شعار النادي"></div><span class="fan-eyebrow">خطوة أخيرة</span><h3>أكمل عضويتك</h3><p>أدخل اسمك الثلاثي ورقم هاتفك للانضمام إلى توقعات وجوائز جمهور النادي</p></div>
-                    <div class="fan-auth-card">
-                        <div class="fan-auth-heading"><h3>بيانات عضو الجمهور</h3><p>رقم الهاتف خاص بعضويتك ولا يمكن استخدامه في حساب آخر</p></div>
-                        <div class="fan-form-message" hidden></div>
-                        <form class="fan-auth-form" data-fan-form="profile" novalidate>
-                            <label>الاسم الثلاثي</label><div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="الاسم الأول والثاني والثالث" maxlength="80" value="${fanEscape(user.name || '')}" required></div>
-                            <label>رقم الهاتف</label><div class="fan-phone-country-row">
-                                <select name="countryCode" aria-label="مفتاح الدولة" class="fan-country-code">
-                                    <option value="+967" selected>اليمن +967</option><option value="+971">الإمارات +971</option><option value="+968">عُمان +968</option><option value="+974">قطر +974</option><option value="+965">الكويت +965</option><option value="+973">البحرين +973</option><option value="+962">الأردن +962</option><option value="+964">العراق +964</option><option value="+20">مصر +20</option><option value="+249">السودان +249</option><option value="+252">الصومال +252</option><option value="+966">السعودية +966</option><option value="+212">المغرب +212</option><option value="+216">تونس +216</option><option value="+213">الجزائر +213</option><option value="+218">ليبيا +218</option><option value="+90">تركيا +90</option><option value="+91">الهند +91</option><option value="+92">باكستان +92</option><option value="+44">بريطانيا +44</option><option value="+1">أمريكا/كندا +1</option><option value="other">دولة أخرى…</option>
-                                </select>
-                                <input name="customCountryCode" type="tel" inputmode="tel" placeholder="مفتاح الدولة" aria-label="مفتاح دولة آخر" hidden>
-                                <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="أدخل رقم الجوال" required>
-                            </div>
-                            <button class="fan-submit-btn" type="submit"><span>حفظ بيانات العضوية</span><i class="fas fa-arrow-left"></i></button>
-                        </form>
-                        <p class="fan-privacy-note"><i class="fas fa-lock"></i> لا يظهر رقم هاتفك في لوحة صدارة المشجعين.</p>
-                    </div>`;
+                fanAuthRoot.innerHTML = `<div class="fan-welcome-banner"><div class="fan-banner-pattern"></div><div class="fan-crest"><img src="images/logo.png" alt="شعار النادي"></div><span class="fan-eyebrow">خطوة أخيرة</span><h3>أكمل عضويتك</h3><p>أدخل اسمك الثلاثي ورقم هاتفك للانضمام إلى جمهور النادي</p></div><div class="fan-auth-card"><div class="fan-auth-heading"><h3>بيانات عضو الجمهور</h3><p>بريدك الإلكتروني المستلم من Google محفوظ في حسابك</p></div><div class="fan-form-message" hidden></div><form class="fan-auth-form" data-fan-form="profile" novalidate><label>الاسم الثلاثي</label><div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="الاسم الأول والثاني والثالث" maxlength="80" value="${fanEscape(user.name || '')}" required></div><label>رقم الهاتف</label><div class="fan-phone-country-row"><select name="countryCode" aria-label="مفتاح الدولة" class="fan-country-code"><option value="+967" selected>اليمن +967</option><option value="+971">الإمارات +971</option><option value="+968">عُمان +968</option><option value="+974">قطر +974</option><option value="+965">الكويت +965</option><option value="+973">البحرين +973</option><option value="+962">الأردن +962</option><option value="+964">العراق +964</option><option value="+20">مصر +20</option><option value="+249">السودان +249</option><option value="+252">الصومال +252</option><option value="+966">السعودية +966</option><option value="+212">المغرب +212</option><option value="+216">تونس +216</option><option value="+213">الجزائر +213</option><option value="+218">ليبيا +218</option><option value="+90">تركيا +90</option><option value="+91">الهند +91</option><option value="+92">باكستان +92</option><option value="+44">بريطانيا +44</option><option value="+1">أمريكا/كندا +1</option><option value="other">دولة أخرى…</option></select><input name="customCountryCode" type="tel" inputmode="tel" placeholder="مفتاح الدولة" aria-label="مفتاح دولة آخر" hidden><input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="أدخل رقم الجوال" required></div><button class="fan-submit-btn" type="submit"><span>حفظ بيانات العضوية</span><i class="fas fa-arrow-left"></i></button></form><p class="fan-privacy-note"><i class="fas fa-lock"></i> لا يظهر رقم هاتفك في لوحة صدارة المشجعين.</p></div>`;
                 return;
             }
-            fanAuthRoot.innerHTML = `
-                <div class="fan-welcome-banner">
-                    <div class="fan-banner-pattern"></div>
-                    <div class="fan-crest"><img src="images/logo.png" alt="شعار نادي شعب حضرموت"></div>
-                    <span class="fan-eyebrow">أهلاً بك بين أهلك</span>
-                    <h3>جمهور نادي الشعب</h3>
-                    <p>أنت جزء من مدرج النوارس ❤️</p>
-                </div>
-                <div class="fan-account-card">
-                    <div class="fan-account-avatar"><i class="fas fa-user"></i></div>
-                    <div class="fan-account-info">
-                        <span class="fan-account-label">حساب المشجع</span>
-                        <h3>${fanEscape(user.name)}</h3>
-                        <p>${fanEscape(user.phone || user.email || 'عضو جمهور شعباوي')}</p>
-                        <small>رقم العضوية #${fanEscape(user.id)}</small>
-                    </div>
-                    <span class="fan-verified"><i class="fas fa-check"></i></span>
-                </div>
-                <div class="fan-member-note"><i class="fas fa-heart"></i><span>يسعدنا انضمامك إلى جمهور نادي شعب حضرموت. حسابك محفوظ ويمكنك العودة إليه في أي وقت.</span></div>
-                <button type="button" class="fan-logout-btn" data-fan-logout><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</button>
-            `;
+            fanAuthRoot.innerHTML = `<div class="fan-welcome-banner"><div class="fan-banner-pattern"></div><div class="fan-crest"><img src="images/logo.png" alt="شعار نادي شعب حضرموت"></div><span class="fan-eyebrow">أهلاً بك بين أهلك</span><h3>جمهور نادي الشعب</h3><p>أنت جزء من مدرج النوارس ❤️</p></div><div class="fan-account-card"><div class="fan-account-avatar"><i class="fas fa-user"></i></div><div class="fan-account-info"><span class="fan-account-label">حساب المشجع</span><h3>${fanEscape(user.name)}</h3><p>${fanEscape(user.email || user.phone || 'عضو جمهور شعباوي')}</p><small>رقم العضوية #${fanEscape(user.id)}</small></div><span class="fan-verified"><i class="fas fa-check"></i></span></div><div class="fan-member-note"><i class="fas fa-heart"></i><span>يسعدنا انضمامك إلى جمهور نادي شعب حضرموت. حسابك محفوظ ويمكنك العودة إليه في أي وقت.</span></div><button type="button" class="fan-logout-btn" data-fan-logout><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</button>`;
             return;
         }
-
         const isRegister = fanAuthMode === 'register';
-        fanAuthRoot.innerHTML = `
-            <div class="fan-welcome-banner">
-                <div class="fan-banner-pattern"></div>
-                <div class="fan-crest"><img src="images/logo.png" alt="شعار نادي شعب حضرموت"></div>
-                <span class="fan-eyebrow">مدرج واحد.. قلب واحد</span>
-                <h3>جمهور نادي الشعب</h3>
-                <p>انضم إلى عائلة النوارس وكن قريباً من ناديك</p>
-                <div class="fan-banner-pills"><span><i class="fas fa-shield-heart"></i> روح الانتماء</span><span><i class="fas fa-users"></i> عائلة واحدة</span></div>
-            </div>
-            <div class="fan-auth-card">
-                <div class="fan-auth-heading">
-                    <h3>${isRegister ? 'إنشاء حساب مشجع جديد' : 'مرحباً بعودتك'}</h3>
-                    <p>${isRegister ? 'سجل بياناتك وانضم إلى جمهور النوارس' : 'سجل دخولك إلى حساب جمهور نادي الشعب'}</p>
-                </div>
-                <div class="fan-auth-tabs">
-                    <button type="button" data-fan-mode="login" class="${!isRegister ? 'active' : ''}">تسجيل الدخول</button>
-                    <button type="button" data-fan-mode="register" class="${isRegister ? 'active' : ''}">حساب جديد</button>
-                </div>
-                <div class="fan-form-message" hidden></div>
-                <form class="fan-auth-form" data-fan-form="${isRegister ? 'register' : 'login'}" novalidate>
-                    ${isRegister ? `
-                    <label>الاسم الثلاثي</label>
-                    <div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="اكتب اسمك الثلاثي" maxlength="80" required></div>
-                    ` : ''}
-                    <label>رقم الجوال</label>
-                    <div class="fan-phone-country-row">
-                                <select name="countryCode" aria-label="مفتاح الدولة" class="fan-country-code">
-                                    <option value="+967" selected>اليمن +967</option><option value="+966">السعودية +966</option><option value="+971">الإمارات +971</option><option value="+968">عُمان +968</option><option value="+974">قطر +974</option><option value="+965">الكويت +965</option><option value="+973">البحرين +973</option><option value="+962">الأردن +962</option><option value="+964">العراق +964</option><option value="+20">مصر +20</option><option value="+249">السودان +249</option><option value="+252">الصومال +252</option><option value="+966">السعودية +966</option><option value="+212">المغرب +212</option><option value="+216">تونس +216</option><option value="+213">الجزائر +213</option><option value="+218">ليبيا +218</option><option value="+90">تركيا +90</option><option value="+91">الهند +91</option><option value="+92">باكستان +92</option><option value="+44">بريطانيا +44</option><option value="+1">أمريكا/كندا +1</option><option value="other">دولة أخرى…</option>
-                                </select>
-                                <input name="customCountryCode" type="tel" inputmode="tel" placeholder="مفتاح الدولة" aria-label="مفتاح دولة آخر" hidden>
-                                <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="أدخل رقم الجوال" required>
-                            </div>
-                    <label>كلمة المرور</label>
-                    <div class="fan-input-wrap"><i class="fas fa-lock"></i><input name="password" type="password" autocomplete="${isRegister ? 'new-password' : 'current-password'}" placeholder="${isRegister ? '8 أحرف على الأقل' : 'أدخل كلمة المرور'}" minlength="8" required></div>
-                    ${isRegister ? `
-                    <label>تأكيد كلمة المرور</label>
-                    <div class="fan-input-wrap"><i class="fas fa-lock"></i><input name="confirmPassword" type="password" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" minlength="8" required></div>
-                    ` : ''}
-                    <button class="fan-submit-btn" type="submit"><span>${isRegister ? 'إنشاء حسابي' : 'تسجيل الدخول'}</span><i class="fas fa-arrow-left"></i></button>
-                </form>
-                <div class="fan-auth-divider"><span>أو تابع باستخدام</span></div>
-                <div class="fan-google-area"><div id="fanGoogleButton"></div>
-                    ${fanGoogleClientId ? '' : '<button type="button" class="fan-google-disabled" disabled><span class="fan-google-g">G</span> المتابعة باستخدام Google</button><p class="fan-google-note">سيتم تفعيل تسجيل Google بعد ربط حساب النادي بخدمة Google.</p>'}
-                </div>
-                <p class="fan-privacy-note"><i class="fas fa-lock"></i> بياناتك تستخدم لإنشاء حساب جمهور آمن، ولا تظهر للزوار الآخرين.</p>
-            </div>
-        `;
-        if (fanGoogleClientId) renderFanGoogleButton();
+        const isForgot = fanAuthMode === 'forgot';
+        const isLink = fanAuthMode === 'link';
+        if (isForgot) {
+            fanAuthRoot.innerHTML = `<div class="fan-welcome-banner"><div class="fan-banner-pattern"></div><div class="fan-crest"><img src="images/logo.png" alt="شعار نادي شعب حضرموت"></div><span class="fan-eyebrow">حسابك محفوظ معنا</span><h3>استعادة كلمة المرور</h3><p>رمز التحقق سيصل إلى بريدك المسجل بعد ربط خدمة بريد النادي</p></div><div class="fan-auth-card"><div class="fan-auth-heading"><h3>نسيت كلمة المرور؟</h3><p>الواجهة جاهزة، لكن الإرسال غير مفعّل حالياً</p></div><div class="fan-recovery-steps"><span class="active">1. البريد الإلكتروني</span><span>2. رمز من 6 أرقام</span><span>3. كلمة مرور جديدة</span></div><label>البريد الإلكتروني المسجل</label><div class="fan-input-wrap"><i class="fas fa-envelope"></i><input type="email" autocomplete="email" placeholder="name@example.com" disabled></div><div class="fan-recovery-notice"><i class="fas fa-info-circle"></i><span>سيتم تفعيل إرسال رمز التحقق بعد شراء نطاق النادي وربط خدمة البريد. لن يتم إرسال رمز وهمي أو إظهار رسالة إرسال قبل تفعيل الخدمة.</span></div><button type="button" class="fan-submit-btn" disabled><span>سيتم التفعيل لاحقاً</span><i class="fas fa-lock"></i></button><button type="button" class="fan-text-link" data-fan-mode="login">العودة إلى تسجيل الدخول</button></div>`;
+            return;
+        }
+        fanAuthRoot.innerHTML = `<div class="fan-welcome-banner"><div class="fan-banner-pattern"></div><div class="fan-crest"><img src="images/logo.png" alt="شعار نادي شعب حضرموت"></div><span class="fan-eyebrow">مدرج واحد.. قلب واحد</span><h3>جمهور نادي الشعب</h3><p>انضم إلى عائلة النوارس وكن قريباً من ناديك</p><div class="fan-banner-pills"><span><i class="fas fa-shield-heart"></i> روح الانتماء</span><span><i class="fas fa-users"></i> عائلة واحدة</span></div></div><div class="fan-auth-card"><div class="fan-auth-heading"><h3>${isRegister ? 'إنشاء حساب مشجع جديد' : isLink ? 'ربط بريد بحسابك السابق' : 'مرحباً بعودتك'}</h3><p>${isRegister ? 'سجل بياناتك وانضم إلى جمهور النوارس' : isLink ? 'أدخل بيانات حسابك القديم لإضافة بريد دون إنشاء حساب جديد' : 'سجل دخولك إلى حساب جمهور نادي الشعب'}</p></div><div class="fan-auth-tabs"><button type="button" data-fan-mode="login" class="${!isRegister && !isLink ? 'active' : ''}">تسجيل الدخول</button><button type="button" data-fan-mode="register" class="${isRegister ? 'active' : ''}">حساب جديد</button></div><div class="fan-form-message" hidden></div><form class="fan-auth-form" data-fan-form="${isRegister ? 'register' : isLink ? 'link' : 'login'}" novalidate>${isRegister ? '<label>الاسم الثلاثي</label><div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="اكتب اسمك الثلاثي" maxlength="80" required></div>' : ''}<label>البريد الإلكتروني</label><div class="fan-input-wrap"><i class="fas fa-envelope"></i><input name="email" type="email" autocomplete="email" placeholder="name@example.com" maxlength="254" required></div>${isRegister || isLink ? '<label>رقم الهاتف</label><div class="fan-phone-country-row"><select name="countryCode" aria-label="مفتاح الدولة" class="fan-country-code"><option value="+967" selected>اليمن +967</option><option value="+966">السعودية +966</option><option value="+971">الإمارات +971</option><option value="+968">عُمان +968</option><option value="+974">قطر +974</option><option value="+965">الكويت +965</option><option value="+973">البحرين +973</option><option value="+962">الأردن +962</option><option value="+964">العراق +964</option><option value="+20">مصر +20</option><option value="+249">السودان +249</option><option value="+252">الصومال +252</option><option value="+212">المغرب +212</option><option value="+216">تونس +216</option><option value="+213">الجزائر +213</option><option value="+218">ليبيا +218</option><option value="+90">تركيا +90</option><option value="+91">الهند +91</option><option value="+92">باكستان +92</option><option value="+44">بريطانيا +44</option><option value="+1">أمريكا/كندا +1</option><option value="other">دولة أخرى…</option></select><input name="customCountryCode" type="tel" inputmode="tel" placeholder="مفتاح الدولة" aria-label="مفتاح دولة آخر" hidden><input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="أدخل رقم الجوال" required></div>' : ''}${isLink ? '<label>كلمة المرور الحالية للحساب القديم</label><div class="fan-input-wrap"><i class="fas fa-lock"></i><input name="password" type="password" autocomplete="current-password" placeholder="كلمة المرور الحالية" required></div>' : '<label>كلمة المرور</label><div class="fan-input-wrap"><i class="fas fa-lock"></i><input name="password" type="password" autocomplete="' + (isRegister ? 'new-password' : 'current-password') + '" placeholder="' + (isRegister ? '8 أحرف على الأقل' : 'أدخل كلمة المرور') + '" minlength="8" required></div>'}${isRegister ? '<label>تأكيد كلمة المرور</label><div class="fan-input-wrap"><i class="fas fa-lock"></i><input name="confirmPassword" type="password" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" minlength="8" required></div>' : ''}<button class="fan-submit-btn" type="submit"><span>${isRegister ? 'إنشاء حسابي' : isLink ? 'ربط البريد بالحساب' : 'تسجيل الدخول'}</span><i class="fas fa-arrow-left"></i></button></form>${!isRegister && !isLink ? '<button type="button" class="fan-text-link" data-fan-mode="forgot">نسيت كلمة المرور؟</button><button type="button" class="fan-text-link" data-fan-mode="link">لدي حساب سابق وأريد ربط بريدي الإلكتروني</button>' : isLink ? '<p class="fan-privacy-note">يتم التحقق من رقم هاتفك وكلمة مرورك الحالية قبل ربط البريد. لن يُنشأ حساب جديد.</p><button type="button" class="fan-text-link" data-fan-mode="login">العودة لتسجيل الدخول</button>' : ''}<div class="fan-auth-divider"><span>أو تابع باستخدام</span></div><div class="fan-google-area"><div id="fanGoogleButton"></div>${fanGoogleClientId ? '' : '<button type="button" class="fan-google-disabled" disabled><span class="fan-google-g">G</span> المتابعة باستخدام Google</button><p class="fan-google-note">سيتم تفعيل تسجيل Google بعد ربط حساب النادي بخدمة Google.</p>'}</div><p class="fan-privacy-note"><i class="fas fa-lock"></i> بياناتك تستخدم لإنشاء حساب جمهور آمن، ولا تظهر للزوار الآخرين.</p></div>`;
+        if (fanGoogleClientId && !isLink) renderFanGoogleButton();
     }
+
 
     // Cancel only the local, unfinished Google session. The Google account itself
     // and the server-side fan record are left untouched.
@@ -2923,10 +2846,13 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             const data = new FormData(form);
             const action = form.getAttribute('data-fan-form');
-            const phoneResult = buildFanPhone(form);
+            const password = String(data.get('password') || '');
+            const email = String(data.get('email') || '').trim().toLowerCase();
+            const needsPhone = ['register', 'profile', 'link'].includes(action);
+            const phoneResult = needsPhone ? buildFanPhone(form) : { phone: '' };
             if (phoneResult.error) return fanShowMessage(phoneResult.error);
             const phone = phoneResult.phone;
-            const password = String(data.get('password') || '');
+            if (['register', 'login', 'link'].includes(action) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fanShowMessage('أدخل بريداً إلكترونياً صحيحاً.');
             if (action === 'register') {
                 const name = String(data.get('name') || '').trim();
                 const confirmPassword = String(data.get('confirmPassword') || '');
@@ -2934,17 +2860,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (password.length < 8) return fanShowMessage('كلمة المرور يجب ألا تقل عن 8 أحرف.');
                 if (password !== confirmPassword) return fanShowMessage('كلمتا المرور غير متطابقتين.');
             }
+            if (action === 'link' && !password) return fanShowMessage('أدخل كلمة المرور الحالية لحسابك القديم.');
             const submit = form.querySelector('button[type="submit"]');
             if (submit) { submit.disabled = true; submit.classList.add('loading'); }
             try {
-                const result = await fanApi('/api/fans', {
-                    method: 'POST',
-                    body: JSON.stringify(action === 'profile'
-                        ? { action, name: String(data.get('name') || '').trim(), phone }
-                        : action === 'register'
-                            ? { action, name: String(data.get('name') || '').trim(), phone, password }
-                            : { action, phone, password })
-                });
+                const payload = action === 'profile'
+                    ? { action, name: String(data.get('name') || '').trim(), phone }
+                    : action === 'register'
+                        ? { action, name: String(data.get('name') || '').trim(), email, phone, password }
+                        : action === 'link'
+                            ? { action, email, phone, password }
+                            : { action: 'login', email, password };
+                const result = await fanApi('/api/fans', { method: 'POST', body: JSON.stringify(payload) });
                 if (result.token) localStorage.setItem(FAN_TOKEN_KEY, result.token);
                 fanCurrentUser = result.user;
                 renderFanAuth();

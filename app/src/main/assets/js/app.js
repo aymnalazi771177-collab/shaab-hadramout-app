@@ -2648,14 +2648,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function buildFanPhone(form) {
-        const raw = String(new FormData(form).get('phone') || '').replace(/[\\s().-]/g, '');
+        const raw = String(new FormData(form).get('phone') || '').replace(/[\s().-]/g, '');
         const selected = String(new FormData(form).get('countryCode') || '+967');
         const custom = String(new FormData(form).get('customCountryCode') || '').replace(/[^+0-9]/g, '');
         const code = selected === 'other' ? (custom.startsWith('+') ? custom : '+' + custom) : selected;
-        if (!/^\\+[1-9][0-9]{0,3}$/.test(code)) return { error: 'اختر مفتاح الدولة الصحيح.' };
+        if (!/^\+[1-9][0-9]{0,3}$/.test(code)) return { error: 'اختر مفتاح الدولة الصحيح.' };
         const national = raw.replace(/^0+/, '');
         if (!/^[0-9]{6,12}$/.test(national)) return { error: 'أدخل رقم الجوال بدون مفتاح الدولة.' };
-        if (/^(.)\\1+$/.test(national) || /^(0123456789|1234567890|9876543210|0987654321)$/.test(national)) return { error: 'هذا الرقم يبدو وهمياً، أدخل رقم جوال صحيحاً.' };
+        if (/^(.)\1+$/.test(national) || /^(0123456789|1234567890|9876543210|0987654321)$/.test(national)) return { error: 'هذا الرقم يبدو وهمياً، أدخل رقم جوال صحيحاً.' };
         if (code === '+967' && !/^7[0-9]{8}$/.test(national)) return { error: 'رقم اليمن يجب أن يبدأ بـ 7 ويتكون من 9 أرقام.' };
         if (code === '+966' && !/^5[0-9]{8}$/.test(national)) return { error: 'رقم الجوال السعودي يجب أن يبدأ بـ 5 ويتكون من 9 أرقام.' };
         if (code === '+971' && !/^5[0-9]{8}$/.test(national)) return { error: 'رقم الجوال الإماراتي يجب أن يبدأ بـ 5 ويتكون من 9 أرقام.' };
@@ -2665,7 +2665,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return { phone: code + national };
     }
 
-        function fanEscape(value) {
+    function fanEscape(value) {
         return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     }
 

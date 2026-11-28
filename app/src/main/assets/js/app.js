@@ -572,6 +572,11 @@ document.addEventListener('DOMContentLoaded', function() {
             window.__activeNewsArticle = null;
             return;
         }
+        // Back from an unfinished Google profile returns to the fan login/register screen.
+        if (document.getElementById("fansPage")?.classList.contains("active") && cancelIncompleteFanProfile()) {
+            try { history.pushState({ appPage: "fansPage" }, "", location.href); } catch (e) {}
+            return;
+        }
         // Android/browser Back from any section returns directly to Home.
         // Do not restore the previously visited section from the hamburger menu history.
         if (currentAppPage !== "homePage") {
@@ -621,6 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Read the actually visible page instead of relying only on cached navigation state.
         const visiblePage = document.querySelector(".app-page.active");
         const activePageId = visiblePage?.id || currentAppPage;
+        if (activePageId === "fansPage" && cancelIncompleteFanProfile()) return true;
         if (activePageId && activePageId !== "homePage") {
             navigateToPage("homePage", true);
             return true;
@@ -661,6 +667,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            if (document.getElementById('fansPage')?.classList.contains('active') && cancelIncompleteFanProfile()) return;
             navigateToPage('homePage');
         });
     });
@@ -2738,6 +2745,17 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         if (fanGoogleClientId) renderFanGoogleButton();
+    }
+
+    // Cancel only the local, unfinished Google session. The Google account itself
+    // and the server-side fan record are left untouched.
+    function cancelIncompleteFanProfile() {
+        if (!fanCurrentUser || fanCurrentUser.phone) return false;
+        localStorage.removeItem(FAN_TOKEN_KEY);
+        fanCurrentUser = null;
+        fanAuthMode = 'login';
+        renderFanAuth();
+        return true;
     }
 
     async function renderFansPage() {

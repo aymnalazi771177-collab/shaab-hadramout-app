@@ -2893,12 +2893,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (fanAuthRoot) {
-        fanAuthRoot.addEventListener('click', async event => {
+        fanAuthRoot.addEventListener('change', event => {
             const countrySelect = event.target.closest('select[name="countryCode"]');
-            if (countrySelect) {
-                const custom = countrySelect.form?.querySelector('input[name="customCountryCode"]');
-                if (custom) { custom.hidden = countrySelect.value !== 'other'; custom.required = countrySelect.value === 'other'; }
-            }
+            if (!countrySelect) return;
+            const custom = countrySelect.form?.querySelector('input[name="customCountryCode"]');
+            if (custom) { custom.hidden = countrySelect.value !== 'other'; custom.required = countrySelect.value === 'other'; }
+        });
+        fanAuthRoot.addEventListener('click', async event => {
             const modeButton = event.target.closest('[data-fan-mode]');
             if (modeButton) {
                 fanAuthMode = modeButton.getAttribute('data-fan-mode');

@@ -2514,3 +2514,6 @@ body.dark-mode .fan-prediction-gate-choice{background:rgba(219,30,36,.1);border-
 .fan-recovery-notice{display:flex;gap:9px;align-items:flex-start;margin:13px 0;padding:12px;border:1px solid rgba(219,30,36,.18);border-radius:12px;background:rgba(219,30,36,.055);color:var(--text-muted);font-size:10px;line-height:1.9}
 .fan-recovery-notice i{flex:0 0 auto;margin-top:3px;color:var(--primary-red);font-size:15px}
 .fan-submit-btn:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.15)}
+
+/* Password setup for members completing Google sign-in */
+.fan-auth-form input[name="password"],.fan-auth-form input[name="confirmPassword"]{direction:ltr;text-align:left}

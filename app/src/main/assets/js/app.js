@@ -57,27 +57,100 @@ document.addEventListener('DOMContentLoaded', function() {
     // Warm images from every already-rendered app section during the logo intro.
     // Limit concurrency and total count to avoid overwhelming mobile connections.
     async function preloadAppImages() {
-        const urls = Array.from(document.querySelectorAll('.app-page img[src], #storiesScrollContainer img[src], #sliderWrapper img[src]'))
-            .map(img => {
-                img.loading = 'eager';
-                img.decoding = 'async';
-                return img.currentSrc || img.src;
-            })
-            .filter((url, index, all) => url && !/^(data:|blob:)/i.test(url) && all.indexOf(url) === index)
-            .slice(0, 80);
+        const urls = new Set();
+        const addImageUrl = value => {
+            const raw = String(value || '').trim();
+            if (!raw || /^(data:|blob:|javascript:)/i.test(raw)) return;
+            let resolved = raw;
+            try {
+                if (!/^https?:\/\//i.test(raw)) {
+                    resolved = raw.startsWith('images/')
+                        ? new URL(raw, location.href).href
+                        : resolveClubMediaUrl(raw);
+                }
+                const parsed = new URL(resolved, location.href);
+                if (parsed.protocol === 'https:' || parsed.protocol === 'http:') urls.add(parsed.href);
+            } catch (_) {}
+        };
+
+        // Include every image already rendered, even inside sections the visitor has not opened.
+        document.querySelectorAll('.app-page img[src], #storiesScrollContainer img[src], #sliderWrapper img[src], video[poster]').forEach(element => {
+            const value = element.tagName === 'VIDEO' ? element.poster : (element.currentSrc || element.src);
+            if (element.tagName === 'IMG') {
+                element.loading = 'eager';
+                element.decoding = 'async';
+            }
+            addImageUrl(value);
+        });
+
+        // Also collect image URLs directly from every saved CMS snapshot, including hidden galleries.
+        const imageField = /(image|thumbnail|thumb|cover|poster|avatar|logo|photo)/i;
+        const imageUrlField = /^(url|src|href|path|media_url)$/i;
+        const imageExtension = /\.(avif|bmp|gif|jpe?g|png|svg|webp)(?:[?#]|$)/i;
+        const scanSnapshot = (value, key = '', forceImage = false, mediaType = '') => {
+            if (typeof value === 'string') {
+                if (imageField.test(key) ||
+                    (mediaType === 'image' && imageUrlField.test(key)) ||
+                    (forceImage && (imageUrlField.test(key) || imageExtension.test(value))) ||
+                    imageExtension.test(value)) addImageUrl(value);
+                return;
+            }
+            if (Array.isArray(value)) {
+                value.forEach(item => scanSnapshot(item, key, forceImage || /^(images|gallery|photos|albums)$/i.test(key), mediaType));
+                return;
+            }
+            if (!value || typeof value !== 'object') return;
+            const currentType = String(value.media_type || value.type || mediaType || '').toLowerCase();
+            Object.entries(value).forEach(([childKey, childValue]) => {
+                scanSnapshot(childValue, childKey, forceImage || /^(images|gallery|photos|albums)$/i.test(childKey), currentType);
+            });
+        };
+        try {
+            for (let index = 0; index < localStorage.length; index++) {
+                const key = localStorage.key(index);
+                if (!key || !key.startsWith('shaab_club_content_v2:')) continue;
+                try { scanSnapshot(JSON.parse(localStorage.getItem(key) || 'null')); } catch (_) {}
+            }
+        } catch (_) {}
+
+        const imageUrls = Array.from(urls);
+        if (!imageUrls.length) return;
+
+        // Wait briefly for the service worker to control this page so each image is saved offline.
+        if ('serviceWorker' in navigator) {
+            try {
+                await Promise.race([
+                    navigator.serviceWorker.ready.then(() => {
+                        if (navigator.serviceWorker.controller) return;
+                        return new Promise(resolve => navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }));
+                    }),
+                    new Promise(resolve => setTimeout(resolve, 5000))
+                ]);
+            } catch (_) {}
+        }
+
         let next = 0;
-        const workers = Array.from({ length: 4 }, async () => {
-            while (next < urls.length) {
-                const url = urls[next++];
+        const workers = Array.from({ length: Math.min(4, imageUrls.length) }, async () => {
+            while (next < imageUrls.length) {
+                const url = imageUrls[next++];
                 await new Promise(resolve => {
+                    let finished = false;
+                    const finish = () => {
+                        if (finished) return;
+                        finished = true;
+                        clearTimeout(timeout);
+                        resolve();
+                    };
+                    const timeout = setTimeout(finish, 15000);
                     const image = new Image();
-                    image.onload = image.onerror = () => resolve();
+                    image.onload = image.onerror = finish;
                     image.src = url;
-                    if (image.complete) resolve();
+                    if (image.complete) finish();
                 });
             }
         });
         await Promise.allSettled(workers);
+        console.info('Offline image preparation completed:', imageUrls.length);
     }
 
     // ============================================

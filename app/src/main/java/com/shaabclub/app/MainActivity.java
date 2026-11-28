@@ -15,6 +15,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.webkit.WebViewAssetLoader;
+import androidx.webkit.ServiceWorkerClientCompat;
+import androidx.webkit.ServiceWorkerControllerCompat;
+import androidx.webkit.WebViewFeature;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
@@ -53,6 +56,19 @@ public class MainActivity extends Activity {
             .setDomain("shaab-hadramout.pages.dev")
             .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
             .build();
+        // Route service-worker asset requests through the same local APK asset loader.
+        // This keeps offline caching reliable inside Android WebView, not only in Chrome.
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_BASIC_USAGE)) {
+            ServiceWorkerControllerCompat.getInstance().setServiceWorkerClient(
+                new ServiceWorkerClientCompat() {
+                    @Override
+                    public android.webkit.WebResourceResponse shouldInterceptRequest(
+                        android.webkit.WebResourceRequest request) {
+                        return assetLoader.shouldInterceptRequest(request.getUrl());
+                    }
+                }
+            );
+        }
         webView.setBackgroundColor(Color.rgb(181, 18, 27));
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);

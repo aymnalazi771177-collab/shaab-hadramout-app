@@ -2647,7 +2647,25 @@ document.addEventListener('DOMContentLoaded', function() {
         return payload;
     }
 
-    function fanEscape(value) {
+    function buildFanPhone(form) {
+        const raw = String(new FormData(form).get('phone') || '').replace(/[\\s().-]/g, '');
+        const selected = String(new FormData(form).get('countryCode') || '+967');
+        const custom = String(new FormData(form).get('customCountryCode') || '').replace(/[^+0-9]/g, '');
+        const code = selected === 'other' ? (custom.startsWith('+') ? custom : '+' + custom) : selected;
+        if (!/^\\+[1-9][0-9]{0,3}$/.test(code)) return { error: 'اختر مفتاح الدولة الصحيح.' };
+        const national = raw.replace(/^0+/, '');
+        if (!/^[0-9]{6,12}$/.test(national)) return { error: 'أدخل رقم الجوال بدون مفتاح الدولة.' };
+        if (/^(.)\\1+$/.test(national) || /^(0123456789|1234567890|9876543210|0987654321)$/.test(national)) return { error: 'هذا الرقم يبدو وهمياً، أدخل رقم جوال صحيحاً.' };
+        if (code === '+967' && !/^7[0-9]{8}$/.test(national)) return { error: 'رقم اليمن يجب أن يبدأ بـ 7 ويتكون من 9 أرقام.' };
+        if (code === '+966' && !/^5[0-9]{8}$/.test(national)) return { error: 'رقم الجوال السعودي يجب أن يبدأ بـ 5 ويتكون من 9 أرقام.' };
+        if (code === '+971' && !/^5[0-9]{8}$/.test(national)) return { error: 'رقم الجوال الإماراتي يجب أن يبدأ بـ 5 ويتكون من 9 أرقام.' };
+        if (code === '+20' && !/^1[0-9]{9}$/.test(national)) return { error: 'رقم الجوال المصري غير مكتمل.' };
+        if (code === '+91' && !/^[6-9][0-9]{9}$/.test(national)) return { error: 'رقم الجوال الهندي غير صحيح.' };
+        if (code === '+1' && !/^[2-9][0-9]{2}[2-9][0-9]{6}$/.test(national)) return { error: 'رقم الجوال غير صحيح.' };
+        return { phone: code + national };
+    }
+
+        function fanEscape(value) {
         return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     }
 
@@ -2671,7 +2689,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="fan-form-message" hidden></div>
                         <form class="fan-auth-form" data-fan-form="profile" novalidate>
                             <label>الاسم الثلاثي</label><div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="الاسم الأول والثاني والثالث" maxlength="80" value="${fanEscape(user.name || '')}" required></div>
-                            <label>رقم الهاتف</label><div class="fan-input-wrap"><i class="fas fa-mobile-screen"></i><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="مثال: 9677XXXXXXXX" required></div>
+                            <label>رقم الهاتف</label><div class="fan-phone-country-row">
+                                <select name="countryCode" aria-label="مفتاح الدولة" class="fan-country-code">
+                                    <option value="+967" selected>اليمن +967</option><option value="+966">السعودية +966</option><option value="+971">الإمارات +971</option><option value="+968">عُمان +968</option><option value="+974">قطر +974</option><option value="+965">الكويت +965</option><option value="+973">البحرين +973</option><option value="+962">الأردن +962</option><option value="+964">العراق +964</option><option value="+20">مصر +20</option><option value="+249">السودان +249</option><option value="+252">الصومال +252</option><option value="+966">السعودية +966</option><option value="+212">المغرب +212</option><option value="+216">تونس +216</option><option value="+213">الجزائر +213</option><option value="+218">ليبيا +218</option><option value="+90">تركيا +90</option><option value="+91">الهند +91</option><option value="+92">باكستان +92</option><option value="+44">بريطانيا +44</option><option value="+1">أمريكا/كندا +1</option><option value="other">دولة أخرى…</option>
+                                </select>
+                                <input name="customCountryCode" type="tel" inputmode="tel" placeholder="مفتاح الدولة" aria-label="مفتاح دولة آخر" hidden>
+                                <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="أدخل رقم الجوال" required>
+                            </div>
                             <button class="fan-submit-btn" type="submit"><span>حفظ بيانات العضوية</span><i class="fas fa-arrow-left"></i></button>
                         </form>
                         <p class="fan-privacy-note"><i class="fas fa-lock"></i> لا يظهر رقم هاتفك في لوحة صدارة المشجعين.</p>
@@ -2728,7 +2752,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="fan-input-wrap"><i class="fas fa-user"></i><input name="name" type="text" autocomplete="name" placeholder="اكتب اسمك الثلاثي" maxlength="80" required></div>
                     ` : ''}
                     <label>رقم الجوال</label>
-                    <div class="fan-input-wrap"><i class="fas fa-mobile-screen"></i><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="مثال: 9677XXXXXXXX" required></div>
+                    <div class="fan-phone-country-row">
+                                <select name="countryCode" aria-label="مفتاح الدولة" class="fan-country-code">
+                                    <option value="+967" selected>اليمن +967</option><option value="+966">السعودية +966</option><option value="+971">الإمارات +971</option><option value="+968">عُمان +968</option><option value="+974">قطر +974</option><option value="+965">الكويت +965</option><option value="+973">البحرين +973</option><option value="+962">الأردن +962</option><option value="+964">العراق +964</option><option value="+20">مصر +20</option><option value="+249">السودان +249</option><option value="+252">الصومال +252</option><option value="+966">السعودية +966</option><option value="+212">المغرب +212</option><option value="+216">تونس +216</option><option value="+213">الجزائر +213</option><option value="+218">ليبيا +218</option><option value="+90">تركيا +90</option><option value="+91">الهند +91</option><option value="+92">باكستان +92</option><option value="+44">بريطانيا +44</option><option value="+1">أمريكا/كندا +1</option><option value="other">دولة أخرى…</option>
+                                </select>
+                                <input name="customCountryCode" type="tel" inputmode="tel" placeholder="مفتاح الدولة" aria-label="مفتاح دولة آخر" hidden>
+                                <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="أدخل رقم الجوال" required>
+                            </div>
                     <label>كلمة المرور</label>
                     <div class="fan-input-wrap"><i class="fas fa-lock"></i><input name="password" type="password" autocomplete="${isRegister ? 'new-password' : 'current-password'}" placeholder="${isRegister ? '8 أحرف على الأقل' : 'أدخل كلمة المرور'}" minlength="8" required></div>
                     ${isRegister ? `
@@ -2864,6 +2894,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (fanAuthRoot) {
         fanAuthRoot.addEventListener('click', async event => {
+            const countrySelect = event.target.closest('select[name="countryCode"]');
+            if (countrySelect) {
+                const custom = countrySelect.form?.querySelector('input[name="customCountryCode"]');
+                if (custom) { custom.hidden = countrySelect.value !== 'other'; custom.required = countrySelect.value === 'other'; }
+            }
             const modeButton = event.target.closest('[data-fan-mode]');
             if (modeButton) {
                 fanAuthMode = modeButton.getAttribute('data-fan-mode');
@@ -2884,7 +2919,7 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             const data = new FormData(form);
             const action = form.getAttribute('data-fan-form');
-            const phone = String(data.get('phone') || '').trim();
+            const phoneResult = buildFanPhone(form);\n            if (phoneResult.error) return fanShowMessage(phoneResult.error);\n            const phone = phoneResult.phone;
             const password = String(data.get('password') || '');
             if (action === 'register') {
                 const name = String(data.get('name') || '').trim();

@@ -18,7 +18,7 @@ self.addEventListener('notificationclick', event => {
     if (self.clients.openWindow) await self.clients.openWindow(target);
   })());
 });
-const CACHE_NAME = 'shaab-hadramout-v20';
+const CACHE_NAME = 'shaab-hadramout-v21';
 const MEDIA_CACHE = 'shaab-hadramout-media-v1';
 const ASSETS = [
   'index.html',
@@ -59,6 +59,25 @@ self.addEventListener('fetch', (event) => {
       const cached = await cache.match(request);
       if (cached) return cached;
       return (await refreshMedia) || new Response('', { status: 503, statusText: 'Offline media unavailable' });
+    })());
+    return;
+  }
+
+  // Cache external stylesheets and font files (Font Awesome + Google Fonts)
+  // so the app keeps its icons and typography when launched offline.
+  if (request.destination === 'style' || request.destination === 'font') {
+    const refreshExternalAsset = caches.open(CACHE_NAME).then((cache) =>
+      fetch(request).then((response) => {
+        if (response && (response.ok || response.type === 'opaque')) cache.put(request, response.clone()).catch(() => {});
+        return response;
+      }).catch(() => null)
+    );
+    event.waitUntil(refreshExternalAsset.then(() => undefined));
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(request);
+      if (cached) return cached;
+      return (await refreshExternalAsset) || new Response('', { status: 503, statusText: 'Offline style/font unavailable' });
     })());
     return;
   }
